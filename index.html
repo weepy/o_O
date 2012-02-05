@@ -4,7 +4,7 @@
 </body>
 
 
-<script src='lib/oO.js'></script>
+<script src='lib/o_O.js'></script>
 <script src='lib/jQuery.js'></script>
 
 <div id='person'>
@@ -16,7 +16,7 @@
   
   <input bind='val: age()'></input>
   
-  <input bind='val: surname(); css: {color: color()}; change: oO.form(surname)'></input>
+  <input bind='val: surname(); css: {color: color()}; change: o_O.form(surname)'></input>
   
   <p bind='css: {color: color()}'>HELLO</p>
   
@@ -33,15 +33,15 @@
 
 
 function Person(name, surname, age) {
-  this.name = oO.observer(name)
-  this.surname = oO.observer(surname)
-  this.age = oO.observer(age)
+  this.name = o_O.observer(name)
+  this.surname = o_O.observer(surname)
+  this.age = o_O.observer(age)
   
   var self = this
-  this.fullName = oO.computed(function() {
+  this.fullName = o_O.computed(function() {
     return self.name() + " " + self.surname()
   })
-  this.color = oO.observer('red')
+  this.color = o_O.observer('red')
   
 }
 
@@ -60,6 +60,6 @@ setInterval(function() {
 
 var o = new Person('john','smith', 10)
 
-oO.bind('#person', o)
+o_O.bind('#person', o)
 
 </script>
