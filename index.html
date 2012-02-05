@@ -1,0 +1,65 @@
+
+<body>
+<h1>o_O: funnyface.js</h1>
+</body>
+
+
+<script src='lib/oO.js'></script>
+<script src='lib/jQuery.js'></script>
+
+<div id='person'>
+  <h1>Person</h1>
+  <p bind='text: name()'></p> 
+  <p bind='text: surname()'></p>
+  <p bind='text: fullName()'></p>
+  <p bind='text: "fullName length: " + fullName().length'></p>
+  
+  <input bind='val: age()'></input>
+  
+  <input bind='val: surname(); css: {color: color()}; change: oO.form(surname)'></input>
+  
+  <p bind='css: {color: color()}'>HELLO</p>
+  
+  <button bind='click: handleClick'>ok</button>
+  
+</div>
+
+
+
+
+  
+  
+<script>
+
+
+function Person(name, surname, age) {
+  this.name = oO.observer(name)
+  this.surname = oO.observer(surname)
+  this.age = oO.observer(age)
+  
+  var self = this
+  this.fullName = oO.computed(function() {
+    return self.name() + " " + self.surname()
+  })
+  this.color = oO.observer('red')
+  
+}
+
+Person.prototype.handleClick = function() {
+  alert("yay!")
+}
+
+setInterval(function() {
+  o.age(o.age()+1)
+}, 1000)
+
+setInterval(function() {
+  o.name(Math.random() * 100)
+}, 1000)
+
+
+var o = new Person('john','smith', 10)
+
+oO.bind('#person', o)
+
+</script>
