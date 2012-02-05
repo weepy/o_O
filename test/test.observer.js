@@ -1,8 +1,5 @@
 var expect = require('expect.js')
-global.eventize = require('../lib/eventize').eventize
-var observer = require('../lib/observer')
-
-
+var observer = require('../lib/o_O').observer
 
 
 describe('simple observer', function() {
