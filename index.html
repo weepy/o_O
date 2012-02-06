@@ -13,21 +13,13 @@
   <p bind='text: surname()'></p>
   <p bind='text: fullName()'></p>
   <p bind='text: "fullName length: " + fullName().length'></p>
-  
   <input bind='val: age()'></input>
-  
-  <input bind='val: surname(); css: {color: color()}; change: o_O.form(surname)'></input>
-  
-  <p bind='css: {color: color()}'>HELLO</p>
-  
+  <input bind='val: surname(); css: {color: color()}; change: o_O.val(surname)'></input>
+  <p bind='css: {color: color()}'>HELLO</p>  
   <button bind='click: handleClick'>ok</button>
   
 </div>
 
-
-
-
-  
   
 <script>
 

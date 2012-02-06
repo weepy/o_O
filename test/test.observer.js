@@ -77,7 +77,6 @@ describe('computed observer', function() {
 	
 	describe('setting', function() {
 		
-		
 		it('sets ok', function() {
 			fullName('Johnny Butcher')
 			expect(firstName()).to.be('Johnny')
@@ -98,18 +97,6 @@ describe('computed observer', function() {
 			expect(deps).to.have.length(2)
 		})
 		
-		// it('are calculable from strings', function() {			
-		// 	function fn() {
-		// 		var f = new Function('obj', ' with(obj) {({top: secondName()}) }')
-		// 		f({
-		// 			secondName: secondName
-		// 		})
-		// 	}
-		// 	
-		// 	expect(observer.dependencies(fn)).to.have.length(1)
-		// 
-		// })
-		
 		it('are calculable for strings', function() {			
 			var o = {
 				secondName: observer("John")
@@ -124,37 +111,6 @@ describe('computed observer', function() {
 		
 	})
 	
-	// describe('dirty', function() {
-	// 	it('is false at the start', function() {
-	// 		expect(fullName.dirty).to.eql(false)
-	// 	})
-	// 	
-	// 	it('is true after a dependency is set', function() {
-	// 		firstName('Sally')
-	// 		expect(fullName.dirty).to.eql(true)
-	// 	})
-	// 	
-	// 	it('is false after a get', function() {
-	// 		firstName('Sally')
-	// 		fullName()
-	// 		expect(fullName.dirty).to.eql(false)
-	// 	})
-	// 	
-	// 	it('only calls the get function once', function () {
-	// 		
-	// 		var called = 0
-	// 		firstName('Sally')
-	// 		firstName.on('get', fn)
-	// 		function fn() {
-	// 			called++
-	// 		}
-	// 		fullName()
-	// 		firstName.off('get', fn)
-	// 		expect(called).to.be(1)
-	// 	})
-	// 	
-	// 	
-	// })
 
 
 })
