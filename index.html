@@ -64,7 +64,6 @@ o_O.bind(o, '#person')
 </div>
 
 <script>
-
 var company = {
   people: o_O.collection([
     new Person('Bobby', 'Reado', 30 ),
@@ -75,9 +74,5 @@ var company = {
 o_O.bind(company, '#persons')
 
 company.people.add( new Person('ZZBobby', 'Reado', 30 ) )
-
-
 company.people.remove(company.people.find(1))
-
-
 </script>
