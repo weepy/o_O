@@ -23,12 +23,12 @@
   
 <script>
 
-var Person = o_O.object({
-  name: 'John', 
-  surname: 'Smith', 
-  age: 20,
-  color: 'red'
-})
+function Person(name, surname, age, color) {
+  this.name    = o_O.property(name)
+  this.surname = o_O.property(surname)
+  this.age     = o_O.property(age)
+  this.color   = o_O.property(color || 'red')
+}
 
 Person.prototype.fullName = function() {
   return this.name() + " " + this.surname()
@@ -47,9 +47,7 @@ setInterval(function() {
 }, 1000)
 
 
-var o = new Person({
-  name: 'Bobby', surname: 'Reade', age: 30
-})
+var o = new Person('Bobby', 'Reade', 30)
 
 o_O.bind('#person', o)
 
@@ -68,11 +66,11 @@ o_O.bind('#person', o)
 <script>
 
 var col = o_O.collection()
-col.add( new Person({ name: 'Bobby', surname: 'Reado', age: 30 }) )
-col.add( new Person({ name: 'Bobby2', surname: 'Readoo', age: 301, color: "green" }) )
+col.add( new Person('Bobby', 'Reado', 30 ) )
+col.add( new Person('Bobby2', 'Readoo', 301, "green") )
 o_O.bind('#persons', col)
 
-col.add( new Person({ name: 'ZZBobby', surname: 'Reado', age: 30 }) )
+col.add( new Person('ZZBobby', 'Reado', 30 ) )
 
 col.remove(col.find(1))
 

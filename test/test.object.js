@@ -1,6 +1,8 @@
 var expect = require('expect.js')
 var o_O = require('../lib/o_O')
 
+require('../lib/object')
+
 describe('create', function() {
 	var Person = o_O.object('Person', {
 	  name: "John"
