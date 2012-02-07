@@ -1,0 +1,29 @@
+var expect = require('expect.js')
+var o_O = require('../lib/o_O')
+
+
+describe('simple property', function() {
+	var firstName
+	
+	beforeEach(function() {
+		firstName = o_O.property('John')
+	})
+	
+	describe('getting', function() {
+		it('gets ok', function() {
+			expect(firstName()).to.be('John')
+		})
+				
+	})
+
+	describe('setting', function() {
+		it('sets ok', function() {
+			var firstName = o_O.property('John')
+			firstName('Bob')
+			expect(firstName()).to.be('Bob')
+		})
+		
+
+	})
+})
+
