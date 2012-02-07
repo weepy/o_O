@@ -49,14 +49,14 @@ setInterval(function() {
 
 var o = new Person('Bobby', 'Reade', 30)
 
-o_O.bind('#person', o)
+o_O.bind(o, '#person')
 
 </script> 
 
 
 <h2>Persons</h2>
 
-<div id='persons' bind='foreach: this'>
+<div id='persons' bind='foreach: people'>
   <p>
     <s bind='text: name(); css: {color: color() }'></s> 
     <s bind='text: surname()'></s>
@@ -65,16 +65,19 @@ o_O.bind('#person', o)
 
 <script>
 
+var company = {
+  people: o_O.collection([
+    new Person('Bobby', 'Reado', 30 ),
+    new Person('Bobby2', 'Readoo', 301, "green"),
+  ]) 
+}
 
-var col = o_O.collection([
-  new Person('Bobby', 'Reado', 30 ),
-  new Person('Bobby2', 'Readoo', 301, "green")
-]).bindTo('#persons')
+o_O.bind(company, '#persons')
 
-col.add( new Person('ZZBobby', 'Reado', 30 ) )
+company.people.add( new Person('ZZBobby', 'Reado', 30 ) )
 
 
-col.remove(col.find(1))
+company.people.remove(company.people.find(1))
 
 
 </script>
