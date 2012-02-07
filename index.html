@@ -65,10 +65,11 @@ o_O.bind('#person', o)
 
 <script>
 
-var col = o_O.collection()
-col.add( new Person('Bobby', 'Reado', 30 ) )
-col.add( new Person('Bobby2', 'Readoo', 301, "green") )
-o_O.bind('#persons', col)
+
+var col = o_O.collection([
+  new Person('Bobby', 'Reado', 30 ),
+  new Person('Bobby2', 'Readoo', 301, "green")
+]).bindTo('#persons')
 
 col.add( new Person('ZZBobby', 'Reado', 30 ) )
 
