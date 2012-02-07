@@ -25,15 +25,15 @@
 
 
 function Person(name, surname, age) {
-  this.name = o_O.observer(name)
-  this.surname = o_O.observer(surname)
-  this.age = o_O.observer(age)
+  this.name = o_O.property(name)
+  this.surname = o_O.property(surname)
+  this.age = o_O.property(age)
   
   var self = this
-  this.fullName = o_O.computed(function() {
+  this.fullName = o_O.property(function() {
     return self.name() + " " + self.surname()
   })
-  this.color = o_O.observer('red')
+  this.color = o_O.property('red')
   
 }
 
