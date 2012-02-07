@@ -7,7 +7,7 @@
 <script src='lib/o_O.js'></script>
 <script src='lib/jQuery.js'></script>
 
-<!-- <div id='person'>
+<div id='person'>
   <h1>Person</h1>
   <p bind='text: name()'></p> 
   <p bind='text: surname()'></p>
@@ -17,8 +17,7 @@
   <input bind='value: surname; css: {color: color()};'></input>
   <p bind='css: {color: color()}'>HELLO</p>  
   <button bind='click: handleClick'>ok</button>
-  
-</div> -->
+</div>
 
 
   
@@ -39,20 +38,20 @@ Person.prototype.handleClick = function() {
   alert("yay!")
 }
 
-// setInterval(function() {
-//   o.age(o.age()+1)
-// }, 1000)
-// 
-// setInterval(function() {
-//   o.name(Math.random() * 100)
-// }, 1000)
+setInterval(function() {
+  o.age(o.age()+1)
+}, 1000)
 
-// 
-// var o = new Person({
-//   name: 'Bobby', surname: 'Reade', age: 30
-// })
+setInterval(function() {
+  o.name(Math.random() * 100)
+}, 1000)
 
-// o_O.bind('#person', o)
+
+var o = new Person({
+  name: 'Bobby', surname: 'Reade', age: 30
+})
+
+o_O.bind('#person', o)
 
 </script> 
 
@@ -72,5 +71,10 @@ var col = o_O.collection()
 col.add( new Person({ name: 'Bobby', surname: 'Reado', age: 30 }) )
 col.add( new Person({ name: 'Bobby2', surname: 'Readoo', age: 301, color: "green" }) )
 o_O.bind('#persons', col)
+
+col.add( new Person({ name: 'ZZBobby', surname: 'Reado', age: 30 }) )
+
+col.remove(col.find(1))
+
 
 </script>
