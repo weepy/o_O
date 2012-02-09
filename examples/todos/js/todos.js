@@ -61,19 +61,24 @@
             self.todos.remove(function(todo) {
                 return todo.done();
             });
-        };
+        }
 
         //count of all completed todos
-        self.completedCount = function () {
+        self.completedCount = o_O.property(function () {
 					return self.todos.filter(function(todo) {
 						return todo.done();
 					}).length
-        }
-
+        })
+        
+        self.todos.on('change:done', function(object, val) {
+          self.completedCount.change()
+          self.remainingCount.change()
+        })
+        
         //count of todos that are not complete
-        self.remainingCount = function () {
+        self.remainingCount = o_O.property(function () {
 					return self.todos.count() - self.completedCount();
-        }
+        })
 
         //writeable computed observable to handle marking all complete/incomplete
         self.allCompleted = o_O.property({

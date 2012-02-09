@@ -115,11 +115,11 @@ o_O.property = function(value) {
   property.incr = function(x) {
 		return property(property() + (x||1))
 	}
-		
+	
 	property.change = function(fn) {
 		fn 
 			? property.on('set', fn)   // listen for a change
-			: property.emit('set')     // trigger a change
+			: property(property())     // trigger a change
 	}
   return property
 }
@@ -322,7 +322,21 @@ fn.add = function(o) {
   this.objects[o._id] = o
 	o.parent = this
   this.emit('add', o)
-	this.emit('set', o)
+  
+  var collection = this
+  
+  // emit change events for children
+  for(var i in o) {
+    var prop = o[i]
+    if(prop.emit && prop.change) {
+      (function(prop, i) {
+        prop.change(function() {
+          collection.emit('change:'+i, o, o[i])
+        })
+      })(prop, i)
+    }
+  }
+  
 	this.count.incr()
 }
 
