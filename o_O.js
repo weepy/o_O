@@ -147,7 +147,6 @@ o_O.deps = function(expr, context) {
 o_O.eventize(o_O.deps)
 
 
-
 /* 
  _    _         _ _           
 | |__(_)_ _  __| (_)_ _  __ _ 
@@ -188,6 +187,9 @@ o_O.bindings = {
     })
 
     property.change() // force a change
+  },
+  visible: function(val, $el) {
+		val ? $el.show() : $el.hide()
   }
 }
 

@@ -7,27 +7,17 @@
 			})
     }
 
-    o_O.bindings.visible = function(val, $el) {
-			val ? $el.show() : $el.hide()
-    };
-
-
-
     //represent a single todo item
     var Todo = function (content, done) {
         this.content = o_O.property(content);
         this.done    = o_O.property(done);
         this.editing = o_O.property(false);
 
-				// 
-				var  self = this
-				//can place methods on prototype, as there can be many todos
+				var self = this
 		    this.edit = o_O.property(function() {  
 					self.editing(true); 
 				})
     };
-
-
 		
     Todo.prototype.stopEditing = function() { this.editing(false); }
 		
@@ -120,21 +110,8 @@
             return count.value === 1 ? "item" : "items";
         };
 
-        // //internal computed observable that fires whenever anything changes in our todos
-        // o_O.property(function() {
-        //     //get a clean copy of the todos, which also creates a dependency on the observableArray and all observables in each item
-        //     var todos = ko.toJS(self.todos);
-        // 
-        //     //store to local storage
-        //     amplify.store("todos-knockout", todos);
-        // }).extend({ throttle: 1000 }); //save at most once per second
+        // TODO: Storage
     };
 
-    // check local storage for todos
-    // var todos = amplify.store("todos-knockout");
-
-		window.view = new ViewModel([])
-		o_O.bind(view, '#todoapp')
-    // bind a new instance of our view model to the page
-    // ko.applyBindings();
+		o_O.bind(new ViewModel([]), '#todoapp')
 })();
