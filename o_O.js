@@ -42,13 +42,6 @@ function o_O() {};
       if( event in this._events === false  )  return;
       this._events[event].splice(this._events[event].indexOf(fct), 1);
     },
-    once: function(event, fct) {
-      var fn = function() {
-        fct.apply(this, arguments)
-        this.off(event, fn)
-      }
-      this.on(event, fn)
-    },
     emit  : function(event /* , args... */){
       this._events = this._events || {};
       if( event in this._events === false  )  return;
@@ -62,7 +55,6 @@ function o_O() {};
     o.on = methods.on
     o.off = methods.off
     o.emit = methods.emit
-    o.once = methods.once
   }
 })()
 
