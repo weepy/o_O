@@ -1,22 +1,35 @@
-FunnyFace.js     
-============
-
 ```
                          ,ad8888ba,            
                         d8"'    `"8b           
                        d8'        `8b     
-  ,adPPYba,            88          88          HTML binding for Lulz 
+  ,adPPYba,            88          88          
  a8"     "8a           88          88     
- 8b       d8           Y8,        ,8P          Tiny, Elegant & flexible html binding
+ 8b       d8           Y8,        ,8P          
  "8a,   ,a8"            Y8a.    .a8P           
-  `"YbbdP"'              `"Y8888Y"'            Provides an easy to bind an object to a section of HTML
+  `"YbbdP"'              `"Y8888Y"'            
 
-            888888888888                       Proxies through jQuery (or whatever $ is)
+            888888888888                       
 
-                                               Built in automatic dependency resolution makes hooking up code a dream
+                                               
 
-                                               (c) 2012 by weepy, MIT Licensed
+                                               
 ```
+
+FunnyFace.js     
+============
+
+HTML binding for Lulz 
+
+Tiny, elegant & flexible html binding
+
+Provides an easy to bind an object to a section of HTML
+
+Proxies through $ (jQuery or ...)
+
+Built in automatic dependency resolution makes hooking up code a dream
+
+(c) 2012 by weepy, MIT Licensed
+
 
 
 Simple Example
@@ -27,7 +40,7 @@ Simple Example
 
 var name = o_O.property('John')
 
-name.bindTo('#person')
+o_O.bind(name, '#person')
 
 // HTML text is now 'John'
 
@@ -37,8 +50,31 @@ name('Bob')
 
 ```
 
+Further Examples
+----------------
+
+See folder examples
+
+Features
+--------
+
+o_O.property
+o_O.bind
+o_O.collection
+
+
+Running Tests
+-------------
+
+either just run
+
+mocha
+
+or open test/mocha.html
+
 Todo
 ----
 
-* Better example
 * Website
+
+* Rebinding a template to a different context ? Necessary?

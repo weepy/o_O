@@ -11,15 +11,24 @@
 			val ? $el.show() : $el.hide()
     };
 
+
+
     //represent a single todo item
     var Todo = function (content, done) {
         this.content = o_O.property(content);
         this.done    = o_O.property(done);
         this.editing = o_O.property(false);
+
+				// 
+				var  self = this
+				//can place methods on prototype, as there can be many todos
+		    this.edit = o_O.property(function() {  
+					self.editing(true); 
+				})
     };
 
-    //can place methods on prototype, as there can be many todos
-    Todo.prototype.edit = function() {  this.editing(true); }
+
+		
     Todo.prototype.stopEditing = function() { this.editing(false); }
 		
 		Todo.prototype.remove = function() {
@@ -56,9 +65,9 @@
 
         //count of all completed todos
         self.completedCount = function () {
-					return self.todos.count(function(todo) {
+					return self.todos.filter(function(todo) {
 						return todo.done();
-					})
+					}).length
         }
 
         //count of todos that are not complete
