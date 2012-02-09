@@ -41,8 +41,8 @@
                 </span>
                 <span class="todo-clear" bind="visible: completedCount()">
                     <a href="#" bind="click: removeCompleted">
-                        Clear <span class="number-done" bind="text: completedCount"></span>
-                        completed <span class="word-done" bind="text: getLabel(completedCount)"></span>
+                        Clear <span class="number-done" bind="text: completedCount()"></span>
+                        completed <span class="word-done" bind="text: getLabel(completedCount())"></span>
                     </a>
                 </span>
             </div>

@@ -58,9 +58,9 @@
 
         //remove all completed todos
         self.removeCompleted = function () {
-            self.todos.remove(function(todo) {
-                return todo.done();
-            });
+          self.todos.remove(function(todo) {
+              return todo.done();
+          });
         }
 
         //count of all completed todos

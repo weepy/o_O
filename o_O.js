@@ -361,7 +361,7 @@ fn.each = function(fn) {
 fn.remove = function(o) {
 	if(typeof o == 'function') {
 		this.each(function(x) {
-			this.remove(x)
+			if(o(x)) this.remove(x)
 		})
 	}
 	else {
