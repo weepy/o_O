@@ -24,7 +24,7 @@ a8"     "8a           88          88
 function o_O() {};
 
 
-// shims for IE
+// shims for IE compatability
 function indexOf(array, obj, start) {
   if(array.indexOf) return array.indexOf(obj, start)  
   for (var i = (start || 0), j = array.length; i < j; i++) {
@@ -40,6 +40,9 @@ function forEach(array, action) {
       action.call(null, array[i], i, array);
 }
 
+function trim(s) {
+  return s.replace(/^\s+|\s+$/g, '')
+}
 
 
 /*********          _   _        
@@ -208,10 +211,6 @@ o_O.bindings = {
   }
 }
 
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '')
-}
-
 o_O.bind = function(context, el) {
   var $el = $(el)
   context.el = $el[0]
@@ -226,7 +225,11 @@ o_O.bind = function(context, el) {
       rule = trim(rule)
       if(!rule) return // for trailing ;
 
-      var bits = trim(rule).split(":").map(trim)
+      var bits = []
+      forEach(rule.split(":"), function(bit) {
+        bits.push(trim(bit))
+      })
+
       var attr = trim(bits.shift())
       var param = trim(bits.join(":"))
       
@@ -421,7 +424,7 @@ var Collection = function(array) {
   this.objects = {}
 	this.count = o_O.property(0)
 	
-	this._id = 0
+	this.id = 0
 	
   o_O.eventize(this) 
   if(array) {
@@ -434,12 +437,12 @@ var Collection = function(array) {
 var fn = Collection.prototype
 
 fn.genId = function() {
-  return ++this._id
+  return ++this.id
 }
 
 fn.add = function(o) {
-  o._id = o._id || this.genId()
-  this.objects[o._id] = o
+  o.id = o.id || this.genId()
+  this.objects[o.id] = o
 	o.parent = this
   this.emit('add', o)
   
@@ -485,10 +488,10 @@ fn.remove = function(o) {
 		})
 	}
 	else {
-		delete this.objects[o._id]
+		delete this.objects[o.id]
 		this.count.incr(-1)
 		delete o.parent
-		delete o._id
+		delete o.id
 	  this.emit('remove', o)
 	}
 
