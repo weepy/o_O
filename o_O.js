@@ -24,6 +24,23 @@ a8"     "8a           88          88
 function o_O() {};
 
 
+// shims for IE
+function indexOf(array, obj, start) {
+  if(array.indexOf) return array.indexOf(obj, start)  
+  for (var i = (start || 0), j = array.length; i < j; i++) {
+     if (array[i] === obj) { return i; }
+  }
+  return -1;
+}
+
+function forEach(array, action) {
+  if(array.forEach) return array.forEach(action)  
+  for (var i= 0, n= array.length; i<n; i++)
+    if (i in array)
+      action.call(null, array[i], i, array);
+}
+
+
 
 /*********          _   _        
  *   _____ _____ _ _| |_(_)______ 
@@ -40,7 +57,7 @@ function o_O() {};
     off  : function(event, fct){
       this._events = this._events || {};
       if( event in this._events === false  )  return;
-      this._events[event].splice(this._events[event].indexOf(fct), 1);
+      this._events[event].splice(indexOf(this._events[event], fct), 1);
     },
     emit  : function(event /* , args... */){
       this._events = this._events || {};
@@ -132,7 +149,7 @@ o_O.deps = function(expr, context) {
 
   var deps = []
   var collector = function(dep) {
-    if(deps.indexOf(dep) < 0 && expr != dep) deps.push(dep)
+    if(indexOf(deps, dep) < 0 && expr != dep) deps.push(dep)
   }
 
   // capture deps
@@ -207,7 +224,7 @@ o_O.bind = function(context, el) {
 		
     var rules = trim($$.attr("bind")).split(";")
 
-    rules.forEach(function(rule) {
+    forEach(rules, function(rule) {
       rule = trim(rule)
       if(!rule) return // for trailing ;
 
@@ -234,7 +251,7 @@ o_O.bind = function(context, el) {
       
       run()
       
-      deps.forEach(function(dep) {
+      forEach(deps, function(dep) {
         dep.on('set', run)
       })
     })
@@ -286,7 +303,108 @@ o_O.val = function(fn) {
 }
 
 
+/*
+================================
+=  =====  ======================
+=  =====  ======================
+=  =====  ======================
+=  =  ==  ===   ====   ====   ==
+=    ===  ==  =  ==  =  ==  =  =
+=   ====  =====  ===  =====  ===
+=    ===  ===    ====  =====  ==
+=  =  ==  ==  =  ==  =  ==  =  =
+=  =  ==  ===    ===   ====   ==
+================================
 
+Simple klass system with observable properties
+*/
+
+function klass() {}
+
+klass.properties = {}
+klass.classes = {}
+
+klass.extend = function(type, properties) {
+  properties = properties || this.properties
+
+  var child = function(o) {
+    o = o || {}
+		var self = this
+    for(var name in properties) {
+      var defaultValue = (name in o) ? o[name] : properties[name]
+      this[name] = o_O.property(defaultValue)
+			this.observeProperty(name)
+    }
+    this.type = type
+    this.id = o.id || klass.genId()
+    this.initialize.call(this, o)
+  }
+  
+  inherits(child, this)
+  klass.classes[type] = child
+  child.properties = properties
+  child.type = type
+  child.extend = this.extend
+  return child
+}
+
+// emit change to klass when property changes
+klass.prototype.observeProperty = function(name) {
+	var self = this
+	this[name].change(function(val) {
+		self.emit('change:' + name, val)
+	})
+}
+
+klass.namespace = ""
+klass.id = 0
+klass.genId = function() {
+	return klass.namespace + (++klass.id)
+}
+
+klass.prototype.initialize = function(o) {
+  
+}
+
+// update a json object of named values
+klass.prototype.update = function(o) {
+  for(var i in o) {
+    if(this.constructor.properties[i] != undefined)
+      this[i](o[i])
+  }
+}
+
+klass.prototype.toJSON = function() {
+  var properties = this.constructor.properties
+  var json = {}
+  for(var i in properties)
+    if(this[i]() !== properties[i]) json[i] = this[i]
+  json.type = this.type
+  if(this.id != undefined) json.id = this.id
+  return json
+}
+
+klass.create = function(o) {
+  var klass = klass.classes[o.type]
+  return new klass(o)
+}
+
+function inherits(child, parent) { 
+  // dont copy over class variables/functions
+  // for (var key in parent) { 
+  //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
+  //     child[key] = parent[key]; 
+  // } 
+  function ctor() { 
+    this.constructor = child; 
+  } 
+  ctor.prototype = parent.prototype; 
+  child.prototype = new ctor; 
+  child.__super__ = parent.prototype; 
+  return child; 
+};
+
+o_O.klass = klass
 
 /*           ____        __  _         
    _______  / / /__ ____/ /_(_)__  ___ 
