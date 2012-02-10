@@ -25,8 +25,8 @@ describe('a collection', function() {
 			expect(col.count()).to.be(1)
 		})
 		
-		it('sets _id', function() {
-			expect(obj._id).to.be(1)
+		it('sets id', function() {
+			expect(obj.id).to.be(1)
 		})
 		
 		
@@ -35,9 +35,9 @@ describe('a collection', function() {
 			expect(col.count()).to.be(0)
 		})
 		
-		it('deletes _id', function() {
+		it('deletes id', function() {
 			col.remove(obj)
-			expect(obj._id).to.be(undefined)
+			expect(obj.id).to.be(undefined)
 		})
 			
 	})
