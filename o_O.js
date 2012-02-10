@@ -218,7 +218,7 @@ o_O.bind = function(context, el) {
 				}
 				else if(binding = $$[attr]) {
 					if(typeof x == 'function')
-						x = bindContext(x, context, $$) // since it must be some kind of event type
+						x = bindContext(x, context) // since it must be some kind of event type
 					$$[attr].call($$, x)
 				}
 				else throw new Error("Could not find attr '" + attr + "' in $ or o_O.bindings")
