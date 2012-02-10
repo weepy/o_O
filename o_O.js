@@ -75,39 +75,10 @@ function o_O() {};
  *  a function can also be passed in for computed properties
  */
 
-o_O.property = function(value) {
-  var getset = value
-  var simple = false
-
-  if(typeof value != 'function') {
-		simple = true
-    getset = function get_set(value) {
-      if(arguments.length) getset.val = value
-      return getset.val
-    }
-    getset(value)
-  }
+o_O.property = function(x) {
   
-  function property(v) {
-    if(arguments.length) {
-      property.val = getset(v)
-      property.emit('set', v) //, prop)
-    } else {
-			property.val = getset() // force the read for compound
-      o_O.deps.emit('get', property)
-    }
-		return property.val
-  }
-  
-  o_O.eventize(property)
+  var property = typeof x == 'function' ? computed(x) : simple(x)
 
-  property.deps = simple ? [] : o_O.deps(getset)
-  property.val = simple ? value : o_O.deps.lastResult
-
-  property.incr = function(x) {
-		return property(property() + (x||1))
-	}
-	
 	property.change = function(fn) {
 		fn 
 			? property.on('set', fn)   // listen for a change
@@ -116,7 +87,44 @@ o_O.property = function(value) {
   return property
 }
 
-// Calculat dependencies of an expression
+function computed(x) {
+  function property(v) {
+    if(arguments.length) {
+      property.val = x(v)
+      property.emit('set', v) //, prop)
+    } else {
+			property.val = x() // force the read for compound
+      o_O.deps.emit('get', property)
+    }
+		return property.val
+  }
+  o_O.eventize(property)
+  property.deps = o_O.deps(x)
+  property.val = o_O.deps.lastResult
+
+  return property
+}
+
+function simple(x) {
+  function property(v) {
+    if(arguments.length) {
+      property.val = v
+      property.emit('set', v) //, prop)
+    } else {
+      o_O.deps.emit('get', property)
+    }
+		return property.val
+  }
+  o_O.eventize(property)
+  property.deps =  []
+  property.val = x
+  property.incr = function(x) {
+ 		return property(property() + (x||1))
+ 	}
+  return property
+}
+
+// Calculate dependencies of an expression
 o_O.deps = function(expr, context) {
   o_O.deps.current = [expr, context]
 	
