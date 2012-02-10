@@ -68,6 +68,11 @@ mocha
 
 or open test/mocha.html
 
+Compatability
+-------------
+
+Tested in IE 7,8,9, Chrome 16, Firefox 4 and Safari 5
+
 Todo
 ----
 

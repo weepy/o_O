@@ -343,7 +343,7 @@ klass.extend = function(type, properties) {
     this.initialize.call(this, o)
   }
   
-  inherits(child, this)
+  o_O.inherits(child, this)
   klass.classes[type] = child
   child.properties = properties
   child.type = type
@@ -392,7 +392,7 @@ klass.create = function(o) {
   return new klass(o)
 }
 
-function inherits(child, parent) { 
+o_O.inherits = function(child, parent) { 
   // dont copy over class variables/functions
   // for (var key in parent) { 
   //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
@@ -434,6 +434,7 @@ var Collection = function(array) {
   }
 }
 
+// Proxy through underscore like backbone ? might be nice
 var fn = Collection.prototype
 
 fn.genId = function() {
