@@ -188,18 +188,16 @@ o_O.bindings = {
    */
   value: function(property, $el) {
     var self = this
+		var checkbox = $el.attr('type') == 'checkbox'
 		
-    property.on('set', function(val) {
-			var checkbox = self.$.attr('type') == 'checkbox'
-			
+    property.on('set', function(val) {	
       checkbox
 				? self.$.val(val)
 				: self.$.attr('checked', val) 
     })
     
     this.$.change(function(e) {
-			var checkbox = $(e.srcElement).attr('type') == 'checkbox'
-      var val = checkbox ? $(e.srcElement).attr('checked') : $(e.srcElement).val()
+      var val = checkbox ? $el.attr('checked') : $el.val()
 			property(val, e)
     })
 
@@ -299,7 +297,9 @@ o_O.expression = function(text) {
 // converts a DOM event from an element with a value into it's value
 // useful for setting properties based on form events
 o_O.val = function(fn) {
-  return function(e) { fn( $(e.srcElement).val(), e) }
+  return function(e) { 
+    fn( $(e.currentTarget).val(), e) 
+  }
 }
 
 
