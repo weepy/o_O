@@ -78,6 +78,4 @@ Todo
 ----
 
 * Website
-* Change dependency mechanism. Investigate
 * Update bindings after a setTimeout to throttle multiple calls?
-* Rebinding a template to a different context ? Necessary?
