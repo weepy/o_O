@@ -1,0 +1,16 @@
+{
+  "name": "o_O",
+  "description": "HTML binding for Lulz",
+  "version": "0.0.0",
+  "author": "Jonah Fox <jonahfox@gmail.com>",
+  "repository": "git://github.com/weepy/o_O",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "expect.js": "*"
+    "uglify-js": ">= 1.0.7"
+  },
+  "scripts" : { "prepublish" : "npm prune" },
+  "engines": { "node": ">= 0.1.98" }
+}

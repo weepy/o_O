@@ -1,9 +1,9 @@
 (function() {
     //a custom binding to handle the enter key (could go in a separate library)
-    o_O.bindings.enterKey = function(func) {
-			this.$.keyup(function(e) {
+    o_O.bindings.enterKey = function(func, $el) {
+			$el.keyup(function(e) {
 				if(e.keyCode === 13)
-					func()
+					func.call(this)
 			})
     }
 
@@ -14,12 +14,16 @@
         this.editing = o_O.property(false);
 
 				var self = this
-		    this.edit = o_O.property(function() {  
+		    this.edit = function() {  
 					self.editing(true); 
-				})
+				}
     };
+		window.Todo = Todo
 		
-    Todo.prototype.stopEditing = function() { this.editing(false); }
+		
+    Todo.prototype.stopEditing = function() { 
+			this.editing(false); 
+		}
 		
 		Todo.prototype.remove = function() {
 			this.parent.remove(this)
@@ -32,8 +36,11 @@
         self.todos = o_O.collection(todos)
 
         //store the new todo value being entered
-        self.current = o_O.property();
+        self.current = o_O.property("");
 
+				// self.current.change(function(x) {
+				// 	console.log(this, x)
+				// })
         //add a new todo, when enter key is pressed
         self.add = function () {
             var newTodo = new Todo(self.current());
@@ -60,7 +67,9 @@
 					}).length
         })
         
-        self.todos.on('change:done', function(object, val) {
+        self.todos.on('change', function(object, propery, val, old) {
+					if(propery != 'done') return
+					
           self.completedCount.change()
           self.remainingCount.change()
         })
@@ -71,19 +80,12 @@
         })
 
         //writeable computed observable to handle marking all complete/incomplete
-        self.allCompleted = o_O.property({
-            //always return true/false based on the done flag of all todos
-            read: function() {
-                return !self.remainingCount();
-            },
-            //set all todos to the written value (true/false)
-            write: function(newValue) {
-                ko.utils.arrayForEach(self.todos, function(todo) {
-                    //set even if value is the same, as subscribers are not notified in that case
-                    todo.done(newValue);
-                });
-            }
-        });
+        self.allCompleted = o_O.property(function(v) {
+            if(v === undefined) return !self.remainingCount()
+            self.todos.each(function(todo) {
+            	todo.done(v);
+            })
+        })
 
         //track whether the tooltip should be shown
         self.showTooltip = o_O.property(false);
@@ -113,5 +115,6 @@
         // TODO: Storage
     };
 
-		o_O.bind(new ViewModel([]), '#todoapp')
+		window.view = new ViewModel([])
+		o_O.bind(view, '#todoapp')
 })();

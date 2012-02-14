@@ -1,4 +1,5 @@
-;(function() {
+!function() {
+
 /*  
                                          
                         ,ad8888ba,            FunnyFace.js     
@@ -17,37 +18,58 @@ a8"     "8a           88          88
 																							Kept small and simple and fast - so you can hack what you need ontop
                                                 
                                               (c) 2012 by weepy, MIT Licensed
+*/
 
- ***
- * Root element. Rainy day...
- */
 function o_O() {};
 
+// shims for IE compatability
 
+
+function forEach(array, action) {
+  if(array.forEach) return array.forEach(action)  
+  for (var i= 0, n= array.length; i<n; i++)
+    if (i in array)
+      action.call(null, array[i], i, array);
+}
+
+function trim(s) {
+  return s.replace(/^\s+|\s+$/g, '')
+}
+typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 
 /*********          _   _        
  *   _____ _____ _ _| |_(_)______ 
  *  / -_) V / -_) ' \  _| |_ / -_)
  *  \___|\_/\___|_||_\__|_/__\___|     
  */
-(function(exports) {
+!function() {
   var methods  = {
     on  : function(event, fct){
       this._events = this._events || {};
       this._events[event] = this._events[event]  || [];
       this._events[event].push(fct);
+			return this
     },
     off  : function(event, fct){
       this._events = this._events || {};
       if( event in this._events === false  )  return;
       this._events[event].splice(this._events[event].indexOf(fct), 1);
+			return this
     },
     emit  : function(event /* , args... */){
       this._events = this._events || {};
-      if( event in this._events === false  )  return;
-      for(var i = 0; i < this._events[event].length; i++){
-        this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1))
-      }
+			var args = Array.prototype.slice.call(arguments, 1)
+			var events
+			if(events = this._events[event]) {
+	      for(var i = 0; i < events.length; i++)
+	      	events[i].apply(this, args)
+			}
+			args.unshift(event)
+			if(events = this._events['*']) {
+	      for(var i = 0; i < events.length; i++)
+	      	events[i].apply(this, args)
+			}
+			return this
     }
   }
 
@@ -55,8 +77,9 @@ function o_O() {};
     o.on = methods.on
     o.off = methods.off
     o.emit = methods.emit
+		return o
   }
-})()
+}();
 
 
 /*                               _         
@@ -75,210 +98,425 @@ function o_O() {};
  *  a function can also be passed in for computed properties
  */
 
-o_O.property = function(value) {
-  var getset = value
-  var simple = false
 
-  if(typeof value != 'function') {
-		simple = true
-    getset = function get_set(value) {
-      if(arguments.length) getset.val = value
-      return getset.val
-    }
-    getset(value)
-  }
-  
-  function property(v) {
-    if(arguments.length) {
-      property.val = getset(v)
-      property.emit('set', v) //, prop)
-    } else {
-			property.val = getset() // force the read for compound
-      o_O.deps.emit('get', property)
-    }
-		return property.val
-  }
-  
-  o_O.eventize(property)
-
-  property.deps = simple ? [] : o_O.deps(getset)
-  property.val = simple ? value : o_O.deps.lastResult
-
-  property.incr = function(x) {
-		return property(property() + (x||1))
-	}
-	
-	property.change = function(fn) {
-		fn 
-			? property.on('set', fn)   // listen for a change
-			: property(property())     // trigger a change
-	}
-  return property
-}
-
-// Calculat dependencies of an expression
-o_O.deps = function(expr, context) {
-  o_O.deps.current = [expr, context]
-	
-	if(typeof expr == 'string') expr = o_O.expression(expr)
-
-  var deps = []
-  var collector = function(dep) {
-    if(deps.indexOf(dep) < 0 && expr != dep) deps.push(dep)
-  }
-
-  // capture deps
-	
-  o_O.deps.on('get', collector)
-  o_O.deps.lastResult = expr.call(context)
-  o_O.deps.off('get', collector)
-  
-  return deps
-}
-
-o_O.eventize(o_O.deps)
-
-
-/* 
- _    _         _ _           
-| |__(_)_ _  __| (_)_ _  __ _ 
-| '_ \ | ' \/ _` | | ' \/ _` |
-|_.__/_|_||_\__,_|_|_||_\__, |
-                        |___/    */
-
-/** 
- *  Override proxy methods to $
- *  this will be the context itself
+/*
+ * Public function to return an observable property
  */
-o_O.bindings = {
-  /* set the class
-   * usage: bind='class: myClass' 
-   */
-  'class': function(klass) {
-    this.$.attr('class', klass)
-  },
-  /* Two-way binding to a form element
-   * usage: bind='value: myProperty'
-   * special cases for checkbox
-   */
-  value: function(property, $el) {
-    var self = this
-		
-    property.on('set', function(val) {
-			var checkbox = self.$.attr('type') == 'checkbox'
-			
-      checkbox
-				? self.$.val(val)
-				: self.$.attr('checked', val) 
-    })
-    
-    this.$.change(function(e) {
-			var checkbox = $(e.srcElement).attr('type') == 'checkbox'
-      var val = checkbox ? $(e.srcElement).attr('checked') : $(e.srcElement).val()
-			property(val, e)
-    })
-
-    property.change() // force a change
-  },
-  visible: function(val, $el) {
-		val ? $el.show() : $el.hide()
-  }
-}
-
-function trim(s) {
-  return s.replace(/^\s+|\s+$/g, '')
-}
-
-o_O.bind = function(context, el) {
-  var $el = $(el)
-  context.el = $el[0]
-  context.$ = $el
-  
-  function bind(k, v) {
-    var $$ = $(this)
-		
-    var rules = trim($$.attr("bind")).split(";")
-
-    rules.forEach(function(rule) {
-      rule = trim(rule)
-      if(!rule) return // for trailing ;
-
-      var bits = trim(rule).split(":").map(trim)
-      var attr = trim(bits.shift())
-      var param = trim(bits.join(":"))
-      
-      var deps = o_O.deps(param, context)
-        
-      function run() {
-				// context.$ = $$
-        var x = o_O.expression(param).call(context)   
-				var binding 
-       	if(binding = o_O.bindings[attr]) {
-					binding.call(context, x, $$)
-				}
-				else if(binding = $$[attr]) {
-					if(typeof x == 'function')
-						x = bindContext(x, context) // since it must be some kind of event type
-					$$[attr].call($$, x)
-				}
-				else throw new Error("Could not find attr '" + attr + "' in $ or o_O.bindings")
-      }
-      
-      run()
-      
-      deps.forEach(function(dep) {
-        dep.on('set', run)
-      })
-    })
-    
-    $$.attr("bind",null)
-  }
-  
-  //	lets do foreach first
-	$el.filter("[bind^=foreach]").each(function(k, v) {
-    bind.call(this, k, v)
-  })
-
-	$el.find("[bind^=foreach]").each(function(k, v) {
-    bind.call(this, k, v)
-  })
-
-  $el.filter("[bind]").each(function(k, v) {
-    bind.call(this, k, v)
-  })
-    
-  $el.find("[bind]").each(function(k, v) {
-    bind.call(this, k, v)
-  })
-  
-  return $el
-}
-
-function bindContext(fn, self) {
-	return function() {
-		fn.apply(self, arguments)
+o_O.property = function(x) {
+	var func = (typeof x == 'function')
+	var prop = func ? computed(x) : simple(x)
+	
+	o_O.eventize(prop)
+	
+	prop.change = function(fn) {
+		fn
+			? prop.on('set', fn)  // setup observer
+			: prop(prop())        // getset
 	}
+	
+	prop.toString = function() { return '#<Property:'  + prop.value + '>'}
+	prop.__o_O = true
+	return prop
 }
 
-o_O.options = {
-	bindAttr: 'bind',
-	debug: true
+o_O.property.is = function(o) { return o.__o_O == true }
+
+// simple variable to indicate if we're checking dependencies
+var checking = false
+/*
+ * Simple property ...
+ */
+function simple(defaultValue) {
+	
+	function prop(v) {
+		if(arguments.length) {
+			prop.value = v
+			prop.emit('set', prop.value)
+		} else {
+			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+		}
+		return prop.value
+	}
+	
+	prop.value = defaultValue
+	prop.dependencies = []     // should depend on self?
+	
+	prop.incr = function(val) {
+		prop(prop.value + (val || 1))
+	}
+	return prop
 }
+
+/*
+ * Computed property ...
+ */
+function computed(getset) {
+	
+	function prop(v) {
+		if(arguments.length) {
+			prop.value = getset(v)
+			prop.emit('set', prop.value)
+		} else {
+			prop.value = getset()
+			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+		}
+		return prop.value
+	}
+	prop.dependencies = o_O.dependencies(prop)
+	
+	return prop
+}
+
+/*
+ *  Hook to listen to all get events
+ */
+o_O.__deps_hook = o_O.eventize({})
+
+o_O.dependencies = function(func) {
+	var deps = []
+	
+	function add(dep) {
+		if(indexOf(deps, dep) < 0 && dep != func) deps.push(dep)
+	}
+	
+	checking = true
+	o_O.__deps_hook.on('get', add)
+	o_O.dependencies.lastResult = func() // run the function
+	o_O.__deps_hook.off('get', add)
+	checking = false
+	
+	return deps
+}
+
+function indexOf(array, obj, start) {
+  if(array.indexOf) return array.indexOf(obj, start)  
+  for (var i = (start || 0), j = array.length; i < j; i++) {
+     if (array[i] === obj) { return i; }
+  }
+  return -1;
+}
+
 
 o_O.expression = function(text) {
 	o_O.expression.last = text      // useful for catching syntax errors if this breaks
-  return new Function('with(this) { return (' + text + ')}')
+  return new Function('o_O', 'with(this) { { return (' + text + ')} } ')
+}
+
+
+/*
+ * calculates the dependencies
+ * calls the callback with the result
+ * if running fn returns a function - nothing more happens
+ * otherwise the callback is called with the function result everytime a dependency changes
+ */
+
+o_O.bindFunction = function(fn, callback) {
+	var deps = o_O.dependencies(fn)
+	var result = o_O.dependencies.lastResult
+	var isEvent = typeof result == 'function'
+	callback(result)
+	
+	// if this is an event watch for changes and reapply
+	if(!isEvent) {
+		forEach(deps, function(dep) {
+			dep.on('set', function(value) {
+				callback(fn())
+			})
+		})
+	}
+}
+
+
+o_O.bindElementToRule = function(el, attr, expr, context) {
+	var expression = o_O.expression(expr)
+	
+	var trigger = function() {
+		return expression.call(context, o_O.helpers)
+	}
+
+	o_O.bindFunction(trigger, function(x) {
+		var y = typeof x == 'function' && !o_O.property.is(x)
+					? function(e) { return x.call(context, e) }
+					: x			
+		return o_O.bindings[attr].call(context, y, $(el))
+	})
+	
+}
+
+
+
+function extractRules	(str) {
+	var rules = trim(str).split(";")
+	var ret = []
+	for(var i=0; i <rules.length; i++) {
+		var rule = rules[i]
+		rule = trim(rule)
+    if(!rule) continue // for trailing ;
+		var bits = trim(rule).split(":").map(trim)
+    var attr = trim(bits.shift())
+    var param = trim(bits.join(":"))
+		
+		ret.push([attr, param])
+	}
+	return ret
+}
+
+o_O.bind = function(context, dom) {
+	var $el = $(dom)
+	context.el = $el[0]
+	
+	function bind(el, k, v) {
+    var $$ = $(el)
+		
+    var rules = extractRules($$.attr("bind"))
+
+		for(var i=0; i <rules.length; i++) {
+			var rule = rules[i]
+			o_O.bindElementToRule($$, rule[0], rule[1], context)
+		}
+    $$.attr("bind",null)
+  }
+	
+  //	lets do foreach first
+	$(dom).filter("[bind^=foreach]").each(function(k, v) {
+    bind(this, k, v)
+  })
+
+	$(dom).find("[bind^=foreach]").each(function(k, v) {
+    bind(this, k, v)
+  })
+
+  $(dom).filter("[bind]").each(function(k, v) {
+    bind(this, k, v)
+  })
+    
+  $(dom).find("[bind]").each(function(k, v) {
+    bind(this, k, v)
+  })
+	
 }
 
 
 // converts a DOM event from an element with a value into it's value
 // useful for setting properties based on form events
-o_O.val = function(fn) {
-  return function(e) { fn( $(e.srcElement).val(), e) }
+o_O.helpers = {}
+
+o_O.helpers.value = function(fn) {
+  return function(e) { 
+		return fn( $(e.currentTarget).val(), e) 
+	}
 }
 
 
 
+/** 
+ *  Override proxy methods to $
+ *  this will be the context itself
+ */
+
+o_O.bindings = {}
+
+/*
+ * Proxy all $.fn
+ */
+
+for(var name in $.fn) {
+	(function(name) { 
+		o_O.bindings[name] = function(x, $el) {
+			$el[name](x)
+		}
+	})(name)
+}
+
+/*              _                    _     _           _ _                 
+  ___ _   _ ___| |_ ___  _ __ ___   | |__ (_)_ __   __| (_)_ __   __ _ ___ 
+ / __| | | / __| __/ _ \| '_ ` _ \  | '_ \| | '_ \ / _` | | '_ \ / _` / __|
+| (__| |_| \__ \ || (_) | | | | | | | |_) | | | | | (_| | | | | | (_| \__ \
+ \___|\__,_|___/\__\___/|_| |_| |_| |_.__/|_|_| |_|\__,_|_|_| |_|\__, |___/
+                                                                 |___/       */
+
+/* class
+ * usage: bind='class: myClass' 
+ */
+
+o_O.bindings['class'] = function(klass, $el) {
+ 	$el.attr('class', klass)
+}
+
+/* Two-way binding to a form element
+ * usage: bind='value: myProperty'
+ * special cases for checkbox
+ */
+o_O.bindings.value = function(property, $el) {
+  var self = this
+
+  property.on('set', function(val) {
+		var checkbox = $el.attr('type') == 'checkbox'
+	
+    checkbox
+		? $el.val(val)
+		: $el.attr('checked', val) 
+  })
+  
+  $el.change(function(e) {
+		var checkbox = $(e.srcElement).attr('type') == 'checkbox'
+    var val = checkbox ? $(e.srcElement).attr('checked') : $(e.srcElement).val()
+		property(val, e)
+  })
+
+  property.change() // force a change
+}
+
+/*
+ * set visibility depenent on val
+ */
+
+o_O.bindings.visible = function(val, $el) {
+	val ? $el.show() : $el.hide()
+}
+
+
+o_O.bindings['if' ]= function(val, $el) {
+	if(!val) $el.remove()
+}
+
+o_O.bindings['ifnot']= function(val, $el) {
+	if(val) $el.remove()
+}
+
+/* wrap each of $ ? */
+
+o_O.uniqueId = function() {
+  var id = ++o_O.uniqueId.id;
+	var prefix = o_O.uniqueId.prefix 
+  return prefix ? prefix + id : id;
+}
+o_O.uniqueId.id = 0
+
+/*
+ __   .__                        
+|  | _|  | _____    ______ ______
+|  |/ /  | \__  \  /  ___//  ___/
+|    <|  |__/ __ \_\___ \ \___ \ 
+|__|_ \____(____  /____  >____  >
+     \/         \/     \/     \/                    
+
+Simple evented klass system with observable properties
+*/
+
+function klass(type, properties) {
+  // allow typeless classes
+  if(properties == null) {
+    properties = type
+    type = undefined
+  }
+  
+  properties = properties || {} // this.properties
+
+  var child = function child(o) {
+		if(!(this instanceof child)) return new child(o)
+	  o = o || {}
+
+	  for(var name in properties) {
+	    var defaultValue = (name in o) ? o[name] : properties[name]
+	    this[name] = o_O.property(defaultValue)
+			this.observeProperty(name)
+	  }
+	  this.type = type
+	  this.id = o.id || o_O.uniqueId()
+		this.initialize.call(this, o)
+		child.emit('create', this)
+	}
+	
+	o_O.eventize(child)
+  o_O.inherits(child, this)
+  
+  if(type) {
+    klass.classes[type] = child
+    child.type = type
+  }
+  
+  child.properties = properties
+  child.extend = this.extend
+  return child
+}
+
+
+klass.extend = klass
+klass.properties = {}
+klass.classes = {}
+klass.genId = function() {
+	return klass.namespace + (++klass.id)
+}
+klass.create = function(o) {
+  var klss = klass.classes[o.type]
+  if(!klss) console.error('no such klass' + o.type)
+  return new klss(o)
+}
+o_O.eventize(klass)
+
+
+var proto = klass.prototype
+
+o_O.eventize(proto)
+proto.observeProperty = function(name) {
+	var self = this
+	this[name].change(function(val, old) {
+		self.emit('change', name, val, old, this)
+	})
+}
+
+proto.toString = function() {
+	return '#<'+this.type+':'+this.id+'>'
+}
+
+proto.initialize = function(o) {
+  
+}
+
+// update a json object of named values
+proto.update = function(o) {
+  for(var i in o) {
+    if(this.constructor.properties[i] != undefined)
+      this[i](o[i])
+  }
+}
+
+proto.delete = function() {
+	this.emit('delete', this)
+}
+
+proto.toJSON = function() {
+  var properties = this.constructor.properties
+  var json = {}
+  for(var i in properties) {
+    var value = this[i]()
+    if(value !== properties[i]) json[i] = value
+  }
+    
+
+  if(this.type) json.type = this.type
+  if('id' in this) json.id = this.id
+  return json
+}
+
+
+o_O.inherits = function(child, parent) { 
+  // dont copy over class variables/functions
+  // for (var key in parent) { 
+  //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
+  //     child[key] = parent[key]; 
+  // } 
+  function ctor() { 
+    this.constructor = child; 
+  } 
+  ctor.prototype = parent.prototype; 
+  child.prototype = new ctor; 
+  child.__super__ = parent.prototype; 
+  return child; 
+};
+
+o_O.klass = klass
 
 /*           ____        __  _         
    _______  / / /__ ____/ /_(_)__  ___ 
@@ -323,11 +561,11 @@ fn.add = function(o) {
   for(var i in o) {
     var prop = o[i]
     if(prop.emit && prop.change) {
-      (function(prop, i) {
-        prop.change(function() {
-          collection.emit('change:'+i, o, o[i])
+      !function(prop, i) {
+        prop.change(function(val, old) {
+          collection.emit('change', o, i, val, old)
         })
-      })(prop, i)
+      }(prop, i)
     }
   }
   
@@ -369,12 +607,9 @@ fn.remove = function(o) {
 }
 
 fn.render = function($el) {
-  this.$ = $el
   var template = $el.html()
-  $el.html("")
+  $el.html('')
   
-	// it would more efficient nice? if we could just bind this once and have an update binding method ?
-	// need to test if that's necessary
   function render(o) {
     var html = $(template).appendTo($el)
 	  o_O.bind(o, html)
@@ -385,7 +620,7 @@ fn.render = function($el) {
   // add new ones
   this.on('add', render)
   this.on('remove', function(o) {
-    o.$.remove()
+    $(o.el).remove()
   })
 }
 
@@ -395,7 +630,4 @@ o_O.collection = function(items) {
 	return col
 }
 
-
-typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O;
-
-})();
+}();

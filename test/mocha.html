@@ -8,10 +8,16 @@
   <script src="https://raw.github.com/visionmedia/mocha/master/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   <script>window.global=window</script>
-  <script src="../o_O.js"></script>
-  <script src="test.getset.js"></script>
-  <script src="test.deps.js"></script>
-  <script src="test.collection.js"></script>
+  <script src="../lib/o_O.js"></script>
+  <script src="../lib/eventize.js"></script>
+  <script src="../lib/property.js"></script>
+  <script src="../lib/binding.js"></script>
+  <script src="../lib/bindings.js"></script>
+  <script src="../lib/helpers.js"></script>
+  <script src="test.eventize.js"></script>
+  <script src="test.property.js"></script>
+  <script src="test.binding.js"></script>
+  <script src="test.binding.dom.js"></script>
   
   <script>
     $(function () {
@@ -21,5 +27,6 @@
 </head>
 <body>
   <div id="mocha"></div>
+
 </body>
 </html>
