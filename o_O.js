@@ -102,9 +102,9 @@ typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 /*
  * Public function to return an observable property
  */
-o_O.property = function(x) {
+o_O.property = function(x, sync) {
 	var func = (typeof x == 'function')
-	var prop = func ? computed(x) : simple(x)
+	var prop = func ? computed(x, sync) : simple(x, sync)
 	
 	o_O.eventize(prop)
 	
@@ -121,24 +121,40 @@ o_O.property = function(x) {
 
 o_O.property.is = function(o) { return o.__o_O == true }
 
+/*
+ * Simple registry which emits all property change from one event loop in the next
+ */
+var asyncEmit = (function() {
+  var list = []
+  var timer = null
+  function run() {
+    for(var i=0; i< list.length;i++) {
+      var prop = list[i]
+      prop.emit('set', prop.value)
+      delete prop._emitting
+    }
+    timer = null
+    list = []
+  }
+  return function(prop) {
+    if(prop._emitting) return
+    list.push(prop)
+    prop._emitting = true
+    timer = timer || setTimeout(function() { run() }, 0)
+  }
+})();
+
 // simple variable to indicate if we're checking dependencies
 var checking = false
 /*
  * Simple property ...
  */
-function simple(defaultValue) {
+function simple(defaultValue, sync) {
 	
 	function prop(v) {
 		if(arguments.length) {
 			prop.value = v
-			if(!prop._emitting) {
-			  prop._emitting = true
-			  setTimeout(function() {
-			    prop.emit('set', prop.value)
-			    delete prop._emitting
-			  }, 0)
-			}
-			
+			sync ? prop.emit('set', prop.value) : asyncEmit(prop)
 		} else {
 			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
 		}
@@ -157,19 +173,12 @@ function simple(defaultValue) {
 /*
  * Computed property ...
  */
-function computed(getset) {
+function computed(getset, sync) {
 	
 	function prop(v) {
 		if(arguments.length) {
 			prop.value = getset(v)
-      
-			if(!prop._emitting) {
-			  prop._emitting = true
-			  setTimeout(function() {
-			    prop.emit('set', prop.value)
-			    delete prop._emitting
-			  }, 0)
-			}
+      sync ? prop.emit('set', prop.value) : asyncEmit(prop)
 		} else {
 			prop.value = getset()
 			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
@@ -180,6 +189,8 @@ function computed(getset) {
 	
 	return prop
 }
+
+
 
 /*
  *  Hook to listen to all get events
@@ -258,6 +269,11 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
 }
 
 
+function map(array, fn) {
+  var ret = []
+  for(var i=0; i<array.length;i++) ret.push(fn(array[i], i))
+  return ret
+}
 
 function extractRules	(str) {
 	var rules = trim(str).split(";")
@@ -266,7 +282,7 @@ function extractRules	(str) {
 		var rule = rules[i]
 		rule = trim(rule)
     if(!rule) continue // for trailing ;
-		var bits = trim(rule).split(":").map(trim)
+		var bits = map(trim(rule).split(":"), trim)
     var attr = trim(bits.shift())
     var param = trim(bits.join(":"))
 		
@@ -419,7 +435,7 @@ o_O.uniqueId.id = 0
 Simple evented klass system with observable properties
 */
 
-function klass(type, properties) {
+function klass(type, properties, sync) {
   // allow typeless classes
   if(properties == null) {
     properties = type
@@ -434,7 +450,7 @@ function klass(type, properties) {
 
 	  for(var name in properties) {
 	    var defaultValue = (name in o) ? o[name] : properties[name]
-	    this[name] = o_O.property(defaultValue)
+	    this[name] = o_O.property(defaultValue, sync)
 			this.observeProperty(name)
 	  }
 	  this.type = type

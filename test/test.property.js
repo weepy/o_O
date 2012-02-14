@@ -126,8 +126,40 @@ describe('change', function() {
 		  expect(count).to.be(1)
 		  expect(x()).to.be(2)
 		  done()
-		}, 0)
-		
+		}, 0)	
 	})
+
+	describe('change emitter', function() {
+	  it('emits multiple changes on one go', function(done) {
+  		var x = o_O.property()
+  		var y = o_O.property()
+  		var count = 0
+  		
+  		function incr() {
+    		count++
+  		}
+
+  		x.change(incr)
+  		y.change(incr)
+  		x("a")
+  		y("b")
+      
+      expect(x._emitting).to.be.ok()
+      expect(y._emitting).to.be.ok()
+      expect(x()).to.be("a")
+      expect(y()).to.be("b")
+      
+  		setTimeout(function() {
+  		  expect(count).to.be(2)
+  		  
+  		  expect(y._emitting).to.not.be.ok()
+  		  expect(x._emitting).to.not.be.ok()
+  		  done()
+  		}, 0)
+
+  	})
+	})
+	
+	
 	
 })
