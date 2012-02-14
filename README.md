@@ -11,21 +11,20 @@
             888888888888                       
 ```
 
-FunnyFace.js     
-============
+Features
+========
 
-HTML binding for Lulz 
+* Simple & flexible html binding
 
-Tiny, elegant & flexible html binding
+* Binds an object to a section of HTML using 'bind' attributes
 
-Provides an easy to bind an object to a section of HTML
+* Proxies through $ (jQuery or ...)
 
-Proxies through $ (jQuery or ...)
+* Automatic dependency resolution
 
-Built in automatic dependency resolution makes hooking up code a dream
+* Plays well with others
 
-(c) 2012 by weepy, MIT Licensed
-
+(c) 2012 by Jonah Fox, MIT Licensed
 
 
 Simple Example
@@ -78,4 +77,3 @@ Todo
 ----
 
 * Website
-* Update bindings after a setTimeout to throttle multiple calls?

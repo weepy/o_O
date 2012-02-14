@@ -14,7 +14,7 @@ describe('binding to dom element manually', function() {
 	})
 
 
-	it('should change color with bindElementToRule', function() {
+	it('should change color with bindElementToRule', function(done) {
 
 		var o = {
 			color: o_O.property("rgb(3, 3, 3)")
@@ -25,8 +25,11 @@ describe('binding to dom element manually', function() {
 		expect($("#el").css("color")).to.be('rgb(3, 3, 3)')
 
 		o.color("rgb(3, 3, 4)")
-
-		expect($("#el").css("color")).to.be("rgb(3, 3, 4)")
+    
+		setTimeout(function() {
+		  expect($("#el").css("color")).to.be("rgb(3, 3, 4)")
+		  done()
+		}, 0)
 
 	})
 

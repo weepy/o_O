@@ -29,28 +29,48 @@ describe('bindFunction for non-function returns', function() {
 	})
 
 
-	it('trigger when dependency is called for simple', function() {
+	it('trigger when dependency is called for simple', function(done) {
 		
 		o_O.bindFunction(function() { return firstName() }, function(value) { count ++; last= value })
 		expect(count).to.be(1)
+		
 		expect(last).to.be('John')
 		firstName('Woah')
-		expect(count).to.be(2)
-		expect(last).to.be('Woah')
+		
+		setTimeout(function() {
+		  expect(count).to.be(2)
+  		expect(last).to.be('Woah')
+  		done()
+		}, 0)
+
 	})
 	
-	it('trigger when dependency is called for computed', function() {
+	it('trigger when dependency is called for computed', function(done) {
 		o_O.bindFunction(fullName, function(value) { count ++; last = value });
 		
 		expect(count).to.be(1)
 		expect(last).to.be('John Smith')
 		firstName('Woah')
-		expect(count).to.be(2)
-		expect(last).to.be('Woah Smith')
 		
-		secondName('Woah')
-		expect(count).to.be(3)
-		expect(last).to.be('Woah Woah')
+		
+		
+		setTimeout(function() {
+  		expect(count).to.be(2)
+  		
+  		secondName('Woah')
+  		expect(last).to.be('Woah Smith')
+  		
+  		setTimeout(function() {
+  		  expect(count).to.be(3)
+  		  expect(last).to.be('Woah Woah')
+  		  done()
+  		}, 0)
+  		
+		}, 0)
+		
+
+		
+
 	})
 	
 	

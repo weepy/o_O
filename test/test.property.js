@@ -24,19 +24,25 @@ describe('simple property', function() {
 		expect(age(20)).to.be(20)
 		expect(age()).to.be(20)
 	})
+
+  it('should should have 0 dependencies', function() {
 	
-	it('should emit set events', function() {
+  	expect(age.dependencies).to.have.length(0)
+
+  })
+	
+	it('should emit set events', function(done) {
 		age.on('set', incr)
 		age(10)
-		expect(count).to.be(1)
+		
+		setTimeout(function() {
+		  expect(count).to.be(1)
+		  done()
+		}, 0)
 	})
 	
 
-	it('should should have 0 dependencies', function() {
-		
-		expect(age.dependencies).to.have.length(0)
 
-	})
 })
 
 var fullName, firstName, secondName, fullNameFn
@@ -92,14 +98,36 @@ describe('complex property', function() {
 
 describe('change', function() {
 	
-	it('it is called when property is set', function() {
+	it('is called when property is set', function(done) {
 		var x = o_O.property()
 		var count = 0
 		x.change(function() {
 			count++
 		})
 		x(1)
-		expect(count).to.be(1)
+		
+		setTimeout(function() {
+		  expect(count).to.be(1)
+		  done()
+		}, 0)
+		
+	})
+	
+	it('is called only once when property is set twice', function(done) {
+		var x = o_O.property()
+		var count = 0
+		x.change(function() {
+			count++
+		})
+		x(1)
+		x(2)
+		
+		setTimeout(function() {
+		  expect(count).to.be(1)
+		  expect(x()).to.be(2)
+		  done()
+		}, 0)
+		
 	})
 	
 })

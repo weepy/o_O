@@ -131,7 +131,14 @@ function simple(defaultValue) {
 	function prop(v) {
 		if(arguments.length) {
 			prop.value = v
-			prop.emit('set', prop.value)
+			if(!prop._emitting) {
+			  prop._emitting = true
+			  setTimeout(function() {
+			    prop.emit('set', prop.value)
+			    delete prop._emitting
+			  }, 0)
+			}
+			
 		} else {
 			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
 		}
@@ -155,7 +162,14 @@ function computed(getset) {
 	function prop(v) {
 		if(arguments.length) {
 			prop.value = getset(v)
-			prop.emit('set', prop.value)
+      
+			if(!prop._emitting) {
+			  prop._emitting = true
+			  setTimeout(function() {
+			    prop.emit('set', prop.value)
+			    delete prop._emitting
+			  }, 0)
+			}
 		} else {
 			prop.value = getset()
 			if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
