@@ -320,13 +320,14 @@ o_O.bindings = {}
  * Proxy all $.fn
  */
 
-for(var name in $.fn) {
-	(function(name) { 
-		o_O.bindings[name] = function(x, $el) {
-			$el[name](x)
-		}
-	})(name)
-}
+if(typeof $ != 'undefined')
+	for(var name in $.fn) {
+		(function(name) { 
+			o_O.bindings[name] = function(x, $el) {
+				$el[name](x)
+			}
+		})(name)
+	}
 
 /*              _                    _     _           _ _                 
   ___ _   _ ___| |_ ___  _ __ ___   | |__ (_)_ __   __| (_)_ __   __ _ ___ 
@@ -533,7 +534,7 @@ var Collection = function(array) {
   this.objects = {}
 	this.count = o_O.property(0)
 	
-	this._id = 0
+	this.id = 0
 	
   o_O.eventize(this) 
   if(array) {
@@ -546,12 +547,12 @@ var Collection = function(array) {
 var fn = Collection.prototype
 
 fn.genId = function() {
-  return ++this._id
+  return ++this.id
 }
 
 fn.add = function(o) {
-  o._id = o._id || this.genId()
-  this.objects[o._id] = o
+  o.id = o.id || this.genId()
+  this.objects[o.id] = o
 	o.parent = this
   this.emit('add', o)
   
@@ -597,10 +598,10 @@ fn.remove = function(o) {
 		})
 	}
 	else {
-		delete this.objects[o._id]
+		delete this.objects[o.id]
 		this.count.incr(-1)
 		delete o.parent
-		delete o._id
+		delete o.id
 	  this.emit('remove', o)
 	}
 
