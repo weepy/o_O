@@ -54,9 +54,10 @@ See folder examples
 Features
 --------
 
-o_O.property
-o_O.bind
-o_O.collection
+* o_O.property      : evented properties with automatic dependency resolution
+* o_O.bind          : bind an object to a section of HTML with 'bind' attributes
+* o_O.collection    : a simple collection of objects
+* o_O.klass         : a simple klass with o_O.property
 
 
 Running Tests
