@@ -184,12 +184,66 @@ o_O.bind({
 </div>
 <hr />
 
+<h2>Events and helpers</h2>
+<div id=Events class=example> 
+  <div class=inner>
+  <input bind='value: name; keyup: o_O.value(name)' />
+  <button bind='click: capitalize'>Capitalize</button>
+  </ul>
+  </div>
+<script type='text/skip'>
+var model = { 
+  name: o_O.property('John'),
+  capitalize: function() { model.name(model.name().toUpperCase())}
+}
+o_O.bind(model,  '#Events')
+</script>
+</div>
+<hr />
+
+<h2>visible, and css</h2>
+<div id=visible class=example> 
+  <div class=inner>
+  <input type=checkbox bind='value: show' />
+  <button bind='visible: show(); css: css'>HELLOO</button>
+  <button bind='visible: !show()'>GOODBYE</button>
+  </ul>
+  </div>
+<script type='text/skip'>
+var model = {
+  show: o_O.property(true),
+  css: { color : 'red'}
+}
+o_O.bind(model,  '#visible')
+</script>
+</div>
+<hr />
+
+<style>.big {font-size: 30px; font-weight: bold} </style>
+
+<h2>classes</h2>
+<div id=classes class=example> 
+  
+  <div class=inner>
+<span bind='class: myClass(); text: myClass()'></span>
+<input type=checkbox bind='value: big' />
+
+  </div>
+<script type='text/skip'>
+var model = {
+  big: o_O.property(false),
+  myClass: function() {
+    return model.big() ? "big" : "small"
+  }
+}
+o_O.bind(model,  '#classes')
+</script>
+</div>
+<hr />
 
 
 
-
-
-
+<br/><br/><br/><br/><br/><br/><br/><br/>
 <script>
 
 $('.example').each(function() {
