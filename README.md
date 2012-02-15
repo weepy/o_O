@@ -48,7 +48,9 @@ name('Bob')
 Further Examples
 ----------------
 
-See folder examples
+examples/index.html is a simple guide
+
+examples/todos/index.html is the obligatory Todos example converted to o_O
 
 Features
 --------
@@ -77,3 +79,5 @@ Todo
 ----
 
 * Website
+* make value binding work with val
+* select/options binding
