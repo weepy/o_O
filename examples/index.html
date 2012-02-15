@@ -1,11 +1,6 @@
 <style>
 body { font-family: arial}
-code .keyword              { font-weight: bold }
-code .string, code .regexp { color: green }
-code .class, code .special { color: blue }
-code .number               { color: pink }
-code .comment              { color: grey }
-
+.inner { background: #efefef; padding: 5px}
 h2 { 
   font-size: 15px
 }
@@ -14,11 +9,24 @@ hr { border-top: 1px solid black}
   overflow: hidden;
   
 }
-.js, .html, .inner  {
+.js, .html {
   float: left;
-  width: 33%;
-};
+  width: 30%;
+  margin-right: 10px;
+  display: block;
+}
 
+.inner {
+  float: left;
+  width: 30%;
+  margin-right: 10px;
+  display: block;
+}
+
+
+pre {margin-top: 0 !important}
+
+code {word-wrap: break-word;}
 </style>
 
 <script src='../o_O.js'></script>
@@ -30,10 +38,10 @@ hr { border-top: 1px solid black}
 <h2>1. Simple Binding</h2>
 <div id=Simple class=example>
 <div class=inner>
-<p bind='text: text'></p>
+<p bind='text: greeting'></p>
 </div>
 <script type='text/skip'>
-o_O.bind({text: 'Hello World'}, '#Simple')
+o_O.bind({greeting: 'Hello World'}, '#Simple')
 </script>
 </div>
 <hr />
@@ -47,16 +55,16 @@ o_O.bind({text: 'Hello World'}, '#Simple')
     <span bind='text: this()'></span>
   </p>
 </div>
-  <script type='text/skip'>
-  var time = o_O.property()
+<script type='text/skip'>
+var time = o_O.property()
 
-  o_O.bind(time, '#AutoUpdate')
+o_O.bind(time, '#AutoUpdate')
 
-  setInterval(function() {
-    time(Date.now())
-  }, 100)
+setInterval(function() {
+  time(Date.now())
+}, 100)
 
-  </script>
+</script>
 </div>
 
 
@@ -69,11 +77,11 @@ o_O.bind({text: 'Hello World'}, '#Simple')
   <input bind='value: name'></input>  
   <p bind='text: name()'></p> 
 </div>
-  <script type='text/skip'>
-  var person = { name: o_O.property('John') }
+<script type='text/skip'>
+var person = { name: o_O.property('John') }
 
-  o_O.bind(person, '#Binding')
-  </script>
+o_O.bind(person, '#Binding')
+</script>
 </div>
 
 <hr />
@@ -84,10 +92,10 @@ o_O.bind({text: 'Hello World'}, '#Simple')
   <input type=checkbox bind='value: state'></input>  
   <p bind='text: state()'></p> 
 </div>
-  <script type='text/skip'>
-  var person = { state: o_O.property(true) }
-  o_O.bind(person, '#Checkbox')
-  </script>
+<script type='text/skip'>
+var person = { state: o_O.property(true) }
+o_O.bind(person, '#Checkbox')
+</script>
 </div>
 
 <hr />
@@ -103,13 +111,13 @@ o_O.bind({text: 'Hello World'}, '#Simple')
   </select>
   <p bind='text: number() + " " + animal() + "s" '></p>
 </div>
-  <script type='text/skip'>
-  var farm = { 
-    animal: o_O.property('cow'), 
-    number: o_O.property(20) 
-  }
-  o_O.bind(farm, '#farm')
-  </script>
+<script type='text/skip'>
+var farm = { 
+  animal: o_O.property('cow'), 
+  number: o_O.property(20) 
+}
+o_O.bind(farm, '#farm')
+</script>
 </div>
 <hr />
 
@@ -144,17 +152,28 @@ o_O.bind(person, '#ComplexDeps')
 $('.example').each(function() {
   
   //script
-  var js = $(this).find("script").html()
+  var js = $.trim($(this).find("script").html())
   var code = $("<code>", {html: js})
-  $(this).prepend($("<pre class=js/>").append(code))
+  $(this).prepend($("<pre class='js javascript'/>").append(code))
   
   var html = $.trim($(this).find('.inner').html())
   
   html = "<div id='" + this.id + "'>\n  " + html + "\n</div>"
   html = html.replace(/\</g, '&lt;')
-  $(this).prepend($("<pre class=html/>").append(html))
+  $(this).prepend($("<pre class=html/>").append($("<code>", {html: html})))
   eval(js)
+  
+  var h = Math.max($(this).find(".js").height(),$(this).find(".html").height() )
+  $(this).find(".js code, .html code").css({height:  h})
 })
 
 </script>
-<script src='https://raw.github.com/cloudhead/hijs/master/hijs.js'></script>
+<script src="http://yandex.st/highlightjs/6.1/highlight.min.js"></script>
+
+<link rel="stylesheet" href="http://yandex.st/highlightjs/6.1/styles/github.min.css">
+
+
+<script>
+  hljs.tabReplace = '    ';
+  hljs.initHighlightingOnLoad();
+</script>
