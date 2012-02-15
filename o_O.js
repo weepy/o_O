@@ -425,6 +425,7 @@ o_O.bindings.options = function(options, $el) {
 o_O.bindings.foreach = function(list, $el) {
   var template = $el.html()
   $el.html('')
+  $el.data('o_O:template', template)
 
   var render = list.render || function(item) {
     var html = $(template).appendTo($el)
@@ -432,11 +433,11 @@ o_O.bindings.foreach = function(list, $el) {
   }
 
   list.forEach(function(item, index) {
-    render(item)
+    render(item, $el)
   })
   
   if(list.bind) {
-    list.bind()
+    list.bind($el)
   }  
 }
 
@@ -661,15 +662,17 @@ fn.remove = function(o) {
 
 }
 
-fn.render = function(item) {
+fn.render = function(item, $el) {
+  var template = $el.data('o_O:template')
   var html = $(template).appendTo($el)
   o_O.bind(item, html)
 }
 
-fn.bind = function() {
+fn.bind = function($el) {
   var self
+    
   this.on('add', function(item) {
-    this.render(item)
+    self.render(item, $el)
   })
   this.on('remove', function(item) {
     $(item.el).remove()
