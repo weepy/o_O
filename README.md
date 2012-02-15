@@ -9,22 +9,22 @@
   `"YbbdP"'              `"Y8888Y"'            
 
             888888888888                       
-```
-
-Features
+```           
+           
+HTML binding for Lulz 
 ========
 
-* Simple & flexible html binding
+* Power of KnockoutJS, with the agility of Backbone
 
-* Binds an object to a section of HTML using 'bind' attributes
+* Elegantly binds objects to HTML
 
-* Proxies through $ (jQuery or ...)
+* Proxies through jQuery (or whatever $ is)
 
 * Automatic dependency resolution
 
 * Plays well with others
 
-(c) 2012 by Jonah Fox, MIT Licensed
+(c) 2012 by Jonah Fox (weepy), MIT Licensed
 
 
 Simple Example
