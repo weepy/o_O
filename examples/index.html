@@ -1,27 +1,52 @@
+<html>
+<body>
 <style>
 body { font-family: arial}
 .inner { background: #efefef; padding: 5px}
 h2 { 
-  font-size: 15px
+  font-size: 15px;
+  margin-top: 40px;
 }
-hr { border-top: 1px solid black}
+hr { border: 0px solid black}
 .example {
   overflow: hidden;
   
 }
 .js, .html {
   float: left;
-  width: 30%;
-  margin-right: 10px;
+  width: 400px;
   display: block;
+  border: 1px solid #ddd;
+}
+
+.html {
+  margin-right: 10px;
 }
 
 .inner {
-  float: left;
-  width: 30%;
-  margin-right: 10px;
+  clear: both;
+  width: 801px;
   display: block;
+  border: 1px solid #ddd;
 }
+
+.js, .html, .inner {
+  position: relative;
+}
+
+label {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  background: #abc;
+  color: #fff;
+  padding: 0 5px;
+  font-family: arial;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+code { font-family: monaco; courier; fixed; font-size: 12px}
 
 
 pre {margin-top: 0 !important}
@@ -32,8 +57,7 @@ code {word-wrap: break-word;}
 <script src='../o_O.js'></script>
 <script src='http://code.jquery.com/jquery-1.7.1.js'></script>
 
-
-
+<h1>o_O overview</h1>
 
 <h2>1. Simple Binding</h2>
 <div id=Simple class=example>
@@ -109,7 +133,7 @@ o_O.bind(person, '#Checkbox')
   <select bind="value: number; 
                 options: {Ten: 10, Twenty: 20}" >
   </select>
-  <p bind='text: number() + " " + animal() + "s" '></p>
+  <p bind='text: number()+" "+animal() +"s"'></p>
 </div>
 <script type='text/skip'>
 var farm = { 
@@ -127,15 +151,15 @@ o_O.bind(farm, '#farm')
 <div id=ComplexDeps class=example> 
   <div class=inner>
   <p bind='text: fullName()'></p>
-  <input bind='value: firstName'></input>
-  <input bind='value: secondName'></input>
+  <input bind='value: first'></input>
+  <input bind='value: family'></input>
   </div>
 <script type='text/skip'>
 var person = {
-  firstName: o_O.property("John"),
-  secondName: o_O.property("Smith"),
+  first: o_O.property("John"),
+  family: o_O.property("Smith"),
   fullName: function() { 
-    return this.firstName() + " " + this.secondName() 
+    return this.first() +" "+ this.family() 
   }
 }
 o_O.bind(person, '#ComplexDeps')
@@ -153,16 +177,18 @@ $('.example').each(function() {
   
   //script
   var js = $.trim($(this).find("script").html())
-  var code = $("<code>", {html: js})
+  var code = $("<code>", {html: js + "<label>JS</label>"})
   $(this).prepend($("<pre class='js javascript'/>").append(code))
   
   var html = $.trim($(this).find('.inner').html())
   
   html = "<div id='" + this.id + "'>\n  " + html + "\n</div>"
   html = html.replace(/\</g, '&lt;')
+  html += "<label>HTML</label>"
   $(this).prepend($("<pre class=html/>").append($("<code>", {html: html})))
   eval(js)
   
+  $(this).find('.inner').append("<label>OUTPUT</label>")
   var h = Math.max($(this).find(".js").height(),$(this).find(".html").height() )
   $(this).find(".js code, .html code").css({height:  h})
 })
@@ -177,3 +203,5 @@ $('.example').each(function() {
   hljs.tabReplace = '    ';
   hljs.initHighlightingOnLoad();
 </script>
+</body>
+</html>
