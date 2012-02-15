@@ -474,7 +474,6 @@ function klass(type, properties, syncEvents) {
   return child
 }
 
-
 klass.extend = klass
 klass.properties = {}
 klass.classes = {}
