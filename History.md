@@ -1,3 +1,11 @@
+0.0.3 / Feb 15th 2012
+=====================
+
+  * fixed value
+  * added options binding
+  * optional synchronous bindings
+  * dynamic $ proxies (o_O can be included before $)
+
 0.0.2 / Feb 14th 2012
 =====================
   

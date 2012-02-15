@@ -79,5 +79,4 @@ Todo
 ----
 
 * Website
-* make value binding work with val
-* select/options binding
+
