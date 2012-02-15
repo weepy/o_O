@@ -404,11 +404,16 @@ o_O.bindings['if' ]= function(val, $el) {
   if(!val) $el.remove()
 }
 
-o_O.bindings['ifnot']= function(val, $el) {
+o_O.bindings['nif']= function(val, $el) {
   if(val) $el.remove()
 }
 
-/* wrap each of $ ? */
+o_O.bindings.options = function(options, $el) {
+  for(var key in options) {
+    $el.append($("<option>").attr("value", options[key]).html(key))
+  }
+}
+
 
 o_O.uniqueId = function() {
   var id = ++o_O.uniqueId.id;

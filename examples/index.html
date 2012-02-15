@@ -92,7 +92,20 @@ o_O.bind({text: 'Hello World'}, '#example1')
 
 <hr />
 
-
+<h2>5. Select</h2>
+<div id=example5 class=example> 
+<div class=inner>
+<select bind='value: count; 
+              options: [0, 1, 2, 3, 4]'>
+</select> 
+<p bind='text: count()'></p> 
+</div>
+  <script type='dontrun'>
+  var metrics = { count: o_O.property(2) }
+  o_O.bind(metrics, '#example5')
+  </script>
+</div>
+<hr />
 
 
 
