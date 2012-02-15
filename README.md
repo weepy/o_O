@@ -30,9 +30,10 @@ Features
 Simple Example
 --------------
 
-```
+```html
 <div id=person bind='text: this'></div>
-
+```
+```javascript
 var name = o_O.property('John')
 
 o_O.bind(name, '#person')
@@ -42,7 +43,6 @@ o_O.bind(name, '#person')
 name('Bob')
 
 // HTML text is now 'Bob'
-
 ```
 
 Further Examples
