@@ -2,7 +2,7 @@ var files = ["header", "o_O", "eventize", "property", "binding", "helpers", "bin
 var fs = require("fs")
 
 var js = files.map(function(file) {
-	return fs.readFileSync("./lib/" + file + ".js")
+  return fs.readFileSync("./lib/" + file + ".js")
 })
 
 fs.writeFileSync("o_O.js", "!function() {\n\n" + js.join("\n\n") + "\n\n}();")

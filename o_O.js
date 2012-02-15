@@ -267,10 +267,10 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
           : x      
 
 
-		if($.fn[attr]) {
-			return $(el)[attr](y)
-		} 
-		
+    if($.fn[attr]) {
+      return $(el)[attr](y)
+    } 
+    
     return o_O.bindings[attr].call(context, y, $(el))
   })
   
@@ -378,8 +378,8 @@ o_O.bindings.value = function(property, $el) {
 
   property.on('set', function(val) {
     $el.attr('type') == 'checkbox'
-    	? $el.attr('checked', val) 
-    	: $el.val(val)
+      ? $el.attr('checked', val) 
+      : $el.val(val)
   })
   
   $el.change(function(e) {
@@ -387,7 +387,7 @@ o_O.bindings.value = function(property, $el) {
     var val = checkbox ? (!!$(e.srcElement).attr('checked')) : $(e.srcElement).val()
     property(val, e)
   })
-	
+  
   property.change() // force a change
 }
 
