@@ -506,9 +506,7 @@ klass.extend = function(type, properties, parent) {
 
 klass.properties = {}
 klass.classes = {}
-klass.genId = function() {
-  return klass.namespace + (++klass.id)
-}
+
 klass.create = function(o) {
   var klss = klass.classes[o.type]
   if(!klss) console.error('no such klass' + o.type)
@@ -669,7 +667,7 @@ fn.render = function(item, $el) {
 }
 
 fn.bind = function($el) {
-  var self
+  var self = this
     
   this.on('add', function(item) {
     self.render(item, $el)
