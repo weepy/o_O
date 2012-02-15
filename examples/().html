@@ -109,29 +109,6 @@ o_O.bind({text: 'Hello World'}, '#example1')
 
 
 
-<h2>6. Complex dependencies</h2>
-<div id=example6 class=example> 
-<div class=inner>
-<p bind='text: fullName()'></p>
-<input bind='value: firstName'></input>
-<input bind='value: secondName'></input>
-
-</div>
-<script type='dontrun'>
-var person = {
-  firstName: o_O.property("John"),
-  secondName: o_O.property("Smith"),
-  fullName: function() { return 
-    this.firstName() + " " + this.secondName() 
-  }
-}
-o_O.bind(person, '#example6')
-</script>
-</div>
-<hr />
-
-
-
 
 
 <script>
