@@ -32,7 +32,7 @@ hr { border-top: 1px solid black}
 <div class=inner>
 <p bind='text: text'></p>
 </div>
-<script type='dontrun'>
+<script type='text/skip'>
 o_O.bind({text: 'Hello World'}, '#example1')
 </script>
 </div>
@@ -47,7 +47,7 @@ o_O.bind({text: 'Hello World'}, '#example1')
   <span bind='text: this()'></span>
 </p>
 </div>
-  <script type='dontrun'>
+  <script type='text/skip'>
   var time = o_O.property()
 
   o_O.bind(time, '#example2')
@@ -69,7 +69,7 @@ o_O.bind({text: 'Hello World'}, '#example1')
 <input bind='value: name'></input>  
 <p bind='text: name()'></p> 
 </div>
-  <script type='dontrun'>
+  <script type='text/skip'>
   var person = { name: o_O.property('John') }
 
   o_O.bind(person, '#example3')
@@ -84,7 +84,7 @@ o_O.bind({text: 'Hello World'}, '#example1')
 <input type=checkbox bind='value: state'></input>  
 <p bind='text: state()'></p> 
 </div>
-  <script type='dontrun'>
+  <script type='text/skip'>
   var person = { state: o_O.property(true) }
   o_O.bind(person, '#example4')
   </script>
@@ -93,16 +93,22 @@ o_O.bind({text: 'Hello World'}, '#example1')
 <hr />
 
 <h2>5. Select</h2>
-<div id=example5 class=example> 
+<div id=farm class=example> 
 <div class=inner>
-<select bind='value: count; 
-              options: [0, 1, 2, 3, 4]'>
-</select> 
-<p bind='text: count()'></p> 
+<select bind="value: animal; 
+              options: ['pig', 'dog', 'cow']" >
+</select>
+<select bind="value: number; 
+              options: {Ten: 10, Twenty: 20}" >
+</select>
+<p bind='text: number() + " " + animal() + "s" '></p>
 </div>
-  <script type='dontrun'>
-  var metrics = { count: o_O.property(2) }
-  o_O.bind(metrics, '#example5')
+  <script type='text/skip'>
+  var farm = { 
+    animal: o_O.property('cow'), 
+    number: o_O.property(20) 
+  }
+  o_O.bind(farm, '#farm')
   </script>
 </div>
 <hr />
@@ -117,12 +123,12 @@ o_O.bind({text: 'Hello World'}, '#example1')
 <input bind='value: secondName'></input>
 
 </div>
-<script type='dontrun'>
+<script type='text/skip'>
 var person = {
   firstName: o_O.property("John"),
   secondName: o_O.property("Smith"),
-  fullName: function() { return 
-    this.firstName() + " " + this.secondName() 
+  fullName: function() { 
+    return this.firstName() + " " + this.secondName() 
   }
 }
 o_O.bind(person, '#example6')

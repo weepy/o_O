@@ -103,9 +103,9 @@ typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
  * Public function to return an observable property
  * sync: whether to emit changes immediately, or in the next event loop
  */
-o_O.property = function(x, sync) {
+o_O.property = function(x) {
   var func = (typeof x == 'function')
-  var prop = func ? computed(x, sync) : simple(x, sync)
+  var prop = func ? computed(x) : simple(x)
   
   o_O.eventize(prop)
   
@@ -150,12 +150,12 @@ var checking = false
 /*
  * Simple property ...
  */
-function simple(defaultValue, sync) {
+function simple(defaultValue) {
   
   function prop(v) {
     if(arguments.length) {
       prop.value = v
-      sync ? prop.emit('set', prop.value, prop.old_value) : asyncEmit(prop)
+      asyncEmit(prop)
     } else {
       if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
     }
@@ -174,13 +174,13 @@ function simple(defaultValue, sync) {
 /*
  * Computed property ...
  */
-function computed(getset, sync) {
+function computed(getset) {
   
   function prop(v) {
     if(arguments.length) {
       prop.old_value = prop.value
       prop.value = getset(v)
-      sync ? prop.emit('set', prop.value, prop.old_value) : asyncEmit(prop)
+      asyncEmit(prop)
     } else {
       prop.value = getset()
       if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
@@ -409,9 +409,13 @@ o_O.bindings['nif']= function(val, $el) {
 }
 
 o_O.bindings.options = function(options, $el) {
-  for(var key in options) {
-    $el.append($("<option>").attr("value", options[key]).html(key))
-  }
+  var isArray = options instanceof Array
+  
+  $.each(options, function(key, value) { 
+    var text = isArray ? value : key
+    $el.append($("<option>").attr("value", value).html(text))
+  })
+  
 }
 
 
