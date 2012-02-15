@@ -82,7 +82,7 @@
         //writeable computed observable to handle marking all complete/incomplete
         self.allCompleted = o_O.property(function(v) {
             if(v === undefined) return !self.remainingCount()
-            self.todos.each(function(todo) {
+            self.todos.forEach(function(todo) {
               todo.done(v);
             })
         })

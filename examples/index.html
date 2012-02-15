@@ -167,6 +167,25 @@ o_O.bind(person, '#ComplexDeps')
 </div>
 <hr />
 
+<h2>Lists</h2>
+<div id=Lists class=example> 
+  <div class=inner>
+  <ul bind='foreach: colors'>
+    <li bind='text: this; css: {color: this}'></li>
+  </ul>
+  </div>
+<script type='text/skip'>
+o_O.bind({ 
+    colors: [ 'red', 'black', 'blue', 'green' ] 
+  }, 
+  '#Lists'
+)
+</script>
+</div>
+<hr />
+
+
+
 
 
 

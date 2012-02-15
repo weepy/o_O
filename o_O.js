@@ -264,11 +264,12 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   o_O.bindFunction(trigger, function(x) {
     var y = typeof x == 'function' && !o_O.property.is(x)
           ? function(e) { return x.call(context, e) }
-          : x      
+          : x
 
 
     if($.fn[attr]) {
-      return $(el)[attr](y)
+      if(y instanceof String) y = y.toString() // strange problem
+      return $(el)[attr].call($(el), y)
     } 
     
     return o_O.bindings[attr].call(context, y, $(el))
@@ -419,6 +420,28 @@ o_O.bindings.options = function(options, $el) {
 }
 
 
+/* Allows binding of a list of elements - expected to respond to forEach */
+
+o_O.bindings.foreach = function(list, $el) {
+  var template = $el.html()
+  $el.html('')
+
+  var render = list.render || function(item) {
+    var html = $(template).appendTo($el)
+    o_O.bind(item, html)
+  }
+
+  list.forEach(function(item, index) {
+    render(item)
+  })
+  
+  if(list.bind) {
+    list.bind()
+  }  
+}
+
+
+
 o_O.uniqueId = function() {
   var id = ++o_O.uniqueId.id;
   var prefix = o_O.uniqueId.prefix 
@@ -560,11 +583,6 @@ o_O.klass = klass
   / __/ _ \/ / / -_) __/ __/ / _ \/ _ \
   \__/\___/_/_/\__/\__/\__/_/\___/_//_/     */
 
-// TODO CHANGE THIS TO AN ARRAY? OR WHAT?!
-
-o_O.bindings.foreach = function(collection, $root) {
-  collection.render($root)
-}
 
 var Collection = function(array) {
   this.objects = {}
@@ -611,7 +629,7 @@ fn.add = function(o) {
 
 fn.filter = function(fn) {
   var ret = [];  
-  this.each(function(o) {
+  this.forEach(function(o) {
     if(fn(o)) ret.push(o)
   })
   return ret
@@ -621,7 +639,7 @@ fn.find = function(i) {
   return this.objects[i]
 }
 
-fn.each = function(fn) {
+fn.forEach = function(fn) {
   this.count(); // force the dependency
   for(var i in this.objects)
     fn.call(this, this.find(i))
@@ -629,7 +647,7 @@ fn.each = function(fn) {
 
 fn.remove = function(o) {
   if(typeof o == 'function') {
-    this.each(function(x) {
+    this.forEach(function(x) {
       if(o(x)) this.remove(x)
     })
   }
@@ -643,21 +661,18 @@ fn.remove = function(o) {
 
 }
 
-fn.render = function($el) {
-  var template = $el.html()
-  $el.html('')
-  
-  function render(o) {
-    var html = $(template).appendTo($el)
-    o_O.bind(o, html)
-  }
-  for(var i in this.objects)
-    render(this.find(i))
-  
-  // add new ones
-  this.on('add', render)
-  this.on('remove', function(o) {
-    $(o.el).remove()
+fn.render = function(item) {
+  var html = $(template).appendTo($el)
+  o_O.bind(item, html)
+}
+
+fn.bind = function() {
+  var self
+  this.on('add', function(item) {
+    this.render(item)
+  })
+  this.on('remove', function(item) {
+    $(item.el).remove()
   })
 }
 
