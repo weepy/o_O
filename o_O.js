@@ -437,7 +437,13 @@ o_O.uniqueId.id = 0
 Simple evented klass system with observable properties
 */
 
-function klass(type, properties, syncEvents) {
+function klass(type, properties, parent) {
+  return klass.extend(type, properties, parent)
+}
+
+klass.extend = function(type, properties, parent) {
+  parent = parent || this
+  
   // allow typeless classes
   if(properties == null) {
     properties = type
@@ -449,10 +455,10 @@ function klass(type, properties, syncEvents) {
   var child = function child(o) {
     if(!(this instanceof child)) return new child(o)
     o = o || {}
-
+    o_O.eventize(this)
     for(var name in properties) {
       var defaultValue = (name in o) ? o[name] : properties[name]
-      this[name] = o_O.property(defaultValue, syncEvents)
+      this[name] = o_O.property(defaultValue)
       this.observeProperty(name)
     }
     this.type = type
@@ -462,7 +468,7 @@ function klass(type, properties, syncEvents) {
   }
   
   o_O.eventize(child)
-  o_O.inherits(child, this)
+  o_O.inherits(child, parent)
   
   if(type) {
     klass.classes[type] = child
@@ -470,11 +476,10 @@ function klass(type, properties, syncEvents) {
   }
   
   child.properties = properties
-  child.extend = this.extend
+  child.extend = klass.extend
   return child
 }
 
-klass.extend = klass
 klass.properties = {}
 klass.classes = {}
 klass.genId = function() {
