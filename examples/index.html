@@ -28,29 +28,29 @@ hr { border-top: 1px solid black}
 
 
 <h2>1. Simple Binding</h2>
-<div id=example1 class=example>
+<div id=Simple class=example>
 <div class=inner>
 <p bind='text: text'></p>
 </div>
 <script type='text/skip'>
-o_O.bind({text: 'Hello World'}, '#example1')
+o_O.bind({text: 'Hello World'}, '#Simple')
 </script>
 </div>
 <hr />
 
 
 <h2>2. Auto updating</h2>
-<div id=example2 class=example>
+<div id=AutoUpdate class=example>
 <div class=inner>
-<p>
-  <span>ms since 1st Jan 1970: </span>
-  <span bind='text: this()'></span>
-</p>
+  <p>
+    <span>ms since 1st Jan 1970: </span>
+    <span bind='text: this()'></span>
+  </p>
 </div>
   <script type='text/skip'>
   var time = o_O.property()
 
-  o_O.bind(time, '#example2')
+  o_O.bind(time, '#AutoUpdate')
 
   setInterval(function() {
     time(Date.now())
@@ -64,29 +64,29 @@ o_O.bind({text: 'Hello World'}, '#example1')
 
 <h2>3. Binding to inputs</h2>
 <p>(try entering new name)</p>
-<div id=example3 class=example> 
+<div id=Binding class=example> 
 <div class=inner>
-<input bind='value: name'></input>  
-<p bind='text: name()'></p> 
+  <input bind='value: name'></input>  
+  <p bind='text: name()'></p> 
 </div>
   <script type='text/skip'>
   var person = { name: o_O.property('John') }
 
-  o_O.bind(person, '#example3')
+  o_O.bind(person, '#Binding')
   </script>
 </div>
 
 <hr />
 
 <h2>4. Checkbox</h2>
-<div id=example4 class=example> 
+<div id=Checkbox class=example> 
 <div class=inner>
-<input type=checkbox bind='value: state'></input>  
-<p bind='text: state()'></p> 
+  <input type=checkbox bind='value: state'></input>  
+  <p bind='text: state()'></p> 
 </div>
   <script type='text/skip'>
   var person = { state: o_O.property(true) }
-  o_O.bind(person, '#example4')
+  o_O.bind(person, '#Checkbox')
   </script>
 </div>
 
@@ -95,13 +95,13 @@ o_O.bind({text: 'Hello World'}, '#example1')
 <h2>5. Select</h2>
 <div id=farm class=example> 
 <div class=inner>
-<select bind="value: animal; 
-              options: ['pig', 'dog', 'cow']" >
-</select>
-<select bind="value: number; 
-              options: {Ten: 10, Twenty: 20}" >
-</select>
-<p bind='text: number() + " " + animal() + "s" '></p>
+  <select bind="value: animal; 
+                options: ['pig', 'dog', 'cow']" >
+  </select>
+  <select bind="value: number; 
+                options: {Ten: 10, Twenty: 20}" >
+  </select>
+  <p bind='text: number() + " " + animal() + "s" '></p>
 </div>
   <script type='text/skip'>
   var farm = { 
@@ -116,13 +116,12 @@ o_O.bind({text: 'Hello World'}, '#example1')
 
 
 <h2>6. Complex dependencies</h2>
-<div id=example6 class=example> 
-<div class=inner>
-<p bind='text: fullName()'></p>
-<input bind='value: firstName'></input>
-<input bind='value: secondName'></input>
-
-</div>
+<div id=ComplexDeps class=example> 
+  <div class=inner>
+  <p bind='text: fullName()'></p>
+  <input bind='value: firstName'></input>
+  <input bind='value: secondName'></input>
+  </div>
 <script type='text/skip'>
 var person = {
   firstName: o_O.property("John"),
@@ -131,7 +130,7 @@ var person = {
     return this.firstName() + " " + this.secondName() 
   }
 }
-o_O.bind(person, '#example6')
+o_O.bind(person, '#ComplexDeps')
 </script>
 </div>
 <hr />
@@ -149,7 +148,10 @@ $('.example').each(function() {
   var code = $("<code>", {html: js})
   $(this).prepend($("<pre class=js/>").append(code))
   
-  var html = $.trim($(this).find('.inner').html().replace(/\</g, '&lt;'))
+  var html = $.trim($(this).find('.inner').html())
+  
+  html = "<div id='" + this.id + "'>\n  " + html + "\n</div>"
+  html = html.replace(/\</g, '&lt;')
   $(this).prepend($("<pre class=html/>").append(html))
   eval(js)
 })
