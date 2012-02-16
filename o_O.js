@@ -66,7 +66,13 @@ typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
           events[i].apply(this, args)
       }
       return this
-    }
+    },
+		emitNextLoop : function() {
+			var self = this
+			setTimeout(function() {
+				self.emit.apply(self, arguments)
+			}, 0)
+		}
   }
 
   o_O.eventize = function(o) {
@@ -76,7 +82,6 @@ typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
     return o
   }
 }();
-
 
 /*                               _         
  _ __  _ __ ___  _ __   ___ _ __| |_ _   _ 
