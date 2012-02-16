@@ -1,0 +1,218 @@
+<html>
+<body>
+<head>
+<link rel="stylesheet" href='bootstrap.min.css'></link>
+<script src="highlight.min.js"></script>
+<script src='../../o_O.js'></script>
+<script src='http://code.jquery.com/jquery-1.7.1.js'></script>
+<link rel="stylesheet" href="github.min.css">
+<link rel="stylesheet" href="style.css">
+<script src='app.js'></script>
+
+</head>
+<body>
+<div class="container">
+<div class="row">
+<h1 class="sans-serif" style='text-align: center; margin-bottom: 10px'>o_O</h1>
+
+</div>
+
+<div class="row">
+<a class=btn>Basic Binding</a>
+<div id=Simple class=example>
+<div class=inner>
+<p bind='text: greeting'></p>
+</div>
+<script type='text/skip'>
+o_O.bind({greeting: 'Hello World'}, '#example')
+</script>
+</div>
+
+
+
+<a class=btn>Auto updating</a>
+<div id=AutoUpdate class=example>
+<div class=inner>
+<p>
+  <span>ms since 1st Jan 1970: </span>
+  <span bind='text: this()'></span>
+</p>
+</div>
+<script type='text/skip'>
+var time = o_O.property()
+
+o_O.bind(time, '#example')
+
+setInterval(function() {
+  time(Date.now())
+}, 100)
+
+</script>
+</div>
+
+
+
+
+<a class=btn>Binding to text fields</a>
+
+<div id=Binding class=example> 
+<div class=inner>
+
+<input bind='value: name'></input>  
+<p bind='text: name()'></p> 
+</div>
+<script type='text/skip'>
+var person = { name: o_O.property('John') }
+
+o_O.bind(person, '#example')
+</script>
+</div>
+
+
+
+<a class=btn>Checkbox</a>
+<div id=Checkbox class=example> 
+<div class=inner>
+<input type=checkbox bind='value: state'></input>  
+<p bind='text: state()'></p> 
+</div>
+<script type='text/skip'>
+var person = { state: o_O.property(true) }
+o_O.bind(person, '#example')
+</script>
+</div>
+
+
+
+<a class=btn>Select</a>
+<div id=farm class=example> 
+<div class=inner>
+<select bind="value: animal; 
+              options: ['pig', 'dog', 'cow']" >
+</select>
+<select bind="value: number; 
+              options: {Ten: 10, Twenty: 20}" >
+</select>
+<p bind='text: number()+" "+animal() +"s"'></p>
+</div>
+<script type='text/skip'>
+var farm = { 
+  animal: o_O.property('cow'), 
+  number: o_O.property(20) 
+}
+o_O.bind(farm, '#example')
+</script>
+</div>
+
+
+
+
+<a class=btn>Complex dependencies</a>
+<div id=ComplexDeps class=example> 
+<div class=inner>
+<p bind='text: fullName()'></p>
+<input bind='value: first'></input>
+<input bind='value: family'></input>
+</div>
+<script type='text/skip'>
+var person = {
+  first: o_O.property("John"),
+  family: o_O.property("Smith"),
+  fullName: function() { 
+    return this.first() +" "+ this.family() 
+  }
+}
+o_O.bind(person, '#example')
+</script>
+</div>
+
+
+<a class=btn>Lists</a>
+<div id=Lists class=example> 
+<div class=inner>
+<ul bind='foreach: colors'>
+  <li bind='text: this; css: {color: this}'></li>
+</ul></div>
+<script type='text/skip'>
+o_O.bind({ 
+  colors: [ 'red', 'black', 'blue', 'green' ] 
+}, '#example')
+</script>
+</div>
+
+
+<a class=btn>Events and helpers</a>
+<div id=Events class=example> 
+<div class=inner>
+<input bind='value: name; keyup: o_O.value(name)' />
+<button bind='click: capitalize'>Capitalize</button>
+</ul>
+</div>
+<script type='text/skip'>
+var model = { 
+  name: o_O.property('John'),
+  capitalize: function() { 
+    var upper = model.name().toUpperCase()
+    model.name(upper)
+  }
+}
+o_O.bind(model,  '#example')
+</script>
+</div>
+
+
+<a class=btn>visible, and css</a>
+<div id=visible class=example> 
+<div class=inner>
+<input type=checkbox bind='value: show' />
+<button bind='visible: show(); css: css'>HELLOO</button>
+<button bind='visible: !show()'>GOODBYE</button>
+</ul>
+</div>
+<script type='text/skip'>
+var model = {
+  show: o_O.property(true),
+  css: { color : 'red'}
+}
+o_O.bind(model,  '#example')
+</script>
+</div>
+
+
+<style>.big {font-size: 200% !important; font-weight: bold} </style>
+
+<a class=btn>classes</a>
+<div id=classes class=example> 
+  
+<div class=inner>
+<input type=checkbox bind='value: big' />
+<span bind='class: myClass(); text: myClass()'></span>
+</div>
+<script type='text/skip'>
+var model = {
+  big: o_O.property(false),
+  myClass: function() {
+    return model.big() ? "big" : "small"
+  }
+}
+o_O.bind(model,  '#example')
+</script>
+</div>
+
+</div>
+<div class="row">
+  
+<div id="current"></div>
+
+</div>
+<br/><br/><br/><br/><br/><br/><br/><br/>
+
+
+</div>
+
+
+<script>
+  hljs.tabReplace = '    ';
+</script>
+</body>
+</html>

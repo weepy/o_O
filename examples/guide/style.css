@@ -1,0 +1,75 @@
+
+<style>
+body { font-family: arial}
+
+h1 {
+	font-size: 150px;
+	line-height: 160px;
+	text-shadow:2px 5px 5px #A3A3A3
+}
+.row {
+  margin-top: 20px;
+}
+
+.btn {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+.example { 
+  display: none;
+}
+
+#example  *{
+	font-size: 120%;
+}
+.inner { background: #efefef; padding: 5px}
+
+hr { border: 0px solid black}
+#example {
+  clear: both;
+  border: 1px solid #aaa;
+  padding: 20px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+}
+code {
+  border: 0 !important;
+}
+.js, .html {
+  width: 500px;
+  display: block;
+  border: 1px solid #ddd;
+}
+
+.html {
+  margin-right: 10px;
+}
+
+.container {
+  width: 500px;
+}
+.js, .html, #example {
+  position: relative;
+}
+
+
+label {
+  position: absolute;
+  bottom: -3px;
+  right: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  background: #abc;
+  color: #fff;
+  padding: 0 5px;
+  font-family: arial;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+code { font-family: monaco; courier; fixed; font-size: 12px}
+
+
+pre {margin-top: 0 !important}
+
+code {word-wrap: break-word;}

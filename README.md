@@ -48,7 +48,7 @@ name('Bob')
 Further Examples
 ----------------
 
-examples/index.html is a simple guide
+examples/guide/index.html is a simple guide to o_O's features
 
 examples/todos/index.html is the obligatory Todos example converted to o_O
 
