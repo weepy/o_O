@@ -36,20 +36,21 @@ Examples
 Features
 --------
 
-h3 o_O.property()
+```o_O.property(default)```
   
 Evented properties with automatic dependency resolution
 
-h3 o_O.bind(object, '#dom')
+```o_O.bind(object, '#dom')```
   
 Bind's an object to a section of HTML with 'bind' attributes
 
-h3 o_O.collection    
-  a simple collection of objects
-
-h3 o_O.klass
+```o_O.collection()```
   
-a simple klass with o_O.property
+A simple collection of objects
+
+```o_O.klass```
+  
+An OO class with o_O.property's for elements
 
 
 Running Tests
