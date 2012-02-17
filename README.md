@@ -36,19 +36,19 @@ Examples
 Features
 --------
 
-```o_O.property(default)```
+<code>o_O.property(default)</code>
   
 Evented properties with automatic dependency resolution
 
-```o_O.bind(object, '#dom')```
+<code>o_O.bind(object, '#dom')</code>
   
 Bind's an object to a section of HTML with 'bind' attributes
 
-```o_O.collection()```
+<code>o_O.collection()</code>
   
 A simple collection of objects
 
-```o_O.klass```
+<code>o_O.klass</code>
   
 An OO class with o_O.property's for elements
 
