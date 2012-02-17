@@ -24,59 +24,45 @@ HTML binding for Lulz
 
 * Plays well with others
 
-(c) 2012 by Jonah Fox (weepy), MIT Licensed
 
 
-Simple Example
---------------
+Examples
+--------
 
-```html
-<div id=person bind='text: this'></div>
-```
-```javascript
-var name = o_O.property('John')
+* Basic overview: http://weepy.github.com/o_O/examples/guide/index.html
 
-o_O.bind(name, '#person')
-
-// HTML text is now 'John'
-
-name('Bob')
-
-// HTML text is now 'Bob'
-```
-
-Further Examples
-----------------
-
-examples/guide/index.html is a simple guide to o_O's features
-
-examples/todos/index.html is the obligatory Todos example converted to o_O
+* obligatory todos: http://weepy.github.com/o_O/examples/todos/index.html
 
 Features
 --------
 
-* o_O.property      : evented properties with automatic dependency resolution
-* o_O.bind          : bind an object to a section of HTML with 'bind' attributes
-* o_O.collection    : a simple collection of objects
-* o_O.klass         : a simple klass with o_O.property
+* o_O.property()
+  Evented properties with automatic dependency resolution
+
+* o_O.bind(object, '#dom')
+  Bind's an object to a section of HTML with 'bind' attributes
+
+* o_O.collection    
+  a simple collection of objects
+
+* o_O.klass
+  a simple klass with o_O.property
 
 
 Running Tests
 -------------
 
-either just run
-
 mocha
 
-or open test/mocha.html
+for dom tests: open test/mocha.html
 
 Compatability
 -------------
 
 Tested in IE 7,8,9, Chrome 16, Firefox 4 and Safari 5
 
-Todo
-----
 
-* Website
+License
+-------
 
+(c) 2012 by Jonah Fox (weepy), MIT Licensed
