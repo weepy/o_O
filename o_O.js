@@ -385,8 +385,8 @@ o_O.bindings.value = function(property, $el) {
   })
   
   $el.change(function(e) {
-    var checkbox = $(e.srcElement).attr('type') == 'checkbox'
-    var val = checkbox ? (!!$(e.srcElement).attr('checked')) : $(e.srcElement).val()
+    var checkbox = $(this).attr('type') == 'checkbox'
+    var val = checkbox ? (!!$(this).attr('checked')) : $(this).val()
     property(val, e)
   })
   
