@@ -41,10 +41,10 @@ describe('a collection', function() {
       expect(col.count()).to.be(0)
     })
     
-    it('deletes id', function() {
-      col.remove(obj)
-      expect(obj.id).to.be(undefined)
-    })
+    // it('deletes id', function() {
+    //   col.remove(obj)
+    //   expect(obj.id).to.be(undefined)
+    // })
       
   })
 

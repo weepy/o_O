@@ -33,54 +33,109 @@ function trim(s) {
 }
 typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 
-/*********          _   _        
+
+o_O.uniqueId = function() {
+  var id = ++o_O.uniqueId.id;
+  var prefix = o_O.uniqueId.prefix 
+  return prefix ? prefix + id : id;
+}
+o_O.uniqueId.id = 0
+
+
+/* * * * * * * * *   _   _        
  *   _____ _____ _ _| |_(_)______ 
  *  / -_) V / -_) ' \  _| |_ / -_)
  *  \___|\_/\___|_||_\__|_/__\___|     
- */
-!function() {
-  var methods  = {
-    on  : function(event, fct){
-      this._events = this._events || {};
-      this._events[event] = this._events[event]  || [];
-      this._events[event].push(fct);
-      return this
-    },
-    off  : function(event, fct){
-      this._events = this._events || {};
-      if( event in this._events === false  )  return;
-      this._events[event].splice(this._events[event].indexOf(fct), 1);
-      return this
-    },
-    emit  : function(event /* , args... */){
-      this._events = this._events || {};
-      var args = Array.prototype.slice.call(arguments, 1)
-      var events
-      if(events = this._events[event]) {
-        for(var i = 0; i < events.length; i++)
-          events[i].apply(this, args)
-      }
-      args.unshift(event)
-      if(events = this._events['*']) {
-        for(var i = 0; i < events.length; i++)
-          events[i].apply(this, args)
-      }
-      return this
-    },
-		emitNextLoop : function() {
-			var self = this
-			setTimeout(function() {
-				self.emit.apply(self, arguments)
-			}, 0)
-		}
-  }
+ *
+ * adapted from backbone */
 
-  o_O.eventize = function(o) {
-    o.on = methods.on
-    o.off = methods.off
-    o.emit = methods.emit
-    return o
+!function() {
+
+var slice = Array.prototype.slice
+
+var methods = {	
+ /*
+	* Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
+	* */
+	on: function(events, callback, context) {
+	  var ev;
+	  events = events.split(/\s+/);
+	  var calls = this._callbacks || (this._callbacks = {});
+	  while (ev = events.shift()) {
+
+	    var list  = calls[ev] || (calls[ev] = {});
+	    var tail = list.tail || (list.tail = list.next = {});
+	    tail.callback = callback;
+	    tail.context = context;
+	    list.tail = tail.next = {};
+	  }
+	  return this;
+	},
+
+ /* 
+ 	* Remove one or many callbacks. If context is null, removes all callbacks with that function. 
+  * If callback is null, removes all callbacks for the event. 
+	* If ev is null, removes all bound callbacks for all events.
+	* */
+	off: function(events, callback, context) {
+	  var ev, calls, node;
+	  if (!events) {
+	    delete this._callbacks;
+	  } else if (calls = this._callbacks) {
+	    events = events.split(/\s+/);
+	    while (ev = events.shift()) {
+	      node = calls[ev];
+	      delete calls[ev];
+	      if (!callback || !node) continue;
+
+	    	// Create a new list, omitting the indicated event/context pairs.
+
+	      while ((node = node.next) && node.next) {
+	        if (node.callback === callback &&
+	          (!context || node.context === context)) continue;
+	        this.on(ev, node.callback, node.context);
+	      }
+	    }
+	  }
+	  return this;
+	},
+ /*
+  * Trigger an event, firing all bound callbacks. Callbacks are passed the same arguments as emit is, apart from the event name. 
+  * Listening for "*" passes the true event name as the first argument.
+  * */
+  emit: function(events) {
+    var event, node, calls, tail, args, all, rest;
+    if (!(calls = this._callbacks)) return this;
+    all = calls['*'];
+    (events = events.split(/\s+/)).push(null);
+
+    // Save references to the current heads & tails.
+    while (event = events.shift()) {
+      if (all) events.push({next: all.next, tail: all.tail, event: event});
+      if (!(node = calls[event])) continue;
+      events.push({next: node.next, tail: node.tail});
+    }
+
+    //Traverse each list, stopping when the saved tail is reached.
+
+    rest = slice.call(arguments, 1);
+    while (node = events.pop()) {
+      tail = node.tail;
+      args = node.event ? [node.event].concat(rest) : rest;
+      while ((node = node.next) !== tail) {
+        node.callback.apply(node.context || this, args);
+      }
+    }
+    return this;
   }
+}
+
+o_O.eventize = function(obj) {
+  for (var prop in methods)
+    obj[prop] = methods[prop]
+  return obj
+}
+
 }();
 
 /*                               _         
@@ -226,7 +281,7 @@ function indexOf(array, obj, start) {
 
 
 o_O.expression = function(text) {
-  o_O.expression.last = text      // useful for catching syntax errors if this breaks
+  o_O.expression.last = text      // useful for catching syntax errors 
   return new Function('o_O', 'with(this) { { return (' + text + ')} } ')
 }
 
@@ -254,7 +309,6 @@ o_O.bindFunction = function(fn, callback) {
   }
 }
 
-
 o_O.bindElementToRule = function(el, attr, expr, context) {
   var expression = o_O.expression(expr)
   
@@ -264,9 +318,8 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
 
   o_O.bindFunction(trigger, function(x) {
     var y = typeof x == 'function' && !o_O.property.is(x)
-          ? function(e) { return x.call(context, e) }
+          ? function() { return x.apply(context, arguments)}
           : x
-
 
     if($.fn[attr]) {
       if(y instanceof String) y = y.toString() // strange problem
@@ -275,9 +328,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
     
     return o_O.bindings[attr].call(context, y, $(el))
   })
-  
 }
-
 
 function map(array, fn) {
   var ret = []
@@ -285,7 +336,7 @@ function map(array, fn) {
   return ret
 }
 
-function extractRules  (str) {
+function extractRules(str) {
   var rules = trim(str).split(";")
   var ret = []
   for(var i=0; i <rules.length; i++) {
@@ -307,13 +358,9 @@ o_O.bind = function(context, dom) {
   
   function bind(el, k, v) {
     var $$ = $(el)
-    
     var rules = extractRules($$.attr("bind"))
-
-    for(var i=0; i <rules.length; i++) {
-      var rule = rules[i]
-      o_O.bindElementToRule($$, rule[0], rule[1], context)
-    }
+    for(var i=0; i <rules.length; i++)
+      o_O.bindElementToRule($$, rules[i][0], rules[i][1], context)
     $$.attr("bind",null)
   }
   
@@ -334,6 +381,7 @@ o_O.bind = function(context, dom) {
     bind(this, k, v)
   })
   
+  context.onbind && context.onbind()
 }
 
 
@@ -343,11 +391,18 @@ o_O.helpers = {}
 
 o_O.helpers.value = function(fn) {
   return function(e) { 
-    return fn( $(this).val(), e) 
+    return fn.call(this, $(e.currentTarget).val(), e) 
   }
 }
 
-
+// helper functions
+o_O.helpers.mousepos = function(fn) {
+	return function(e) {
+	  var el = e.currentTarget
+		var o = $(el).offset()
+    fn.call(this, e.pageX - o.left, e.pageY - o.top, e)
+	}
+}
 
 /*              _                    _     _           _ _                 
   ___ _   _ ___| |_ ___  _ __ ___   | |__ (_)_ __   __| (_)_ __   __ _ ___ 
@@ -376,8 +431,6 @@ o_O.bindings['class'] = function(klass, $el) {
  * special cases for checkbox
  */
 o_O.bindings.value = function(property, $el) {
-  var self = this
-
   property.on('set', function(val) {
     $el.attr('type') == 'checkbox'
       ? $el.attr('checked', val) 
@@ -401,8 +454,7 @@ o_O.bindings.visible = function(val, $el) {
   val ? $el.show() : $el.hide()
 }
 
-
-o_O.bindings['if' ]= function(val, $el) {
+o_O.bindings['if']= function(val, $el) {
   if(!val) $el.remove()
 }
 
@@ -444,31 +496,28 @@ o_O.bindings.foreach = function(list, $el) {
 
 
 
-o_O.uniqueId = function() {
-  var id = ++o_O.uniqueId.id;
-  var prefix = o_O.uniqueId.prefix 
-  return prefix ? prefix + id : id;
-}
-o_O.uniqueId.id = 0
 
-/*
- __   .__                        
-|  | _|  | _____    ______ ______
-|  |/ /  | \__  \  /  ___//  ___/
-|    <|  |__/ __ \_\___ \ \___ \ 
-|__|_ \____(____  /____  >____  >
-     \/         \/     \/     \/                    
+!function() {
 
-Simple evented klass system with observable properties
+ /*                                         	
+          ___                       _      _ 
+  ___    / _ \  _ __ ___   ___   __| | ___| |
+ / _ \  | | | || '_ ` _ \ / _ \ / _` |/ _ \ |
+| (_) | | |_| || | | | | | (_) | (_| |  __/ |
+ \___/___\___(_)_| |_| |_|\___/ \__,_|\___|_|
+    |_____|                                  
+
+																							
+(c) 2012 by Jonah Fox (weepy), MIT Licensed
+																							
+Model with observable properties, subclasses, evented
 */
 
-function klass(type, properties, parent) {
-  return klass.extend(type, properties, parent)
+function model(type, properties) {
+  return model.extend(type, properties)
 }
 
-klass.extend = function(type, properties, parent) {
-  parent = parent || this
-  
+model.extend = function(type, properties) {  
   // allow typeless classes
   if(properties == null) {
     properties = type
@@ -484,6 +533,8 @@ klass.extend = function(type, properties, parent) {
     for(var name in properties) {
       var defaultValue = (name in o) ? o[name] : properties[name]
       this[name] = o_O.property(defaultValue)
+      
+      
       this.observeProperty(name)
     }
     this.type = type
@@ -493,30 +544,30 @@ klass.extend = function(type, properties, parent) {
   }
   
   o_O.eventize(child)
-  o_O.inherits(child, parent)
+  o_O.inherits(child, this)
   
   if(type) {
-    klass.classes[type] = child
+    model.models[type] = child
     child.type = type
   }
   
   child.properties = properties
-  child.extend = klass.extend
+  child.extend = model.extend
   return child
 }
 
-klass.properties = {}
-klass.classes = {}
+model.properties = {}
+model.models = {}
 
-klass.create = function(o) {
-  var klss = klass.classes[o.type]
-  if(!klss) console.error('no such klass' + o.type)
+model.create = function(o) {
+  var klss = model.models[o.type]
+  if(!klss) console.error('no such model' + o.type)
   return new klss(o)
 }
-o_O.eventize(klass)
+o_O.eventize(model)
 
 
-var proto = klass.prototype
+var proto = model.prototype
 
 o_O.eventize(proto)
 proto.observeProperty = function(name) {
@@ -534,11 +585,11 @@ proto.initialize = function(o) {
   
 }
 
-// update a json object of named values
+// update a json model of named values
 proto.update = function(o) {
-  for(var i in o) {
-    if(this.constructor.properties[i] != undefined)
-      this[i](o[i])
+  for(var key in o) {
+    if(key in this.constructor.properties)
+      this[key](o[key])
   }
 }
 
@@ -562,6 +613,7 @@ proto.toJSON = function() {
 
 
 o_O.inherits = function(child, parent) { 
+  
   // dont copy over class variables/functions
   // for (var key in parent) { 
   //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
@@ -576,24 +628,30 @@ o_O.inherits = function(child, parent) {
   return child; 
 };
 
-o_O.klass = klass
+
+o_O.model = model
+
+
+
+}();
 
 /*           ____        __  _         
    _______  / / /__ ____/ /_(_)__  ___ 
   / __/ _ \/ / / -_) __/ __/ / _ \/ _ \
   \__/\___/_/_/\__/\__/\__/_/\___/_//_/     */
 
-
-var Collection = function(array) {
+function Collection(models) {
+  if(this.constructor != Collection) return new Collection(models)
+  
   this.objects = {}
   this.count = o_O.property(0)
   
   this.id = 0
   
   o_O.eventize(this) 
-  if(array) {
-    for(var i=0; i< array.length;i++) {
-      this.add(array[i])
+  if(models) {
+    for(var i=0; i< models.length;i++) {
+      this.add(models[i])
     }
   }
 }
@@ -607,24 +665,33 @@ fn.genId = function() {
 fn.add = function(o) {
   o.id = o.id || this.genId()
   this.objects[o.id] = o
-  o.parent = this
-  this.emit('add', o)
   
-  var collection = this
+  o.collection = this
   
-  // emit change events for children
-  for(var i in o) {
-    var prop = o[i]
-    if(prop.emit && prop.change) {
-      !function(prop, i) {
-        prop.change(function(val, old) {
-          collection.emit('change', o, i, val, old)
-        })
-      }(prop, i)
-    }
-  }
+  o.on && o.on('*', this._onevent, this)
+  o.emit && o.emit('add', o)
+  
+  // // emit change events for children
+  // for(var i in o) {
+  //   var prop = o[i]
+  //   if(prop.emit && prop.change) {
+  //     !function(prop, i) {
+  //       prop.change(function(val, old) {
+  //         collection.emit('change', o, i, val, old)
+  //       })
+  //     }(prop, i)
+  //   }
+  // }
   
   this.count.incr()
+}
+
+fn._onevent = function(ev, o, collection) {
+  if ((ev == 'add' || ev == 'remove') && collection != this) return
+  if (ev == 'destroy') {
+    this.remove(model)
+  }
+  this.emit.apply(this, arguments)
 }
 
 fn.filter = function(fn) {
@@ -646,22 +713,15 @@ fn.forEach = function(fn) {
 }
 
 fn.remove = function(o) {
-  if(typeof o == 'function') {
-    this.forEach(function(x) {
-      if(o(x)) this.remove(x)
-    })
-  }
-  else {
-    delete this.objects[o.id]
-    this.count.incr(-1)
-    delete o.parent
-    delete o.id
-    this.emit('remove', o)
-  }
-
+  delete this.objects[o.id]
+  this.count.incr(-1)
+  // delete o.id
+  this.emit('remove', o)
+  if(this == o.collection) delete o.collection
+  o.off && o.off('all', this._onevent, this)
 }
 
-fn.render = function(item, $el) {
+fn.renderOne = function(item, $el) {
   var template = $el.data('o_O:template')
   var html = $(template).appendTo($el)
   o_O.bind(item, html)
@@ -671,17 +731,14 @@ fn.bind = function($el) {
   var self = this
     
   this.on('add', function(item) {
-    self.render(item, $el)
+    self.renderOne(item, $el)
   })
   this.on('remove', function(item) {
     $(item.el).remove()
   })
 }
 
+o_O.collection = Collection
 
-o_O.collection = function(items) {
-  var col = new Collection(items)
-  return col
-}
 
 }();
