@@ -317,6 +317,8 @@ o_O.bindFunction = function(fn, callback) {
 }
 
 o_O.bindElementToRule = function(el, attr, expr, context) {
+  if(attr == '"class"') attr = "class"
+  
   var expression = o_O.expression(expr)
   
   var trigger = function() {
@@ -341,10 +343,13 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
       return $(el)[attr].call($(el), y)
     } 
     
+    
+    
     var binding = o_O.bindings[attr]
+    
     binding
       ? binding.call(context, y, $(el))
-      : $el.attr(attr, y)
+      : $(el).attr(attr, y)
   })
 }
 
@@ -518,6 +523,12 @@ o_O.bindings['nif']= function(val, $el) {
   return o_O.bindings['if'](!val, $el)
 }
 
+o_O.bindings['with'] = function(context, $el) {
+  var template = getTemplate($el)
+  $el.html(context ? template : '')
+  if(context) o_O.bind(context, $el)    
+}
+
 o_O.bindings.options = function(options, $el) {
   var isArray = options instanceof Array
   
@@ -553,11 +564,7 @@ o_O.bindings.foreach = function(list, $el) {
   }  
 }
 
-o_O.bindings['with'] = function(context, $el) {
-  var template = getTemplate($el)
-  $el.html(context ? template : '')
-  if(context) o_O.bind(context, $el)    
-}
+
 
 o_O.bindings.log = function(context, $el) {
   console.log('o_O', context, $el, this)
