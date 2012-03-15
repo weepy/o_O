@@ -1,18 +1,12 @@
 expect = global.expect || require('expect.js')
-o_O = global.o_O || require('../lib/o_O')
-if(typeof module != 'undefined') {
-  require('../lib/eventize')
-  require('../lib/property')
-  require('../lib/binding')
-  require('../lib/bindings')
-  require('../lib/collection')
-}
+o_O = global.o_O || require('../o_O')
+
 
 describe('a collection', function() {
   var col
   
   beforeEach(function() {
-    col = o_O.collection()
+    col = o_O.Collection()
   })
 
   it('has a count of 0', function() {
@@ -32,7 +26,7 @@ describe('a collection', function() {
     })
     
     it('sets id', function() {
-      expect(obj.id).to.be(1)
+      expect(obj.id).to.ok
     })
     
     

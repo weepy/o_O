@@ -44,7 +44,7 @@ Evented properties with automatic dependency resolution
   
 Bind's an object to a section of HTML with 'bind' attributes
 
-<code>o_O.collection()</code>
+<code>o_O.Collection()</code>
   
 A simple collection of objects
 

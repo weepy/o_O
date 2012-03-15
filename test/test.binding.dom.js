@@ -1,7 +1,7 @@
 var el , color
 
 if(typeof module != 'undefined') {
-  console.log("\n  BTW: skipping dom tests. use mocha.html")
+  console.log("\nTo run DOM tests\n  open test/mocha.html")
   return
 }
 

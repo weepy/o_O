@@ -1,9 +1,6 @@
 expect = global.expect || require('expect.js')
-o_O = global.o_O || require('../lib/o_O')
-if(typeof module != 'undefined') {
-  require('../lib/eventize')
-  require('../lib/property')
-}
+o_O = global.o_O || require('../o_O')
+
 
 var age, count = 0
 

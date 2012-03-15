@@ -101,4 +101,4 @@ fn.bind = function($el) {
   })
 }
 
-o_O.collection = Collection
+o_O.Collection = Collection
