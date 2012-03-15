@@ -341,7 +341,10 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
       return $(el)[attr].call($(el), y)
     } 
     
-    return o_O.bindings[attr].call(context, y, $(el))
+    var binding = o_O.bindings[attr]
+    binding
+      ? binding.call(context, y, $(el))
+      : $el.attr(attr, y)
   })
 }
 
@@ -471,16 +474,6 @@ o_O.helpers.position = function(fn) {
  */
 
 o_O.bindings = {}
-
-/* class, id, href, src shortcuts
- * usage: bind='class: myClass' 
- */
-
-o_O.bindings['"class"'] = o_O.bindings['class'] = function(klass, $el) { $el.attr('class', klass) }
-o_O.bindings['id'] = function(klass, $el) { $el.attr('id', klass) }
-o_O.bindings['href'] = function(klass, $el) { $el.attr('href', klass) }
-o_O.bindings['src'] = function(klass, $el) { $el.attr('src', klass) }
-
 
 /* Two-way binding to a form element
  * usage: bind='value: myProperty'
