@@ -320,7 +320,9 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   var expression = o_O.expression(expr)
   
   var trigger = function() {
-    try { return expression.call(context, o_O.helpers) }
+    try { 
+      return expression.call(context, o_O.helpers) 
+    }
     catch(e) {
       console.log('Error: el: ', el, 'expression:', expr, 'attr:', attr, 'context:', context)
       throw(e)
@@ -329,7 +331,9 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
 
   o_O.bindFunction(trigger, function(x) {
     var y = typeof x == 'function' && !o_O.property.is(x)
-          ? function() { return x.apply(context, arguments)}
+          ? function() { 
+              return x.apply(context, arguments)
+            }
           : x
 
     if($.fn[attr]) {
@@ -365,24 +369,12 @@ function extractRules(str) {
   return ret
 }
 
-
 o_O.bind = function(context, dom, recursing) {
-  var $el = $(dom),
-      template,
-      attr
-      
-  if(!recursing) {
-    context.el = $el[0]
-    template = $el.html()
-    attr = $el.attr('bind')
-    $el.attr('bind', null)
-    $el.html('')
-    $el.data('o_O:template', template)
-    $el.data('o_O:bind', attr)
-  }
+  var $el = $(dom)
+  if(!recursing) context.el = $el[0]
   
   var recurse = true
-  var rules = extractRules(attr)
+  var rules = extractRules($el.attr("bind"))
   
   for(var i=0; i <rules.length; i++) {
     var method = rules[i][0]
@@ -400,6 +392,53 @@ o_O.bind = function(context, dom, recursing) {
   if(!recursing) context.onbind && context.onbind()
 }
 
+// o_O.bind = function(context, dom, recursing) {
+//   var $el = $(dom),
+//       template,
+//       attr
+//       
+//   if(!recursing) {
+//     context.el = $el[0]
+//     template = $el.html()
+//     attr = $el.attr('bind')
+//     $el.attr('bind', null)
+//     $el.html('')
+//     $el.data('o_O:template', template)
+//     $el.data('o_O:bind', attr)
+//   }
+//   
+//   var recurse = true
+//   var rules = extractRules(attr)
+//   
+//   for(var i=0; i <rules.length; i++) {
+//     var method = rules[i][0]
+//     var param = rules[i][1]
+//     if(method == 'with' || method == 'foreach') recurse = false
+//     o_O.bindElementToRule($el, method, param, context)
+//   }
+//   $el.attr("bind",null)
+//   
+//   if(recurse) {
+//     $el.children().each(function(i, el) {
+//       o_O.bind(context, el, true)
+//     })
+//   }
+//   if(!recursing) context.onbind && context.onbind()
+// }
+
+
+function getTemplate($el) {
+  var template = $el.data('o_O:template')
+  if(template == null) {
+    template = $el.html()
+    $el.html('')
+    $el.attr('bind', null) // should be here?
+    $el.data('o_O:template', template)
+  }
+  return template
+}
+
+
 // converts a DOM event from an element with a value into it's value
 // useful for setting properties based on form events
 o_O.helpers = {}
@@ -411,7 +450,7 @@ o_O.helpers.value = function(fn) {
 }
 
 // helper functions
-o_O.helpers.mousepos = function(fn) {
+o_O.helpers.position = function(fn) {
 	return function(e) {
 	  var el = e.currentTarget
 		var o = $(el).offset()
@@ -478,7 +517,7 @@ o_O.bindings.visible = function(val, $el) {
 
 
 o_O.bindings['if'] = function(context, $el) {
-  var template = $el.data('o_O:template')
+  var template = getTemplate($el)
   $el.html(context ? template : '')
 }
 
@@ -499,7 +538,7 @@ o_O.bindings.options = function(options, $el) {
 /* Allows binding of a list of elements - expected to respond to forEach */
 
 o_O.bindings.foreach = function(list, $el) {
-  var template = $el.data('o_O:template')
+  var template = getTemplate($el)
   // $el.html()
   //   $el.html('')
   //   $el.data('o_O:template', template)
@@ -522,7 +561,7 @@ o_O.bindings.foreach = function(list, $el) {
 }
 
 o_O.bindings['with'] = function(context, $el) {
-  var template = $el.data('o_O:template')
+  var template = getTemplate($el)
   $el.html(context ? template : '')
   if(context) o_O.bind(context, $el)    
 }
@@ -738,15 +777,12 @@ function Collection(models) {
   this.objects = {}
   this.count = o_O.property(0)
   
-
-  
   o_O.eventize(this) 
   if(models) {
     for(var i=0; i< models.length;i++) {
       this.add(models[i])
     }
   }
-
 }
 
 var fn = Collection.prototype
@@ -762,9 +798,13 @@ fn.add = function(o) {
   
   o.collection = this
   
-  o.on && o.on('*', this._onevent, this)
-  o.emit && o.emit('add', o, this)
-  
+  if(o.on) {
+    o.on('*', this._onevent, this)
+    o.emit('add', o, this)
+  } 
+  else
+    this.emit('add', o)
+
   this.count.incr()
 }
 
@@ -810,8 +850,7 @@ fn.remove = function(o) {
 }
 
 fn.renderOne = function(item, $el) {
-  var template = $el.data('o_O:template')
-  $(template).each(function(i, elem) {
+  $(getTemplate($el)).each(function(i, elem) {
     var $$ = $(elem)
     $$.appendTo($el)
     o_O.bind(item, $$)

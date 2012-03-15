@@ -129,8 +129,6 @@ describe('conditionals', function() {
       expect($(el).html()).to.be('<o>1</o><i>A</i><i></i><o>2</o><i></i><i>B</i>')
     })
   
-  })
-  
-  
+  })  
   
 })

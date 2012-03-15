@@ -74,6 +74,7 @@ describe('binding to dom element manually', function() {
     })
   })
   
+
   
   describe('custom bindings', function() {    
     it('work for setting', function() {

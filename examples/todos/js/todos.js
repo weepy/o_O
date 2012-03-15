@@ -8,26 +8,21 @@
     }
 
     //represent a single todo item
-    var Todo = function (content, done) {
-        this.content = o_O.property(content);
-        this.done    = o_O.property(done);
-        this.editing = o_O.property(false);
-
-        var self = this
-        this.edit = function() {  
-          self.editing(true); 
-        }
-    };
-    window.Todo = Todo
-    
-    
-    Todo.prototype.stopEditing = function() { 
-      this.editing(false); 
-    }
-    
-    Todo.prototype.remove = function() {
-      this.parent.remove(this)
-    }
+    var Todo = o_O.Class({
+        content: '',
+        done: false,
+        editing: false
+      }, {
+      edit: function() {  
+        this.editing(true); 
+      },
+      stopEditing: function() { 
+        this.editing(false); 
+      },
+      remove: function() {
+        this.collection.remove(this)
+      }
+    })
     
     //our main view model
     var ViewModel = function(todos) {
@@ -43,7 +38,7 @@
         // })
         //add a new todo, when enter key is pressed
         self.add = function () {
-            var newTodo = new Todo(self.current());
+            var newTodo = new Todo({content: self.current()});
             self.todos.add(newTodo);
             self.current("");
         };
@@ -67,9 +62,7 @@
           }).length
         })
         
-        self.todos.on('change', function(object, propery, val, old) {
-          if(propery != 'done') return
-          
+        self.todos.on('set:done', function(object, val, old) {
           self.completedCount.change()
           self.remainingCount.change()
         })
