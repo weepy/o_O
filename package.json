@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "expect.js": "*"
+    "expect.js": "*",
     "uglify-js": ">= 1.0.7"
   },
   "scripts" : { "prepublish" : "npm prune" },
