@@ -50,8 +50,10 @@
 
         //remove all completed todos
         self.removeCompleted = function () {
-          self.todos.remove(function(todo) {
-              return todo.done();
+          self.todos.forEach(function(todo) {
+            if(todo.done()) {
+              self.todos.remove(todo);
+            }
           });
         }
 
