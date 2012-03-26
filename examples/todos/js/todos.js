@@ -70,6 +70,7 @@
           self.persist()
           self.completedCount.change()
           self.remainingCount.change()
+          self.allCompleted.change()
         })
         
         //count of todos that are not complete
