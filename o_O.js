@@ -131,7 +131,9 @@ o_O.eventize = function(obj) {
 
 }();
 
-+function(win) {
+o_O.nextTick = (function(win) {
+  if(typeof process != 'undefined' && process.nextTick) return process.nextTick
+  
   var timeouts = [], msg = 'o_O.nextTick'
 
   function handleMessage(event) {
@@ -139,17 +141,19 @@ o_O.eventize = function(obj) {
     event.stopPropagation && event.stopPropagation()
     timeouts.length && timeouts.shift()()
   }
-  
-  o_O.nextTick = function(fn) { setTimeout(fn, 0) }
+
   if (win.postMessage) {
-    win.addEventListener && win.addEventListener('message', handleMessage, true)
-    win.attachEvent && win.attachEvent('onmessage', handleMessage)
+    win.addEventListener && addEventListener('message', handleMessage, true)
+    win.attachEvent && attachEvent('onmessage', handleMessage)
     o_O.nextTick = function(fn) {
       timeouts.push(fn)
-      win.postMessage(msg, '*')
+      postMessage(msg, '*')
     }
-  }  
-}(this);
+  }
+  return function(fn) { setTimeout(fn, 0) }
+})(this)
+
+
 
 
 o_O.options = {}
