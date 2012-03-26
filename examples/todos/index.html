@@ -20,7 +20,7 @@
                     <label for="check-all">Mark all as complete</label>
                 </div>
                 <ul id="todo-list" bind="foreach: todos">
-                      <li bind="class: editing() && 'editing' " >
+                      <li bind="class: editing() && 'editing'; dblclick: edit" >
                         <div bind="class: 'todo' + (done() ? ' done' : '')" >
                             <div class="display">
                                 <input class="check" type="checkbox" id="checkbox" bind="id: id; value: done" />
@@ -28,7 +28,7 @@
                                 <span class="todo-destroy" bind="click: remove"></span>
                             </div>
                             <div class="edit">
-                                <input class="todo-input" bind="val: content(); keyup: o_O.value(content); enterKey: stopEditing; blur: stopEditing"/>
+                                <input class="todo-input" bind="val: content(); change: o_O.value(content); enterKey: stopEditing; blur: stopEditing"/>
                             </div>
                         </div>
                     </li>
