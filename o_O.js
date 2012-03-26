@@ -131,25 +131,25 @@ o_O.eventize = function(obj) {
 
 }();
 
-+function(w) {
++function(win) {
   var timeouts = [], msg = 'o_O.nextTick'
 
   function handleMessage(event) {
-    if (event.source != w || event.data != msg) return    
+    if (event.source != win || event.data != msg) return    
     event.stopPropagation && event.stopPropagation()
     timeouts.length && timeouts.shift()()
   }
   
   o_O.nextTick = function(fn) { setTimeout(fn, 0) }
-  if (w.postMessage) {
-    w.addEventListener && w.addEventListener('message', handleMessage, true)
-    w.attachEvent && w.attachEvent('onmessage', handleMessage)
+  if (win.postMessage) {
+    win.addEventListener && win.addEventListener('message', handleMessage, true)
+    win.attachEvent && win.attachEvent('onmessage', handleMessage)
     o_O.nextTick = function(fn) {
       timeouts.push(fn)
-      w.postMessage(msg, '*')
+      win.postMessage(msg, '*')
     }
   }  
-}(window)
+}(this);
 
 
 o_O.options = {}
@@ -189,11 +189,12 @@ var emitProperty = (function() {
 })();
 
 /*  
- ___                       _        
-| _ \_ _ ___ _ __  ___ _ _| |_ _  _ 
-|  _/ '_/ _ \ '_ \/ -_) '_|  _| || |
-|_| |_| \___/ .__/\___|_|  \__|\_, |
-            |_|                |__/ 
+          ___                                   _         
+  ___    / _ \  _ __  _ __ ___  _ __   ___ _ __| |_ _   _ 
+ / _ \  | | | || '_ \| '__/ _ \| '_ \ / _ \ '__| __| | | |
+| (_) | | |_| || |_) | | | (_) | |_) |  __/ |  | |_| |_| |
+ \___/___\___(_) .__/|_|  \___/| .__/ \___|_|   \__|\__, |
+    |_____|    |_|             |_|                  |___/ 
 
  *  Our workhorse
  *  property returns an observable
@@ -218,8 +219,9 @@ o_O.property = function(x, name) {
   
   prop.change = function(fn) {
     fn
-      ? prop.on('set', fn)  // setup observer
-      : prop.emit('set', prop(), prop.old_val)//prop(prop())        // getset
+      ? prop.on('set', fn)          // setup observer
+      // : prop(), emitProperty(prop)  // prop() is needed to explicitly run a computed function
+      : prop.emit('set', prop(), prop.old_val)
   }
   
   prop.mirror = function(other, both) {
@@ -239,10 +241,6 @@ o_O.property = function(x, name) {
 }
 
 o_O.property.is = function(o) { return o.__o_O == true }
-
-
-
-
 
 // simple variable to indicate if we're checking dependencies
 var checking = false
@@ -368,13 +366,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   var expression = o_O.expression(expr)
   
   var trigger = function() {
-    // try { 
     return expression.call(context, o_O.helpers) 
-    // }
-    // catch(e) {
-    //   console.log('Error: el: ', el, 'expression:', expr, 'attr:', attr, 'context:', context)
-    //   throw(e)
-    // }
   }
 
   o_O.bindFunction(trigger, function(x) {
@@ -475,12 +467,10 @@ o_O.helpers.position = function(fn) {
 	}
 }
 
-/*              _                    _     _           _ _                 
-  ___ _   _ ___| |_ ___  _ __ ___   | |__ (_)_ __   __| (_)_ __   __ _ ___ 
- / __| | | / __| __/ _ \| '_ ` _ \  | '_ \| | '_ \ / _` | | '_ \ / _` / __|
-| (__| |_| \__ \ || (_) | | | | | | | |_) | | | | | (_| | | | | | (_| \__ \
- \___|\__,_|___/\__\___/|_| |_| |_| |_.__/|_|_| |_|\__,_|_|_| |_|\__, |___/
-                                                                 |___/       */
+/*                                     
+ _    __|_ _ ._ _  |_ o._  _|o._  _  _ 
+(_|_|_> |_(_)| | | |_)|| |(_||| |(_|_> 
+                                  _|    */
 
 /** 
  *  Override proxy methods to $
@@ -552,9 +542,6 @@ o_O.bindings.options = function(options, $el) {
 
 o_O.bindings.foreach = function(list, $el) {
   var template = getTemplate($el)
-  // $el.html()
-  //   $el.html('')
-  //   $el.data('o_O:template', template)
   
   var renderOne = list.renderOne || function(item) {
     $(template).each(function(i, elem) {
@@ -572,8 +559,6 @@ o_O.bindings.foreach = function(list, $el) {
     list.bind($el)
   }  
 }
-
-
 
 o_O.bindings.log = function(context, $el) {
   console.log('o_O', context, $el, this)
@@ -599,12 +584,12 @@ o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 !function() {
 
  /*                                         	
-   _____ _               
-  / ____| |              
- | |    | | __ _ ___ ___ 
- | |    | |/ _` / __/ __|
- | |____| | (_| \__ \__ \
-  \_____|_|\__,_|___/___/
+           ___   __  __           _      _ 
+   ___    / _ \ |  \/  | ___   __| | ___| |
+  / _ \  | | | || |\/| |/ _ \ / _` |/ _ \ |
+ | (_) | | |_| || |  | | (_) | (_| |  __/ |
+  \___/___\___(_)_|  |_|\___/ \__,_|\___|_|
+     |_____|                               
 
 																							
 (c) 2012 by Jonah Fox (weepy), MIT Licensed
@@ -612,9 +597,9 @@ o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 Class with observable properties, subclasses, evented
 */
 
-function klass(o, proto) {
-  if(!(this instanceof klass)) {
-    return klass.extend(o, proto)
+function Model(o, proto) {
+  if(!(this instanceof Model)) {
+    return Model.extend(o, proto)
   }
   o = o || {}
   var properties = this.constructor.properties
@@ -629,10 +614,10 @@ function klass(o, proto) {
   this.id = o.id || o_O.uniqueId()
   this.initialize.call(this, o)
 }
-o_O.eventize(klass.prototype)
-o_O.eventize(klass)
+o_O.eventize(Model.prototype)
+o_O.eventize(Model)
   
-klass.extend = function(properties, proto) {    
+Model.extend = function(properties, proto) {    
   var parent = this
   
   properties = properties || {}
@@ -645,7 +630,7 @@ klass.extend = function(properties, proto) {
   o_O.inherits(this, Class)
   
   if(type) {
-    klass.types[type] = Class
+    Model.types[type] = Class
     Class.type = type
   }
   
@@ -659,21 +644,17 @@ klass.extend = function(properties, proto) {
   return Class
 }
 
-klass.properties = {}
-klass.types = {}
+Model.properties = {}
+Model.types = {}
 
 
-
-
-klass.create = function(o) {
-  var type = klass.types[o.type]
+Model.create = function(o) {
+  var type = Model.types[o.type]
   if(!type) throw new Error('no such Class with type: ' + o.type)
   return new type(o)
 }
 
-
-
-var proto = klass.prototype
+var proto = Model.prototype
 
 proto.observeProperty = function(name) {
   var self = this
@@ -746,7 +727,7 @@ proto.toJSON = function() {
 proto.clone = function() {
   var json = this.toJSON()
   delete json.id
-  return klass.create(json)
+  return Model.create(json)
 }
 
 o_O.inherits = function(parent, child) { 
@@ -766,21 +747,16 @@ o_O.inherits = function(parent, child) {
   return child; 
 };
 
-
-
-o_O.Class = klass
-
-
-
+o_O.Model = Model
 
 }();
 
-/*_____      _ _           _   _             
- / ____|    | | |         | | (_)            
-| |     ___ | | | ___  ___| |_ _  ___  _ __  
-| |    / _ \| | |/ _ \/ __| __| |/ _ \| '_ \ 
-| |___| (_) | | |  __/ (__| |_| | (_) | | | |
- \_____\___/|_|_|\___|\___|\__|_|\___/|_| |_| */
+/*        ___   ____      _ _           _   _             
+  ___    / _ \ / ___|___ | | | ___  ___| |_(_) ___  _ __  
+ / _ \  | | | | |   / _ \| | |/ _ \/ __| __| |/ _ \| '_ \ 
+| (_) | | |_| | |__| (_) | | |  __/ (__| |_| | (_) | | | |
+ \___/___\___(_)____\___/|_|_|\___|\___|\__|_|\___/|_| |_|
+    |_____|                                               */
 
 function Collection(models) {
   if(this.constructor != Collection) return new Collection(models)
@@ -796,14 +772,14 @@ function Collection(models) {
   }
 }
 
-var fn = Collection.prototype
+var proto = Collection.prototype
 
-fn.genId = function() {
+proto.genId = function() {
   return ++this.genId.id
 }
-fn.genId.id = 0
+proto.genId.id = 0
   
-fn.add = function(o) {
+proto.add = function(o) {
   o.id = o.id || this.genId()
   this.objects[o.id] = o
   
@@ -819,7 +795,7 @@ fn.add = function(o) {
   this.count.incr()
 }
 
-fn._onevent = function(ev, o, collection) {
+proto._onevent = function(ev, o, collection) {
   if ((ev == 'add' || ev == 'remove') && collection != this) return
   if (ev == 'destroy') {
     this.remove(o)
@@ -827,7 +803,7 @@ fn._onevent = function(ev, o, collection) {
   this.emit.apply(this, arguments)
 }
 
-fn.filter = function(fn) {
+proto.filter = function(fn) {
   var ret = [];  
   this.each(function(o) {
     if(fn(o)) ret.push(o)
@@ -835,18 +811,18 @@ fn.filter = function(fn) {
   return ret
 }
 
-fn.find = function(i) {
+proto.find = function(i) {
   return this.objects[i]
 }
 
 
-fn.each = fn.forEach = function(fn) {
+proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
   for(var i in this.objects)
     fn.call(this, this.find(i), i)
 }
 
-fn.remove = function(o) {
+proto.remove = function(o) {
   delete this.objects[o.id]
   this.count.incr(-1)
   // delete o._id
@@ -860,7 +836,7 @@ fn.remove = function(o) {
   }
 }
 
-fn.renderOne = function(item, $el) {
+proto.renderOne = function(item, $el) {
   $(getTemplate($el)).each(function(i, elem) {
     var $$ = $(elem)
     $$.appendTo($el)
@@ -868,7 +844,7 @@ fn.renderOne = function(item, $el) {
   })
 }
 
-fn.bind = function($el) {
+proto.bind = function($el) {
   var self = this
   
   this.on('add', function(item) {
@@ -878,15 +854,15 @@ fn.bind = function($el) {
   this.on('remove', this.removeElement, this)
 }
 
-fn.removeElement = function(item) {
+proto.removeElement = function(item) {
   $(item.el).remove()
 }
 
-fn.toString = function() {
+proto.toString = function() {
   return '#<Collection>'
 }
 
-fn.extend = function() {
+proto.extend = function() {
   return o_O.inherits(this)
 }
 

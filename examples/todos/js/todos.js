@@ -8,7 +8,7 @@
     }
 
     //represent a single todo item
-    var Todo = o_O.Class({
+    var Todo = o_O.Model({
         content: '',
         done: false,
         editing: false
