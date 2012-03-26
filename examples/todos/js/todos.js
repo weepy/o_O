@@ -23,29 +23,22 @@
         this.collection.remove(this)
       }
     })
-    
+
     //our main view model
     var ViewModel = function(todos) {
         var self = this;
+
         //map array of passed in todos to an observableArray of Todo objects
         self.todos = o_O.Collection(todos)
 
         //store the new todo value being entered
         self.current = o_O.property("");
 
-        // self.current.change(function(x) {
-        //   console.log(this, x)
-        // })
         //add a new todo, when enter key is pressed
         self.add = function () {
             var newTodo = new Todo({content: self.current()});
             self.todos.add(newTodo);
             self.current("");
-        };
-
-        //remove a single todo
-        self.remove = function (todo) {
-            self.todos.remove(todo);
         };
 
         //remove all completed todos
@@ -55,6 +48,7 @@
               self.todos.remove(todo);
             }
           });
+          self.persist();
         }
 
         //count of all completed todos
@@ -63,12 +57,18 @@
             return todo.done();
           }).length
         })
-        
+
         self.todos.on('set:done', function(object, val, old) {
+          self.persist()
           self.completedCount.change()
           self.remainingCount.change()
+          self.allCompleted.change()
         })
-        
+
+        self.todos.on('remove', function() {
+          self.persist()
+        })
+
         //count of todos that are not complete
         self.remainingCount = o_O.property(function () {
           return self.todos.count() - self.completedCount();
@@ -104,12 +104,26 @@
 
         //helper function to keep expressions out of markup
         self.getLabel = function(count) {
-            return count.value === 1 ? "item" : "items";
+            return count === 1 ? "item" : "items";
         };
 
-        // TODO: Storage
+        self.persist = function() {
+          var todos = [];
+          self.todos.forEach(function(todo){
+            todos.push({id: todo.id, content: todo.content(), done: todo.done()});
+          });
+          console.log(todos)
+          amplify.store('todos', todos);
+        };
     };
 
-    window.view = new ViewModel([])
+    var todos = [];
+    var storedTodos = amplify.store('todos');
+    storedTodos.forEach(function(storedTodo) {
+      var todo = new Todo({id: storedTodo.id, content: storedTodo.content, done: storedTodo.done});
+      todos.push(todo);
+    });
+
+    window.view = new ViewModel(todos)
     o_O.bind(view, '#todoapp')
 })();
