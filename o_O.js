@@ -131,6 +131,63 @@ o_O.eventize = function(obj) {
 
 }();
 
++function(w) {
+  var timeouts = [], msg = 'o_O.nextTick'
+
+  function handleMessage(event) {
+    if (event.source != w || event.data != msg) return    
+    event.stopPropagation && event.stopPropagation()
+    timeouts.length && timeouts.shift()()
+  }
+  
+  o_O.nextTick = function(fn) { setTimeout(fn, 0) }
+  if (w.postMessage) {
+    w.addEventListener && w.addEventListener('message', handleMessage, true)
+    w.attachEvent && w.attachEvent('onmessage', handleMessage)
+    o_O.nextTick = function(fn) {
+      timeouts.push(fn)
+      w.postMessage(msg, '*')
+    }
+  }  
+}(window)
+
+
+o_O.options = {}
+//useful for debugging !
+
+/*
+ * Simple registry which emits all property change from one event loop in the next
+ */
+var emitProperty = (function() {
+
+  var list = []
+  var timer = null
+  function run() {
+    for(var i=0; i < list.length; i++) {
+      var prop = list[i]
+      prop.emit('set', prop.value, prop.old_value)
+    }
+    for(var i=0; i < list.length; i++)
+      delete list[i]._emitting
+
+    timer = null
+    list = []
+  }
+  return function(prop) {
+    if(prop._emitting) return
+    if(o_O.options.syncEmit) {
+      prop._emitting = true
+      prop.emit('set', prop.value, prop.old_value)
+      delete prop._emitting
+      return
+    }
+
+    list.push(prop)
+    prop._emitting = true
+    timer = timer || o_O.nextTick(run)
+  }
+})();
+
 /*  
  ___                       _        
 | _ \_ _ ___ _ __  ___ _ _| |_ _  _ 
@@ -147,6 +204,7 @@ o_O.eventize = function(obj) {
  */
 
 
+
 /*
  * Public function to return an observable property
  * sync: whether to emit changes immediately, or in the next event loop
@@ -161,7 +219,7 @@ o_O.property = function(x, name) {
   prop.change = function(fn) {
     fn
       ? prop.on('set', fn)  // setup observer
-      : prop(prop())        // getset
+      : prop.emit('set', prop(), prop.old_val)//prop(prop())        // getset
   }
   
   prop.mirror = function(other, both) {
@@ -173,6 +231,7 @@ o_O.property = function(x, name) {
   }
   
   if(name) prop._name = name
+  
   prop.toString = function() { return '<' + (prop._name ? prop._name : '') + ':'+ prop.value + '>'}
   prop.__o_O = true
 
@@ -181,30 +240,9 @@ o_O.property = function(x, name) {
 
 o_O.property.is = function(o) { return o.__o_O == true }
 
-/*
- * Simple registry which emits all property change from one event loop in the next
- */
-var asyncEmit = (function() {
-  var list = []
-  var timer = null
-  function run() {
-    for(var i=0; i < list.length; i++) {
-      var prop = list[i]
-      prop.emit('set', prop.value, prop.old_value)
-    }
-    for(var i=0; i < list.length; i++)
-      delete list[i]._emitting
 
-    timer = null
-    list = []
-  }
-  return function(prop) {
-    if(prop._emitting) return
-    list.push(prop)
-    prop._emitting = true
-    timer = timer || setTimeout(function() { run() }, 0)
-  }
-})();
+
+
 
 // simple variable to indicate if we're checking dependencies
 var checking = false
@@ -218,7 +256,7 @@ function simple(defaultValue) {
       prop.old_value = prop.value
       prop.value = v
       prop.emit('setsync', prop.value, prop.old_value)
-      asyncEmit(prop)
+      emitProperty(prop)
     } else {
       if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
     }
@@ -243,14 +281,22 @@ function computed(getset) {
     if(arguments.length) {
       prop.old_value = prop.value
       prop.value = getset(v)
-      asyncEmit(prop)
+      emitProperty(prop)
     } else {
       prop.value = getset()
       if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
+
   prop.dependencies = o_O.dependencies(prop)
+  
+  // bind to dependencies
+  for(var i in prop.dependencies) {
+    prop.dependencies[i].change(function() {
+      emitProperty(prop)
+    })
+  }
   
   return prop
 }
@@ -322,13 +368,13 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   var expression = o_O.expression(expr)
   
   var trigger = function() {
-    try { 
-      return expression.call(context, o_O.helpers) 
-    }
-    catch(e) {
-      console.log('Error: el: ', el, 'expression:', expr, 'attr:', attr, 'context:', context)
-      throw(e)
-    }
+    // try { 
+    return expression.call(context, o_O.helpers) 
+    // }
+    // catch(e) {
+    //   console.log('Error: el: ', el, 'expression:', expr, 'attr:', attr, 'context:', context)
+    //   throw(e)
+    // }
   }
 
   o_O.bindFunction(trigger, function(x) {
@@ -343,10 +389,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
       return $(el)[attr].call($(el), y)
     } 
     
-    
-    
     var binding = o_O.bindings[attr]
-    
     binding
       ? binding.call(context, y, $(el))
       : $(el).attr(attr, y)
@@ -399,40 +442,6 @@ o_O.bind = function(context, dom, recursing) {
   }
   if(!recursing) context.onbind && context.onbind()
 }
-
-// o_O.bind = function(context, dom, recursing) {
-//   var $el = $(dom),
-//       template,
-//       attr
-//       
-//   if(!recursing) {
-//     context.el = $el[0]
-//     template = $el.html()
-//     attr = $el.attr('bind')
-//     $el.attr('bind', null)
-//     $el.html('')
-//     $el.data('o_O:template', template)
-//     $el.data('o_O:bind', attr)
-//   }
-//   
-//   var recurse = true
-//   var rules = extractRules(attr)
-//   
-//   for(var i=0; i <rules.length; i++) {
-//     var method = rules[i][0]
-//     var param = rules[i][1]
-//     if(method == 'with' || method == 'foreach') recurse = false
-//     o_O.bindElementToRule($el, method, param, context)
-//   }
-//   $el.attr("bind",null)
-//   
-//   if(recurse) {
-//     $el.children().each(function(i, el) {
-//       o_O.bind(context, el, true)
-//     })
-//   }
-//   if(!recursing) context.onbind && context.onbind()
-// }
 
 
 function getTemplate($el) {
@@ -620,22 +629,23 @@ function klass(o, proto) {
   this.id = o.id || o_O.uniqueId()
   this.initialize.call(this, o)
 }
-
 o_O.eventize(klass.prototype)
 o_O.eventize(klass)
   
 klass.extend = function(properties, proto) {    
+  var parent = this
+  
   properties = properties || {}
   var type = properties.type
   delete properties.type
   
-  function Class() { return klass.apply(this, arguments) }
+  function Class() { return parent.apply(this, arguments) }
   
   o_O.eventize(Class)
   o_O.inherits(this, Class)
   
   if(type) {
-    klass.models[type] = Class
+    klass.types[type] = Class
     Class.type = type
   }
   
@@ -650,13 +660,14 @@ klass.extend = function(properties, proto) {
 }
 
 klass.properties = {}
-klass.models = {}
+klass.types = {}
 
 
 
 
 klass.create = function(o) {
-  var type = klass.models[o.type]
+  var type = klass.types[o.type]
+  if(!type) throw new Error('no such Class with type: ' + o.type)
   return new type(o)
 }
 
@@ -880,9 +891,6 @@ fn.extend = function() {
 }
 
 o_O.Collection = Collection
-
-
-
 
 
 ///////
