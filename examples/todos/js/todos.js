@@ -104,7 +104,7 @@
 
         //helper function to keep expressions out of markup
         self.getLabel = function(count) {
-            return count.value === 1 ? "item" : "items";
+            return count === 1 ? "item" : "items";
         };
 
         // TODO: Storage

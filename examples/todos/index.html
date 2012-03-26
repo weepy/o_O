@@ -37,7 +37,7 @@
             <div id="todo-stats">
                 <span class="todo-count" bind="visible: remainingCount()">
                     <span class="number" bind="text: remainingCount()"></span>
-                    <span class="word" bind="text: getLabel(remainingCount)"></span> left.
+                    <span class="word" bind="text: getLabel(remainingCount())"></span> left.
                 </span>
                 <span class="todo-clear" bind="visible: completedCount()">
                     <a href="#" bind="click: removeCompleted">
