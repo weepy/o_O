@@ -23,8 +23,8 @@
                       <li bind="class: editing() && 'editing' " >
                         <div bind="class: 'todo' + (done() ? ' done' : '')" >
                             <div class="display">
-                                <input class="check" type="checkbox" id="checkbox" bind="value: done" />
-                                <div class="todo-content" bind="text: content();" style="cursor: pointer;"></div>
+                                <input class="check" type="checkbox" id="checkbox" bind="id: id; value: done" />
+                                <label class="todo-content" bind="text: content(); for:id" style="cursor: pointer;"></label>
                                 <span class="todo-destroy" bind="click: remove"></span>
                             </div>
                             <div class="edit">
