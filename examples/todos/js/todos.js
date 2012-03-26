@@ -46,6 +46,7 @@
         //remove a single todo
         self.remove = function (todo) {
             self.todos.remove(todo);
+            self.persist();
         };
 
         //remove all completed todos
@@ -55,6 +56,7 @@
               self.todos.remove(todo);
             }
           });
+          self.persist();
         }
 
         //count of all completed todos
@@ -65,6 +67,7 @@
         })
         
         self.todos.on('set:done', function(object, val, old) {
+          self.persist()
           self.completedCount.change()
           self.remainingCount.change()
         })
@@ -107,9 +110,22 @@
             return count === 1 ? "item" : "items";
         };
 
-        // TODO: Storage
+        self.persist = function() {
+          var todos = [];
+          self.todos.forEach(function(todo){
+            todos.push({id: todo.id, content: todo.content(), done: todo.done()});
+          });
+          amplify.store('todos', todos);
+        };
     };
 
-    window.view = new ViewModel([])
+    var todos = [];
+    var storedTodos = amplify.store('todos');
+    storedTodos.forEach(function(storedTodo) {
+      var todo = new Todo({id: storedTodo.id, content: storedTodo.content, done: storedTodo.done});
+      todos.push(todo);
+    });
+
+    window.view = new ViewModel(todos)
     o_O.bind(view, '#todoapp')
 })();
