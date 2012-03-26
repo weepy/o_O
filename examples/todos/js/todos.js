@@ -118,7 +118,7 @@
     };
 
     var todos = [];
-    var storedTodos = amplify.store('todos');
+    var storedTodos = amplify.store('todos') || [];
     storedTodos.forEach(function(storedTodo) {
       var todo = new Todo({id: storedTodo.id, content: storedTodo.content, done: storedTodo.done});
       todos.push(todo);
