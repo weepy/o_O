@@ -14,13 +14,11 @@ a8"     "8a           88          88
 							
 																odel							(c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-
-
 function o_O() {};
+o_O.options = {}
+
 
 // shims for IE compatability
-
-
 function forEach(array, action) {
   if(array.forEach) return array.forEach(action)  
   for (var i= 0, n= array.length; i<n; i++)
@@ -31,6 +29,15 @@ function forEach(array, action) {
 function trim(s) {
   return s.replace(/^\s+|\s+$/g, '')
 }
+
+function indexOf(array, obj, start) {
+  if(array.indexOf) return array.indexOf(obj, start)  
+  for (var i = (start || 0), j = array.length; i < j; i++) {
+     if (array[i] === obj) { return i; }
+  }
+  return -1;
+}
+
 typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 
 
@@ -41,10 +48,6 @@ typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
  *  \___|\_/\___|_||_\__|_/__\___|     
  *
  * adapted from backbone */
-
-!function() {
-
-var slice = Array.prototype.slice
 
 var methods = {	
  /*
@@ -111,7 +114,7 @@ var methods = {
 
     //Traverse each list, stopping when the saved tail is reached.
 
-    rest = slice.call(arguments, 1);
+    rest = Array.prototype.slice.call(arguments, 1);
     while (node = events.pop()) {
       tail = node.tail;
       args = node.event ? [node.event].concat(rest) : rest;
@@ -129,7 +132,6 @@ o_O.eventize = function(obj) {
   return obj
 }
 
-}();
 
 o_O.nextTick = (function(win) {
   if(typeof process != 'undefined' && process.nextTick) return process.nextTick
@@ -153,11 +155,6 @@ o_O.nextTick = (function(win) {
   return function(fn) { setTimeout(fn, 0) }
 })(this)
 
-
-
-
-o_O.options = {}
-//useful for debugging !
 
 /*
  * Simple registry which emits all property change from one event loop in the next
@@ -260,7 +257,7 @@ function simple(defaultValue) {
       prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
-      if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
@@ -286,12 +283,12 @@ function computed(getset) {
       emitProperty(prop)
     } else {
       prop.value = getset()
-      if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
 
-  prop.dependencies = o_O.dependencies(prop)
+  prop.dependencies = o_O.deps(prop)
   
   // bind to dependencies
   for(var i in prop.dependencies) {
@@ -308,9 +305,9 @@ function computed(getset) {
 /*
  *  Hook to listen to all get events
  */
-o_O.__deps_hook = o_O.eventize({})
 
-o_O.dependencies = function(func) {
+
+o_O.deps = function(func) {
   var deps = []
   
   function add(dep) {
@@ -318,22 +315,15 @@ o_O.dependencies = function(func) {
   }
   
   checking = true
-  o_O.__deps_hook.on('get', add)
-  o_O.dependencies.lastResult = func() // run the function
-  o_O.__deps_hook.off('get', add)
+  o_O.deps.hook.on('get', add)
+  o_O.deps.lastResult = func() // run the function
+  o_O.deps.hook.off('get', add)
   checking = false
   
   return deps
 }
 
-function indexOf(array, obj, start) {
-  if(array.indexOf) return array.indexOf(obj, start)  
-  for (var i = (start || 0), j = array.length; i < j; i++) {
-     if (array[i] === obj) { return i; }
-  }
-  return -1;
-}
-
+o_O.deps.hook = o_O.eventize({})
 
 o_O.expression = function(text) {
   o_O.expression.last = text      // useful for catching syntax errors 
@@ -349,8 +339,8 @@ o_O.expression = function(text) {
  */
 
 o_O.bindFunction = function(fn, callback) {
-  var deps = o_O.dependencies(fn)
-  var result = o_O.dependencies.lastResult
+  var deps = o_O.deps(fn)
+  var result = o_O.deps.lastResult
   var isEvent = typeof result == 'function'
   callback(result)
   
@@ -585,8 +575,6 @@ o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 
 
 
-!function() {
-
  /*                                         	
            ___   __  __           _      _ 
    ___    / _ \ |  \/  | ___   __| | ___| |
@@ -752,8 +740,6 @@ o_O.inherits = function(parent, child) {
 };
 
 o_O.Model = Model
-
-}();
 
 /*        ___   ____      _ _           _   _             
   ___    / _ \ / ___|___ | | | ___  ___| |_(_) ___  _ __  

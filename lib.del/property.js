@@ -73,7 +73,7 @@ function simple(defaultValue) {
       prop.value = v
       asyncEmit(prop)
     } else {
-      if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
@@ -99,11 +99,11 @@ function computed(getset) {
       asyncEmit(prop)
     } else {
       prop.value = getset()
-      if(checking) o_O.__deps_hook.emit('get', prop)   // emit to dependency checker
+      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
-  prop.dependencies = o_O.dependencies(prop)
+  prop.dependencies = o_O.deps(prop)
   
   return prop
 }
@@ -113,9 +113,9 @@ function computed(getset) {
 /*
  *  Hook to listen to all get events
  */
-o_O.__deps_hook = o_O.eventize({})
+o_O.deps.hook = o_O.eventize({})
 
-o_O.dependencies = function(func) {
+o_O.deps = function(func) {
   var deps = []
   
   function add(dep) {
@@ -123,9 +123,9 @@ o_O.dependencies = function(func) {
   }
   
   checking = true
-  o_O.__deps_hook.on('get', add)
-  o_O.dependencies.lastResult = func() // run the function
-  o_O.__deps_hook.off('get', add)
+  o_O.deps.hook.on('get', add)
+  o_O.deps.lastResult = func() // run the function
+  o_O.deps.hook.off('get', add)
   checking = false
   
   return deps

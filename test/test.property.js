@@ -52,7 +52,7 @@ describe('complex property', function() {
       return firstName() + " " + secondName() 
     })
     count = 0
-    delete o_O.__deps_hook._events
+    delete o_O.deps.hook._events
   })
   
   it('should get ok', function() {
@@ -82,7 +82,7 @@ describe('complex property', function() {
       }
     })
     it('should should have 3 dependencies', function() {
-      var deps = o_O.dependencies(fullNameFn)
+      var deps = o_O.deps(fullNameFn)
 
       expect(deps).to.have.length(3)
       expect(deps[0]).to.be(firstName)

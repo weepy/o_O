@@ -12,8 +12,8 @@ o_O.expression = function(text) {
  */
 
 o_O.bindFunction = function(fn, callback) {
-  var deps = o_O.dependencies(fn)
-  var result = o_O.dependencies.lastResult
+  var deps = o_O.deps(fn)
+  var result = o_O.deps.lastResult
   var isEvent = typeof result == 'function'
   callback(result)
   
