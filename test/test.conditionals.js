@@ -10,7 +10,7 @@ describe('conditionals', function() {
   
   describe('if', function() {
     var o = {
-      prop: o_O.property()
+      prop: o_O()
     }
     
     beforeEach(function() {

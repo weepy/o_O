@@ -9,7 +9,7 @@ var age, count = 0
 function incr() { count ++ }
 describe('simple property', function() {
   beforeEach(function() {
-    age = o_O.property(10)
+    age = o_O(10)
     count = 0
   })
   
@@ -46,9 +46,9 @@ var fullName, firstName, secondName, fullNameFn
 
 describe('complex property', function() {
   beforeEach(function() {
-    firstName = o_O.property('John')
-    secondName = o_O.property('Smith')
-    fullName = o_O.property(function() {
+    firstName = o_O('John')
+    secondName = o_O('Smith')
+    fullName = o_O(function() {
       return firstName() + " " + secondName() 
     })
     count = 0
@@ -96,7 +96,7 @@ describe('complex property', function() {
 describe('change', function() {
   
   it('is called when property is set', function(done) {
-    var x = o_O.property()
+    var x = o_O()
     var count = 0
     x.change(function() {
       count++
@@ -111,7 +111,7 @@ describe('change', function() {
   })
   
   it('is called only once when property is set twice', function(done) {
-    var x = o_O.property()
+    var x = o_O()
     var count = 0
     x.change(function() {
       count++
@@ -128,8 +128,8 @@ describe('change', function() {
 
   describe('change emitter', function() {
     it('emits multiple changes on one go', function(done) {
-      var x = o_O.property()
-      var y = o_O.property()
+      var x = o_O()
+      var y = o_O()
       var count = 0
       
       function incr() {

@@ -39,7 +39,7 @@ o_O.bind({greeting: 'Hello World'}, '#example')
 </p>
 </div>
 <script type='text/skip'>
-var time = o_O.property()
+var time = o_O()
 
 o_O.bind(time, '#example')
 
@@ -62,7 +62,7 @@ setInterval(function() {
 <p bind='text: name()'></p> 
 </div>
 <script type='text/skip'>
-var person = { name: o_O.property('John') }
+var person = { name: o_O('John') }
 
 o_O.bind(person, '#example')
 </script>
@@ -77,7 +77,7 @@ o_O.bind(person, '#example')
 <p bind='text: state()'></p> 
 </div>
 <script type='text/skip'>
-var person = { state: o_O.property(true) }
+var person = { state: o_O(true) }
 o_O.bind(person, '#example')
 </script>
 </div>
@@ -97,8 +97,8 @@ o_O.bind(person, '#example')
 </div>
 <script type='text/skip'>
 var farm = { 
-  animal: o_O.property('cow'), 
-  number: o_O.property(20) 
+  animal: o_O('cow'), 
+  number: o_O(20) 
 }
 o_O.bind(farm, '#example')
 </script>
@@ -116,8 +116,8 @@ o_O.bind(farm, '#example')
 </div>
 <script type='text/skip'>
 var person = {
-  first: o_O.property("John"),
-  family: o_O.property("Smith"),
+  first: o_O("John"),
+  family: o_O("Smith"),
   fullName: function() { 
     return this.first() +" "+ this.family() 
   }
@@ -150,7 +150,7 @@ o_O.bind({
 </div>
 <script type='text/skip'>
 var model = { 
-  name: o_O.property('John'),
+  name: o_O('John'),
   capitalize: function() { 
     var upper = model.name().toUpperCase()
     model.name(upper)
@@ -171,7 +171,7 @@ o_O.bind(model,  '#example')
 </div>
 <script type='text/skip'>
 var model = {
-  show: o_O.property(true),
+  show: o_O(true),
   css: { color : 'red'}
 }
 o_O.bind(model,  '#example')
@@ -190,7 +190,7 @@ o_O.bind(model,  '#example')
 </div>
 <script type='text/skip'>
 var model = {
-  big: o_O.property(false),
+  big: o_O(false),
   myClass: function() {
     return model.big() ? "big" : "small"
   }

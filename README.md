@@ -36,7 +36,7 @@ Examples
 Features
 --------
 
-<code>o_O.property(default)</code>
+<code>o_O(default)</code>
   
 Evented properties with automatic dependency resolution
 
@@ -50,7 +50,7 @@ A simple collection of objects
 
 <code>o_O.klass</code>
   
-An OO class with o_O.property's for elements
+An OO class with o_O('s for elements
 
 
 Running Tests

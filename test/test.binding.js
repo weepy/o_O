@@ -14,9 +14,9 @@ var last = null
 
 describe('bindFunction for non-function returns', function() {
   beforeEach(function() {
-    firstName = o_O.property('John')
-    secondName = o_O.property('Smith')
-    fullName = o_O.property(function() {
+    firstName = o_O('John')
+    secondName = o_O('Smith')
+    fullName = o_O(function() {
       return firstName() + " " + secondName() 
     })
     count = 0
@@ -76,7 +76,7 @@ var nameBindingFunction
 describe('bindFunction for function returns', function() {
   beforeEach(function() {
     nameBindingFunction = function() {
-      firstName = o_O.property('John')
+      firstName = o_O('John')
       return function() {}
     }
     count = 0

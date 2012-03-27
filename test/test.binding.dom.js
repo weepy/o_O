@@ -10,14 +10,14 @@ describe('binding to dom element manually', function() {
   beforeEach(function() {
     if(el) $(el).remove()
     el = $("<div>", {id: 'el', html: "el"}).appendTo("body")[0]
-    color = o_O.property("rgb(1, 1, 1)")
+    color = o_O("rgb(1, 1, 1)")
   })
 
 
   it('should change color with bindElementToRule', function(done) {
 
     var o = {
-      color: o_O.property("rgb(3, 3, 3)")
+      color: o_O("rgb(3, 3, 3)")
     }
 
     o_O.bindElementToRule(el, "css", "{color: color()}", o)
@@ -95,7 +95,7 @@ describe('binding to dom element manually', function() {
         $el.css("color", val)
       }
       
-      var o = { red: o_O.property('red') }
+      var o = { red: o_O('red') }
       o_O.bindElementToRule(el, "color", "red()", o)
       expect($(el).css("color")).to.be("rgb(255, 0, 0)")
     })

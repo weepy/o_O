@@ -32,7 +32,7 @@
         self.todos = o_O.collection(todos)
 
         //store the new todo value being entered
-        self.current = o_O.property("");
+        self.current = o_O("");
 
         //add a new todo, when enter key is pressed
         self.add = function () {
@@ -52,7 +52,7 @@
         }
 
         //count of all completed todos
-        self.completedCount = o_O.property(function () {
+        self.completedCount = o_O(function () {
           return self.todos.filter(function(todo) {
             return todo.done();
           }).length
@@ -70,12 +70,12 @@
         })
 
         //count of todos that are not complete
-        self.remainingCount = o_O.property(function () {
+        self.remainingCount = o_O(function () {
           return self.todos.count() - self.completedCount();
         })
 
         //writeable computed observable to handle marking all complete/incomplete
-        self.allCompleted = o_O.property(function(v) {
+        self.allCompleted = o_O(function(v) {
             if(v === undefined) return !self.remainingCount()
             self.todos.forEach(function(todo) {
               todo.done(v);
@@ -83,7 +83,7 @@
         })
 
         //track whether the tooltip should be shown
-        self.showTooltip = o_O.property(false);
+        self.showTooltip = o_O(false);
         self.showTooltip.setTrue = function() { self.showTooltip(true); }; //avoid an anonymous function each time
 
         //watch the current value
