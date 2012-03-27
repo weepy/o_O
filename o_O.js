@@ -512,7 +512,7 @@ o_O.bindings['if'] = function(context, $el) {
   $el.html(context ? template : '')
 }
 
-o_O.bindings['nif']= function(val, $el) {
+o_O.bindings.unless = function(val, $el) {
   return o_O.bindings['if'](!val, $el)
 }
 
@@ -544,7 +544,8 @@ o_O.bindings.foreach = function(list, $el) {
       o_O.bind(item, $$)
     })
   }
-
+  
+  $el.html('')
   list.forEach(function(item, index) {
     renderOne(item, $el)
   })
