@@ -21,7 +21,7 @@
 <a class=btn>Basic Binding</a>
 <div id=Simple class=example>
 <div class=inner>
-<p bind='text: greeting'></p>
+<p data-bind='text: greeting'></p>
 </div>
 <script type='text/skip'>
 o_O.bind({greeting: 'Hello World'}, '#example')
@@ -35,7 +35,7 @@ o_O.bind({greeting: 'Hello World'}, '#example')
 <div class=inner>
 <p>
   <span>ms since 1st Jan 1970: </span>
-  <span bind='text: this()'></span>
+  <span data-bind='text: this()'></span>
 </p>
 </div>
 <script type='text/skip'>
@@ -58,8 +58,8 @@ setInterval(function() {
 <div id=Binding class=example> 
 <div class=inner>
 
-<input bind='value: name'></input>  
-<p bind='text: name()'></p> 
+<input data-bind='value: name'></input>  
+<p data-bind='text: name()'></p> 
 </div>
 <script type='text/skip'>
 var person = { name: o_O('John') }
@@ -73,8 +73,8 @@ o_O.bind(person, '#example')
 <a class=btn>Checkbox</a>
 <div id=Checkbox class=example> 
 <div class=inner>
-<input type=checkbox bind='value: state'></input>  
-<p bind='text: state()'></p> 
+<input type=checkbox data-bind='value: state'></input>  
+<p data-bind='text: state()'></p> 
 </div>
 <script type='text/skip'>
 var person = { state: o_O(true) }
@@ -87,13 +87,13 @@ o_O.bind(person, '#example')
 <a class=btn>Select</a>
 <div id=farm class=example> 
 <div class=inner>
-<select bind="value: animal; 
+<select data-bind="value: animal; 
               options: ['pig', 'dog', 'cow']" >
 </select>
-<select bind="value: number; 
+<select data-bind="value: number; 
               options: {Ten: 10, Twenty: 20}" >
 </select>
-<p bind='text: number()+" "+animal() +"s"'></p>
+<p data-bind='text: number()+" "+animal() +"s"'></p>
 </div>
 <script type='text/skip'>
 var farm = { 
@@ -110,9 +110,9 @@ o_O.bind(farm, '#example')
 <a class=btn>Complex dependencies</a>
 <div id=ComplexDeps class=example> 
 <div class=inner>
-<p bind='text: fullName()'></p>
-<input bind='value: first'></input>
-<input bind='value: family'></input>
+<p data-bind='text: fullName()'></p>
+<input data-bind='value: first'></input>
+<input data-bind='value: family'></input>
 </div>
 <script type='text/skip'>
 var person = {
@@ -130,8 +130,8 @@ o_O.bind(person, '#example')
 <a class=btn>Lists</a>
 <div id=Lists class=example> 
 <div class=inner>
-<ul bind='foreach: colors'>
-  <li bind='text: this; css: {color: this}'></li>
+<ul data-bind='foreach: colors'>
+  <li data-bind='text: this; css: {color: this}'></li>
 </ul></div>
 <script type='text/skip'>
 o_O.bind({ 
@@ -144,8 +144,8 @@ o_O.bind({
 <a class=btn>Events and helpers</a>
 <div id=Events class=example> 
 <div class=inner>
-<input bind='value: name; keyup: o_O.value(name)' />
-<button bind='click: capitalize'>Capitalize</button>
+<input data-bind='value: name; keyup: o_O.value(name)' />
+<button data-bind='click: capitalize'>Capitalize</button>
 </ul>
 </div>
 <script type='text/skip'>
@@ -164,9 +164,9 @@ o_O.bind(model,  '#example')
 <a class=btn>visible, and css</a>
 <div id=visible class=example> 
 <div class=inner>
-<input type=checkbox bind='value: show' />
-<button bind='visible: show(); css: css'>HELLOO</button>
-<button bind='visible: !show()'>GOODBYE</button>
+<input type=checkbox data-bind='value: show' />
+<button data-bind='visible: show(); css: css'>HELLOO</button>
+<button data-bind='visible: !show()'>GOODBYE</button>
 </ul>
 </div>
 <script type='text/skip'>
@@ -185,8 +185,8 @@ o_O.bind(model,  '#example')
 <div id=classes class=example> 
   
 <div class=inner>
-<input type=checkbox bind='value: big' />
-<span bind='class: myClass(); text: myClass()'></span>
+<input type=checkbox data-bind='value: big' />
+<span data-bind='class: myClass(); text: myClass()'></span>
 </div>
 <script type='text/skip'>
 var model = {

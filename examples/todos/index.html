@@ -11,45 +11,45 @@
         </div>
         <div class="content">
             <div id="create-todo">
-                <input id="new-todo" bind="val: current(); keyup: o_O.value(current); enterKey: add" placeholder="What needs to be done?" />
-                <span class="ui-tooltip-top" bind="visible: showTooltip()" style="display: none;">Press Enter to save this task</span>
+                <input id="new-todo" data-bind="val: current(); keyup: o_O.value(current); enterKey: add" placeholder="What needs to be done?" />
+                <span class="ui-tooltip-top" data-bind="visible: showTooltip()" style="display: none;">Press Enter to save this task</span>
             </div>
             <div id="todos">
-                <div bind="visible: todos.count()">
-                    <input id="check-all" class="check" type="checkbox" bind="value: allCompleted" />
+                <div data-bind="visible: todos.count()">
+                    <input id="check-all" class="check" type="checkbox" data-bind="value: allCompleted" />
                     <label for="check-all">Mark all as complete</label>
                 </div>
-                <ul id="todo-list" bind="foreach: todos">
-                      <li bind="class: editing() && 'editing'; dblclick: edit" >
-                        <div bind="class: 'todo' + (done() ? ' done' : '')" >
+                <ul id="todo-list" data-bind="foreach: todos">
+                      <li data-bind="class: editing() && 'editing'; dblclick: edit" >
+                        <div data-bind="class: 'todo' + (done() ? ' done' : '')" >
                             <div class="display">
-                                <input class="check" type="checkbox" id="checkbox" bind="id: id; value: done" />
-                                <label class="todo-content" bind="text: content(); for:id" style="cursor: pointer;"></label>
-                                <span class="todo-destroy" bind="click: remove"></span>
+                                <input class="check" type="checkbox" id="checkbox" data-bind="id: id; value: done" />
+                                <label class="todo-content" data-bind="text: content(); for:id" style="cursor: pointer;"></label>
+                                <span class="todo-destroy" data-bind="click: remove"></span>
                             </div>
                             <div class="edit">
-                                <input class="todo-input" bind="val: content(); change: o_O.value(content); enterKey: stopEditing; blur: stopEditing"/>
+                                <input class="todo-input" data-bind="val: content(); change: o_O.value(content); enterKey: stopEditing; blur: stopEditing"/>
                             </div>
                         </div>
                     </li>
                 </ul>
             </div>
             <div id="todo-stats">
-                <span class="todo-count" bind="visible: remainingCount()">
-                    <span class="number" bind="text: remainingCount()"></span>
-                    <span class="word" bind="text: getLabel(remainingCount())"></span> left.
+                <span class="todo-count" data-bind="visible: remainingCount()">
+                    <span class="number" data-bind="text: remainingCount()"></span>
+                    <span class="word" data-bind="text: getLabel(remainingCount())"></span> left.
                 </span>
-                <span class="todo-clear" bind="visible: completedCount()">
-                    <a href="#" bind="click: removeCompleted">
-                        Clear <span class="number-done" bind="text: completedCount()"></span>
-                        completed <span class="word-done" bind="text: getLabel(completedCount())"></span>
+                <span class="todo-clear" data-bind="visible: completedCount()">
+                    <a href="#" data-bind="click: removeCompleted">
+                        Clear <span class="number-done" data-bind="text: completedCount()"></span>
+                        completed <span class="word-done" data-bind="text: getLabel(completedCount())"></span>
                     </a>
                 </span>
             </div>
         </div>
     </div>
     <ul id="instructions">
-        <li bind="visible: todos.count()">Double-click to edit a todo.</li>
+        <li data-bind="visible: todos.count()">Double-click to edit a todo.</li>
     </ul>
     <div id="credits">
         Created by
