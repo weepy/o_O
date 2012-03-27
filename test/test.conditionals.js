@@ -15,7 +15,7 @@ describe('conditionals', function() {
     
     beforeEach(function() {
       $(el)
-        .attr('bind', 'if: prop()')
+        .attr(o_O.bindingAttribute, 'if: prop()')
         .html('hello')
       
       o_O.bind(o, el)
@@ -46,8 +46,8 @@ describe('conditionals', function() {
     
     beforeEach(function() {
       $(el)
-        .attr('bind', 'foreach: this')
-        .html('<div bind="text: text"></div>')
+        .attr(o_O.bindingAttribute, 'foreach: this')
+        .html('<div data-bind="text: text"></div>')
       
       o_O.bind(o, el)
     })
@@ -72,8 +72,8 @@ describe('conditionals', function() {
     
     beforeEach(function() {
       $(el)
-        .attr('bind', 'foreach: this')
-        .html('<div bind="if: type==\'a\'"><i bind="text: text"></i></div>')
+        .attr(o_O.bindingAttribute, 'foreach: this')
+        .html('<div data-bind="if: type==\'a\'"><i data-bind="text: text"></i></div>')
       
       o_O.bind(o, el)
     })
@@ -98,8 +98,8 @@ describe('conditionals', function() {
     
     beforeEach(function() {
       $(el)
-        .attr('bind', 'foreach: this')
-        .html('<i bind="if: type==1">A</i><i bind="if: type==2">B</i>')
+        .attr(o_O.bindingAttribute, 'foreach: this')
+        .html('<i data-bind="if: type==1">A</i><i data-bind="if: type==2">B</i>')
       
       o_O.bind(o, el)
     })
@@ -119,8 +119,8 @@ describe('conditionals', function() {
     
     beforeEach(function() {
       $(el)
-        .attr('bind', 'foreach: this')
-        .html('<o bind="text: type"></o><i bind="if: type==1">A</i><i bind="if: type==2">B</i>')
+        .attr(o_O.bindingAttribute, 'foreach: this')
+        .html('<o data-bind="text: type"></o><i data-bind="if: type==1">A</i><i data-bind="if: type==2">B</i>')
       
       o_O.bind(o, el)
     })
