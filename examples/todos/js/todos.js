@@ -8,7 +8,7 @@
     }
 
     //represent a single todo item
-    var Todo = o_O.Model({
+    var Todo = o_O.model({
         content: '',
         done: false,
         editing: false
@@ -29,7 +29,7 @@
         var self = this;
 
         //map array of passed in todos to an observableArray of Todo objects
-        self.todos = o_O.Collection(todos)
+        self.todos = o_O.collection(todos)
 
         //store the new todo value being entered
         self.current = o_O.property("");

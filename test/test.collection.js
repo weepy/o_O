@@ -6,7 +6,7 @@ describe('a collection', function() {
   var col
   
   beforeEach(function() {
-    col = o_O.Collection()
+    col = o_O.collection()
   })
 
   it('has a count of 0', function() {
