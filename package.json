@@ -1,9 +1,22 @@
 {
   "name": "o_O",
-  "description": "HTML binding for Lulz",
-  "version": "0.0.0",
-  "author": "Jonah Fox <jonahfox@gmail.com>",
-  "repository": "git://github.com/weepy/o_O",
+  "version": "0.1.0",
+  "description": "HTML binding for teh lulz",
+	"keywords": ["binding"],
+	"homepage": "http://weepy.github.com/o_O/",
+	"bugs": {"url": "https://github.com/weepy/o_O/issues"},
+  "author": "Jonah Fox <jonahfox@gmail.com> (https://github.com/weepy/)",
+	"contributors": [
+		"Jonah Fox <jonahfox@gmail.com> (https://github.com/weepy/)",
+		"Troy Goode <troygoode@gmail.com (https://github.com/troygoode/)"
+	],
+	"licenses": [
+		{"type": "MIT", "url": "http://www.opensource.org/licenses/mit-license.php"}
+	],
+  "repository": {
+		"type": "git",
+		"url": "git://github.com/weepy/o_O"
+	},
   "dependencies": {
   },
   "devDependencies": {
@@ -11,6 +24,8 @@
     "expect.js": "*",
     "uglify-js": ">= 1.0.7"
   },
+	"files": "o_O.js",
+	"main": "o_O",
   "scripts" : { "prepublish" : "npm prune" },
   "engines": { "node": ">= 0.1.98" }
 }
