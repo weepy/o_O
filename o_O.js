@@ -373,7 +373,7 @@ o_O.bind = function(context, dom, recursing) {
   if(!recursing) context.el = $el[0]
   
   var recurse = true
-  var rules = extractRules($el.attr("bind"))
+  var rules = extractRules($el.attr(o_O.bindingAttribute))
   
   for(var i=0; i <rules.length; i++) {
     var method = rules[i][0]
@@ -381,7 +381,7 @@ o_O.bind = function(context, dom, recursing) {
     if(method == 'with' || method == 'foreach') recurse = false
     o_O.bindElementToRule($el, method, param, context)
   }
-  $el.attr("bind",null)
+  $el.attr(o_O.bindingAttribute,null)
   
   if(recurse) {
     $el.children().each(function(i, el) {
@@ -397,7 +397,7 @@ function getTemplate($el) {
   if(template == null) {
     template = $el.html()
     $el.html('')
-    $el.attr('bind', null) // should be here?
+    $el.attr(o_O.bindingAttribute, null) // should be here?
     $el.data('o_O:template', template)
   }
   return template
@@ -844,6 +844,7 @@ function indexOf(array, obj, start) {
 }
 
 // export
+o_O.bindingAttribute = 'data-bind';
 o_O.eventize = eventize
 o_O.inherits = inherits
 typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
