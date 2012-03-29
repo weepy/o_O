@@ -103,10 +103,22 @@ characters.add(new Character({name: 'Mr. Burns', age: 99}));
 
 ## Running Tests
 
+Make sure you have installed o_O's development dependencies via npm:
+
+```bash
+npm install
+```
+
 A subset of tests can be run via the console:
 
 ```bash
 npm test
+```
+
+Or, if you have mocha install (`npm install -g mocha`) you can just run:
+
+```bash
+mocha
 ```
 
 Other tests (that rely on the browser's DOM) must be run in the browser:
