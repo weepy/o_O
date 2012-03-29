@@ -58,11 +58,14 @@
           }).length
         })
 
-        self.todos.on('set:done', function(object, val, old) {
-          self.persist()
+        self.todos.on('set:done', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()
+        })
+
+        self.todos.on('update', function() {
+          self.persist()
         })
 
         self.todos.on('remove', function() {
