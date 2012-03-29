@@ -1,5 +1,3 @@
-$(function(){
-  
 $('a.btn').addClass('btn-large').click(function() {
 
   $('.btn-primary').removeClass('btn-primary')
@@ -40,5 +38,4 @@ $('a.btn').addClass('btn-large').click(function() {
   // var h = Math.max(out.find(".js").height(),out.find(".html").height() )
   // out.find(".js code, .html code").css({height:  h})
   
-})
 })

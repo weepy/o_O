@@ -7,7 +7,7 @@
 <script src='http://code.jquery.com/jquery-1.7.1.js'></script>
 <link rel="stylesheet" href="github.min.css">
 <link rel="stylesheet" href="style.css">
-<script src='app.js'></script>
+
 
 </head>
 <body>
@@ -88,11 +88,11 @@ o_O.bind(person, '#example')
 <a class=btn>Select</a>
 <div id=farm class=example> 
 <div class=inner>
-<select data-bind="value: animal; 
-              options: ['pig', 'dog', 'cow']" >
+<select data-bind="options: ['pig', 'dog', 'cow'];
+                   value: animal; ">
 </select>
-<select data-bind="value: number; 
-              options: {Ten: 10, Twenty: 20}" >
+<select data-bind="options: {Ten: 10, Twenty: 20};
+                   value: number;" >
 </select>
 <p data-bind='text: number()+" "+animal() +"s"'></p>
 </div>
@@ -216,4 +216,6 @@ o_O.bind(model,  '#example')
   hljs.tabReplace = '    ';
 </script>
 </body>
+
+<script src='app.js'></script>
 </html>
