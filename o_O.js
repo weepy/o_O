@@ -714,11 +714,11 @@ o_O.model = model
 
 function collection(models) {
   if(this.constructor != collection) return new collection(models)
-  
+
   this.objects = {}
   this.count = o_O(0)
-  
-  eventize(this) 
+
+  eventize(this)
   if(models) {
     for(var i=0; i< models.length;i++) {
       this.add(models[i])
@@ -732,14 +732,14 @@ proto.genId = function() {
   return ++this.genId.id
 }
 proto.genId.id = 0
-  
+
 proto.add = function(o) {
   o.id = o.id || this.genId()
   this.objects[o.id] = o
-  
+
   o.collection = this
-  
-  if(o.on) {
+
+  if(o.on && o.emit) {
     o.on('*', this._onevent, this)
     o.emit('add', o, this)
   } 
@@ -758,7 +758,7 @@ proto._onevent = function(ev, o, collection) {
 }
 
 proto.filter = function(fn) {
-  var ret = [];  
+  var ret = [];
   this.each(function(o) {
     if(fn(o)) ret.push(o)
   })
@@ -769,7 +769,6 @@ proto.find = function(i) {
   return this.objects[i]
 }
 
-
 proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
   for(var i in this.objects)
@@ -779,15 +778,13 @@ proto.each = proto.forEach = function(fn) {
 proto.remove = function(o) {
   delete this.objects[o.id]
   this.count.incr(-1)
-  // delete o._id
-  
-  // o.emit('remove', o)
-  //this.emit('remove', o)
+
   if(this == o.collection) delete o.collection
   if(o.off) {
     o.emit('remove', o, this) 
     o.off('all', this._onevent, this)
   }
+  this.emit('remove', o)
 }
 
 proto.renderOne = function(item, $el) {
@@ -800,11 +797,11 @@ proto.renderOne = function(item, $el) {
 
 proto.bind = function($el) {
   var self = this
-  
+
   this.on('add', function(item) {
     self.renderOne(item, $el)
   })
-  
+
   this.on('remove', this.removeElement, this)
 }
 
@@ -821,7 +818,6 @@ proto.extend = function() {
 }
 
 o_O.collection = collection
-
 
 // shims for IE compatability
 function forEach(array, action) {
