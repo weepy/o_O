@@ -115,7 +115,6 @@
           self.todos.forEach(function(todo){
             todos.push({id: todo.id, content: todo.content(), done: todo.done()});
           });
-          console.log(todos)
           amplify.store('todos', todos);
         };
     };
