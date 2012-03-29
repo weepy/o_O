@@ -25,7 +25,7 @@
 
 ## The Basics
 
-Use `o_O.property(...)` (or the shortcut: `o_O(...)`) to create an evented o_O property:
+Use `o_O.property(...)` (or the shortcut: `o_O(...)`) to create an evented o_O `property`:
 
 ```javascript
 var viewmodel = {
