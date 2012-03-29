@@ -11,62 +11,47 @@
             888888888888                       
 ```           
            
-HTML binding for Lulz 
-========
+# HTML binding for Lulz
 
 * Power of KnockoutJS, with the agility of Backbone
-
 * Elegantly binds objects to HTML
-
 * Proxies through jQuery (or whatever $ is)
-
 * Automatic dependency resolution
-
 * Plays well with others
 
-
-
-Examples
---------
+## Examples
 
 * Basic overview: http://weepy.github.com/o_O/examples/guide/index.html
-
 * obligatory todos: http://weepy.github.com/o_O/examples/todos/index.html
 
-Features
---------
+## Features
 
-<code>o_O(default)</code>
+`o_O(default)`
   
 Evented properties with automatic dependency resolution
 
-<code>o_O.bind(object, '#dom')</code>
+`o_O.bind(object, '#dom')`
   
 Bind's an object to a section of HTML with 'bind' attributes
 
-<code>o_O.collection()</code>
+`o_O.collection()`
   
 A simple collection of objects
 
-<code>o_O.klass</code>
+`o_O.klass`
   
 An OO class with o_O('s for elements
 
-
-Running Tests
--------------
+## Running Tests
 
 npm test
 
 for dom tests: open test/mocha.html
 
-Compatability
--------------
+## Compatability
 
 Tested in IE 7,8,9, Chrome 16, Firefox 4 and Safari 5
 
-
-License
--------
+## License
 
 (c) 2012 by Jonah Fox (weepy), MIT Licensed
