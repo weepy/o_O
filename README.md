@@ -56,7 +56,7 @@ An OO class with o_O('s for elements
 Running Tests
 -------------
 
-mocha
+npm test
 
 for dom tests: open test/mocha.html
 

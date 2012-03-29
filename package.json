@@ -24,8 +24,12 @@
     "expect.js": "*",
     "uglify-js": ">= 1.0.7"
   },
-	"files": ["o_O.js", "LICENSE"],
+	"files": ["o_O.js", "o_O.min.js", "LICENSE"],
 	"main": "o_O",
-  "scripts" : { "prepublish" : "npm prune" },
+  "scripts" : {
+    "prepublish" : "npm run-script minify && npm prune",
+    "minify" : "./node_modules/uglify-js/bin/uglifyjs o_O.js > o_O.min.js",
+    "test" : "./node_modules/mocha/bin/mocha"
+  },
   "engines": { "node": ">= 0.1.98" }
 }
