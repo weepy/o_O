@@ -716,12 +716,13 @@ function collection(models) {
   if(this.constructor != collection) return new collection(models)
 
   this.objects = {}
+  this.objectsArray = []
   this.count = o_O(0)
 
   eventize(this)
   if(models) {
     for(var i=0; i< models.length;i++) {
-      this.add(models[i])
+      this.push(models[i])
     }
   }
 }
@@ -733,8 +734,19 @@ proto.genId = function() {
 }
 proto.genId.id = 0
 
-proto.add = function(o) {
+proto.push = function(o) {
+  this.objectsArray.push(o)
+  return this._add(o)
+}
+
+proto.unshift = function(o) {
+  this.objectsArray.unshift(o)
+  return this._add(o)
+}
+
+proto._add = function(o) {
   o.id = o.id || this.genId()
+
   this.objects[o.id] = o
 
   o.collection = this
@@ -742,11 +754,12 @@ proto.add = function(o) {
   if(o.on && o.emit) {
     o.on('*', this._onevent, this)
     o.emit('add', o, this)
-  } 
+  }
   else
     this.emit('add', o)
 
   this.count.incr()
+  return this.count()
 }
 
 proto._onevent = function(ev, o, collection) {
@@ -759,7 +772,7 @@ proto._onevent = function(ev, o, collection) {
 
 proto.filter = function(fn) {
   var ret = [];
-  this.each(function(o) {
+  this.forEach(function(o) {
     if(fn(o)) ret.push(o)
   })
   return ret
@@ -771,12 +784,25 @@ proto.find = function(i) {
 
 proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
-  for(var i in this.objects)
-    fn.call(this, this.find(i), i)
+  for(var i = 0; i < this.objectsArray.length; i++)
+    fn.call(this, this.objectsArray[i], i)
+}
+
+proto.pop = function(){
+  return this.remove(this.objectsArray.pop())
+}
+
+proto.shift = function(){
+  return this.remove(this.objectsArray.shift())
 }
 
 proto.remove = function(o) {
+  if(!this.objects[o.id])
+    return
+
   delete this.objects[o.id]
+  this.objectsArray.splice(this.objectsArray.indexOf(o), 1)
+
   this.count.incr(-1)
 
   if(this == o.collection) delete o.collection
@@ -785,6 +811,8 @@ proto.remove = function(o) {
     o.off('all', this._onevent, this)
   }
   this.emit('remove', o)
+
+  return o
 }
 
 proto.renderOne = function(item, $el) {

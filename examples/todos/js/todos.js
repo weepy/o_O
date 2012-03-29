@@ -37,7 +37,7 @@
         //add a new todo, when enter key is pressed
         self.add = function () {
             var newTodo = new Todo({content: self.current()});
-            self.todos.add(newTodo);
+            self.todos.push(newTodo);
             self.current("");
         };
 
@@ -56,6 +56,12 @@
           return self.todos.filter(function(todo) {
             return todo.done();
           }).length
+        })
+
+        self.todos.on('add', function() {
+          self.remainingCount.change()
+          self.allCompleted.change()
+          self.persist()
         })
 
         self.todos.on('set:done', function() {

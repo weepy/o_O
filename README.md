@@ -78,11 +78,11 @@ You can also create an o_O `collection` that lets you create an array of o_O `mo
 ```javascript
 var characters = o_O.collection();
 
-characters.add(new Character({name: 'Homer', age: 40}));
-characters.add(new Character({name: 'Marge', age: 36}));
-characters.add(new Character({name: 'Bart', age: 10}));
-characters.add(new Character({name: 'Lisa', age: 8}));
-characters.add(new Character({name: 'Maggie', age: 2}));
+characters.push(new Character({name: 'Homer', age: 40}));
+characters.push(new Character({name: 'Marge', age: 36}));
+characters.push(new Character({name: 'Bart', age: 10}));
+characters.push(new Character({name: 'Lisa', age: 8}));
+characters.push(new Character({name: 'Maggie', age: 2}));
 
 characters.on('set:age', function(character, age_new, age_old){
   console.log(character.name + "'s age changed from " + age_old + " to " + age_new + ".");
@@ -98,7 +98,7 @@ characters.on('add', function(new_character){
 });
 
 // this will trigger the above 'add' event:
-characters.add(new Character({name: 'Mr. Burns', age: 99}));
+characters.push(new Character({name: 'Mr. Burns', age: 99}));
 ```
 
 ## Running Tests
