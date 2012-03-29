@@ -24,7 +24,7 @@
     "expect.js": "*",
     "uglify-js": ">= 1.0.7"
   },
-	"files": "o_O.js",
+	"files": ["o_O.js", "LICENSE"],
 	"main": "o_O",
   "scripts" : { "prepublish" : "npm prune" },
   "engines": { "node": ">= 0.1.98" }
