@@ -41,7 +41,7 @@ viewmodel.age(10);
 alert(viewmodel.name());
 ```
 
-Bind an object to a section of HTML with 'data-bind' attributes:
+Bind an object to a section of HTML with the `o_O.bind(...)` method, and bind parts of that HTML section to o_O `properties` with the `data-bind` attribute:
 
 ```javascript
 o_O.bind(viewmodel, '#character');
