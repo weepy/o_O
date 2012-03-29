@@ -672,7 +672,7 @@ proto.toJSON = function() {
   var json = {}
   for(var i in properties) {
     var value = this[i]()
-    if(value !== properties[i]) json[i] = value
+    if(undefined !== properties[i]) json[i] = value
   }
   if('type' in this) json.type = this.type
   if('id' in this) json.id = this.id
