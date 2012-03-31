@@ -11,12 +11,14 @@
             888888888888                       
 ```           
            
-# HTML binding for teh lulz
+# Funnyface.js
+## HTML binding for teh lulz
 
 * Elegantly binds objects to HTML
 * Proxies through jQuery, Ender, or whatever $ is
 * Automatic dependency resolution
 * Plays well with others
+
 
 ## Examples
 
