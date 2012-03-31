@@ -4,9 +4,7 @@ o_O = global.o_O || require('../o_O')
 describe('an array', function() {
   var col
 
-	function atIndex(index){
-		return col.items[index]
-	}
+	
 
   beforeEach(function() {
     col = o_O.array()
@@ -164,8 +162,8 @@ describe('an array', function() {
 		})
 
 		it('adds an item to the end of the array', function() {
-			expect(atIndex(0)).to.be(one)
-			expect(atIndex(2)).to.be(three)
+			expect(col.at(0)).to.be(one)
+			expect(col.at(2)).to.be(three)
 		})
 	})
 
@@ -185,8 +183,8 @@ describe('an array', function() {
 		})
 
 		it('adds an item to the start of the array', function() {
-			expect(atIndex(0)).to.be(three)
-			expect(atIndex(2)).to.be(one)
+			expect(col.at(0)).to.be(three)
+			expect(col.at(2)).to.be(one)
 		})
 	})
 })

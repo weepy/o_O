@@ -785,6 +785,10 @@ proto.shift = function(){
   return this.remove(this.items.shift())
 }
 
+proto.at = function(index) {
+  return this.items[index]
+}
+
 proto.remove = function(o) {
   var index = this.items.indexOf(o)
   if(index < 0)
