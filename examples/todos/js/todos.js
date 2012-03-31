@@ -29,7 +29,7 @@
         var self = this;
 
         //map array of passed in todos to an observableArray of Todo objects
-        self.todos = o_O.collection(todos)
+        self.todos = o_O.array(todos)
 
         //store the new todo value being entered
         self.current = o_O("");

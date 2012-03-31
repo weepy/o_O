@@ -73,10 +73,10 @@ homer.on('set:name', function(character, name_new, name_old){
 });
 ```
 
-You can also create an o_O `collection` that lets you create an array of o_O `models` and aggregates events across all of them:
+You can also create an o_O `array` that lets you create an array of o_O `models` and aggregates events across all of them:
 
 ```javascript
-var characters = o_O.collection();
+var characters = o_O.array();
 
 characters.push(new Character({name: 'Homer', age: 40}));
 characters.push(new Character({name: 'Marge', age: 36}));
