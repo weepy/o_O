@@ -746,7 +746,8 @@ var add = function(col, o) {
   }else{
     col.emit('add', o)
   }
-  return col.count()
+  col.count.change()
+  return col.items.length
 }
 
 var remove = function(col, o) {
@@ -756,6 +757,7 @@ var remove = function(col, o) {
   } else {
     col.emit('remove', o)
   }
+  col.count.change() //force re-binding
   return o
 }
 
@@ -777,7 +779,11 @@ proto._onevent = function(ev, o, array) {
   this.emit.apply(this, arguments)
 }
 
-proto.filter = function(fn) {
+proto.indexOf = function(o){
+  return this.items.indexOf(o)
+}
+
+proto.filter = function(fn){
   return this.items.filter(fn)
 }
 
@@ -804,17 +810,40 @@ proto.at = function(index) {
 }
 
 proto.remove = function(o) {
-  var index = this.items.indexOf(o)
-  if(index < 0)
+  if('function' === typeof o){
+    var fn = o
+    var itemsToRemove = this.items.filter(fn)
+    for(var i = 0; i < itemsToRemove.length; i++){
+      var item = itemsToRemove[i]
+      var index = this.items.indexOf(item)
+      if(index !== -1)
+        this.items.splice(index, 1)
+    }
+    for(var i = 0; i < itemsToRemove.length; i++){
+      var item = itemsToRemove[i]
+      remove(this, item)
+    }
+  } else {
+    var index = this.items.indexOf(o)
+    if(index < 0)
+      return o
+    this.items.splice(index, 1)
+
+    remove(this, o)
+
     return o
-  this.items.splice(index, 1)
-
-  remove(this, o)
-
-  return o
+  }
 }
 
-proto.renderOne = function(item, $el, index) {
+proto.renderToHead = function(item, $el, index) {
+  $(getTemplate($el)).each(function(i, elem) {
+    var $$ = $(elem)
+    $$.prependTo($el)
+    o_O.bind(item, $$)
+  })
+}
+
+proto.renderToTail = function(item, $el, index) {
   $(getTemplate($el)).each(function(i, elem) {
     var $$ = $(elem)
     $$.appendTo($el)
@@ -823,10 +852,11 @@ proto.renderOne = function(item, $el, index) {
 }
 
 proto.bind = function($el) {
-  var self = this
-
   this.on('add', function(item) {
-    self.renderOne(item, $el)
+    if(this.items.indexOf(item) > 0)
+      this.renderToTail(item, $el)
+    else
+      this.renderToHead(item, $el)
   })
 
   this.on('remove', this.removeElement, this)

@@ -42,13 +42,12 @@
         };
 
         //remove all completed todos
-        self.removeCompleted = function () {
-          self.todos.forEach(function(todo) {
-            if(todo.done()) {
-              self.todos.remove(todo);
-            }
-          });
+        self.removeCompleted = function (evt) {
+          self.todos.remove(function(todo) {
+            return todo.done()
+          })
           self.persist();
+          evt.preventDefault()
         }
 
         //count of all completed todos
@@ -75,6 +74,8 @@
         })
 
         self.todos.on('remove', function() {
+          //self.remainingCount.change()
+          //self.allCompleted.change()
           self.persist()
         })
 
