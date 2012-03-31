@@ -749,6 +749,16 @@ var add = function(col, o) {
   return col.count()
 }
 
+var remove = function(col, o) {
+  if(o.off && o.emit) {
+    o.emit('remove', o, col)
+    o.off('all', col._onevent, col)
+  } else {
+    col.emit('remove', o)
+  }
+  return o
+}
+
 proto.push = function(o) {
   this.items.push(o)
   return add(this, o)
@@ -782,11 +792,11 @@ proto.map = proto.each = proto.forEach = function(fn) {
 }
 
 proto.pop = function(){
-  return this.remove(this.items.pop())
+  return remove(this, this.items.pop())
 }
 
 proto.shift = function(){
-  return this.remove(this.items.shift())
+  return remove(this, this.items.shift())
 }
 
 proto.at = function(index) {
@@ -799,12 +809,7 @@ proto.remove = function(o) {
     return o
   this.items.splice(index, 1)
 
-  if(o.off) {
-    o.emit('remove', o, this)
-    o.off('all', this._onevent, this)
-  } else {
-    this.emit('remove', o)
-  }
+  remove(this, o)
 
   return o
 }
