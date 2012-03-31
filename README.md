@@ -133,8 +133,10 @@ Tested in:
 
 * Chrome 16-18
 * Firefox 4-10
-* Internet Explorer 7-9 (IE6 should work, but is currently untested)
+* Internet Explorer 7-9 
 * Safari 5
+
+Other browsers should work, (eg IE6) but are currently untested
 
 ## License
 
