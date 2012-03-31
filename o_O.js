@@ -771,10 +771,14 @@ proto.filter = function(fn) {
   return this.items.filter(fn)
 }
 
-proto.each = proto.forEach = function(fn) {
+proto.map = proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
-  for(var i = 0; i < this.items.length; i++)
-    fn.call(this, this.items[i], i)
+  var ret = []
+  for(var i = 0; i < this.items.length; i++) {
+    var result = fn.call(this, this.items[i], i)
+    ret.push(result)
+  }
+  return ret
 }
 
 proto.pop = function(){
