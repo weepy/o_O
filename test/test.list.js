@@ -1,6 +1,8 @@
 expect = global.expect || require('expect.js')
 o_O = global.o_O || require('../o_O')
 
+require('../o_O.list')
+
 describe('a list', function() {
   var col
 
