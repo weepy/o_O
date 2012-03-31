@@ -20,7 +20,7 @@
         this.editing(false); 
       },
       remove: function() {
-        this.collection.remove(this)
+        window.view.todos.remove(this)
       }
     })
 

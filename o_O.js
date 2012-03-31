@@ -713,15 +713,17 @@ o_O.model = model
     |_____|                                               */
 
 function collection(models) {
+  var self = this
   if(this.constructor != collection) return new collection(models)
 
-  this.objects = {}
   this.objectsArray = []
-  this.count = o_O(0)
+  this.count = o_O(function(){
+    return self.objectsArray.length
+  })
 
   eventize(this)
   if(models) {
-    for(var i=0; i< models.length;i++) {
+    for(var i=0; i< models.length; i++) {
       this.push(models[i])
     }
   }
@@ -729,37 +731,24 @@ function collection(models) {
 
 var proto = collection.prototype
 
-proto.genId = function() {
-  return ++this.genId.id
+var add = function(col, o) {
+  if(o.on && o.emit) {
+    o.on('*', col._onevent, col)
+    o.emit('add', o, col)
+  }else{
+    col.emit('add', o)
+  }
+  return col.count()
 }
-proto.genId.id = 0
 
 proto.push = function(o) {
   this.objectsArray.push(o)
-  return this._add(o)
+  return add(this, o)
 }
 
 proto.unshift = function(o) {
   this.objectsArray.unshift(o)
-  return this._add(o)
-}
-
-proto._add = function(o) {
-  o.id = o.id || this.genId()
-
-  this.objects[o.id] = o
-
-  o.collection = this
-
-  if(o.on && o.emit) {
-    o.on('*', this._onevent, this)
-    o.emit('add', o, this)
-  }
-  else
-    this.emit('add', o)
-
-  this.count.incr()
-  return this.count()
+  return add(this, o)
 }
 
 proto._onevent = function(ev, o, collection) {
@@ -771,15 +760,7 @@ proto._onevent = function(ev, o, collection) {
 }
 
 proto.filter = function(fn) {
-  var ret = [];
-  this.forEach(function(o) {
-    if(fn(o)) ret.push(o)
-  })
-  return ret
-}
-
-proto.find = function(i) {
-  return this.objects[i]
+  return this.objectsArray.filter(fn)
 }
 
 proto.each = proto.forEach = function(fn) {
@@ -797,17 +778,15 @@ proto.shift = function(){
 }
 
 proto.remove = function(o) {
-  if(!this.objects[o.id])
-    return
-
-  delete this.objects[o.id]
-  this.objectsArray.splice(this.objectsArray.indexOf(o), 1)
-
-  this.count.incr(-1)
+  var index = this.objectsArray.indexOf(o)
+  if(index < 0)
+    return o
+  this.objectsArray.splice(index, 1)
 
   if(this == o.collection) delete o.collection
+
   if(o.off) {
-    o.emit('remove', o, this) 
+    o.emit('remove', o, this)
     o.off('all', this._onevent, this)
   } else {
     this.emit('remove', o)

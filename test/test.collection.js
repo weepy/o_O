@@ -23,10 +23,13 @@ describe('a collection', function() {
       col.push(obj)
     })
 
+		it('has a count of 1', function() {
+			expect(col.count()).to.be(1)
+		})
+
 		it('handles the removal of an item it doesn\'t have gracefully', function() {
 			col.remove({foo: 'bar'})
 			expect(col.count()).to.be(1)
-			expect(col.objectsArray.length).to.be(1)
 		})
 
     it('increases count after add', function() {
@@ -82,6 +85,20 @@ describe('a collection', function() {
 			expect(eventTriggered).to.be(true)
 		})
 
+		it('can add the same model more than once', function() {
+			var M = o_O.model({age: 1})
+			var m = new M({age: 2})
+
+			col.pop()
+			col.push(m)
+			col.push(m)
+			col.push(m)
+			col.push(m)
+			col.push(m)
+
+			expect(col.count()).to.be(5)
+		})
+
 		it('returns the removed item', function() {
 			var removed = col.remove(obj)
 
@@ -112,7 +129,6 @@ describe('a collection', function() {
 			col.remove(three)
 
 			expect(col.count()).to.be(0)
-			expect(col.objectsArray.length).to.be(0)
 		})
 	})
 
@@ -129,13 +145,11 @@ describe('a collection', function() {
 
 		it('decrements the count', function() {
 			col.shift()
-
 			expect(col.count()).to.be(2)
 		})
 
 		it('removes an item from the front of the collection', function() {
 			var removed = col.shift()
-
 			expect(removed).to.be(one)
 		})
 	})
