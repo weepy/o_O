@@ -809,8 +809,9 @@ proto.remove = function(o) {
   if(o.off) {
     o.emit('remove', o, this) 
     o.off('all', this._onevent, this)
+  } else {
+    this.emit('remove', o)
   }
-  this.emit('remove', o)
 
   return o
 }

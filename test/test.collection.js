@@ -68,6 +68,20 @@ describe('a collection', function() {
 			expect(eventTriggered).to.be(true)
 		})
 
+		it('triggers the *remove* event after remove (on model)', function() {
+			var M = o_O.model({age: 1})
+			var m = new M({age:2})
+			var eventTriggered = false
+			col.on('remove', function(){
+				eventTriggered = true
+			})
+
+			col.push(m)
+			col.remove(m)
+
+			expect(eventTriggered).to.be(true)
+		})
+
 		it('returns the removed item', function() {
 			var removed = col.remove(obj)
 
@@ -191,5 +205,4 @@ describe('a collection', function() {
 			expect(atIndex(2)).to.be(one)
 		})
 	})
-
 })
