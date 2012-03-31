@@ -85,20 +85,18 @@ o_O.bind(person, '#example')
 
 
 <a class=btn>Select</a>
-<div id=farm class=example> 
+<div id=farm class=example>
 <div class=inner>
-<select data-bind="value: animal; 
-              options: ['pig', 'dog', 'cow']" >
+<select data-bind="options: ['pig', 'dog', 'cow']; value: animal" >
 </select>
-<select data-bind="value: number; 
-              options: {Ten: 10, Twenty: 20}" >
+<select data-bind="options: {Ten: 10, Twenty: 20}; value: number" >
 </select>
 <p data-bind='text: number()+" "+animal() +"s"'></p>
 </div>
 <script type='text/skip'>
-var farm = { 
-  animal: o_O('cow'), 
-  number: o_O(20) 
+var farm = {
+  animal: o_O('cow'),
+  number: o_O(20)
 }
 o_O.bind(farm, '#example')
 </script>
