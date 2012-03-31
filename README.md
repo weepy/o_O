@@ -133,7 +133,7 @@ Tested in:
 
 * Chrome 16-18
 * Firefox 4-10
-* Internet Explorer 7-9
+* Internet Explorer 7-9 (IE6 should work, but is currently untested)
 * Safari 5
 
 ## License
