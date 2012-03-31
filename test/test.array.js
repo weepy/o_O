@@ -5,7 +5,7 @@ describe('an array', function() {
   var col
 
 	function atIndex(index){
-		return col.objects[index]
+		return col.items[index]
 	}
 
   beforeEach(function() {

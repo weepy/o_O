@@ -724,9 +724,9 @@ function array(models) {
   var self = this
   if(this.constructor != array) return new array(models)
 
-  this.objects = []
+  this.items = []
   this.count = o_O(function(){
-    return self.objects.length
+    return self.items.length
   })
 
   eventize(this)
@@ -750,12 +750,12 @@ var add = function(col, o) {
 }
 
 proto.push = function(o) {
-  this.objects.push(o)
+  this.items.push(o)
   return add(this, o)
 }
 
 proto.unshift = function(o) {
-  this.objects.unshift(o)
+  this.items.unshift(o)
   return add(this, o)
 }
 
@@ -768,28 +768,28 @@ proto._onevent = function(ev, o, array) {
 }
 
 proto.filter = function(fn) {
-  return this.objects.filter(fn)
+  return this.items.filter(fn)
 }
 
 proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
-  for(var i = 0; i < this.objects.length; i++)
-    fn.call(this, this.objects[i], i)
+  for(var i = 0; i < this.items.length; i++)
+    fn.call(this, this.items[i], i)
 }
 
 proto.pop = function(){
-  return this.remove(this.objects.pop())
+  return this.remove(this.items.pop())
 }
 
 proto.shift = function(){
-  return this.remove(this.objects.shift())
+  return this.remove(this.items.shift())
 }
 
 proto.remove = function(o) {
-  var index = this.objects.indexOf(o)
+  var index = this.items.indexOf(o)
   if(index < 0)
     return o
-  this.objects.splice(index, 1)
+  this.items.splice(index, 1)
 
   if(o.off) {
     o.emit('remove', o, this)
