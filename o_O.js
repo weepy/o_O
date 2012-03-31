@@ -118,9 +118,8 @@ a8"     "8a           88          88
 function o_O(v, name) {
   var func = typeof v == 'function'
   var prop = func ? computed(v) : simple(v)
-  
+  prop.timeout = 0
   eventize(prop)
-  
   prop.change = function(fn) {
     fn
       ? prop.on('set', fn)          // setup observer
@@ -147,28 +146,35 @@ o_O.property = o_O // for backwards compat
 
 o_O.is = function(o) { return o.__o_O == true }
 
-
-o_O.nextTick = (function(win) {
-  if(typeof process != 'undefined' && process.nextTick) return process.nextTick
-
-  var timeouts = [], msg = 'o_O.nextTick'
-
-  function handleMessage(event) {
-    if (event.source != win || event.data != msg) return    
-    event.stopPropagation && event.stopPropagation()
-    timeouts.length && timeouts.shift()()
-  }
-
-  if (win.postMessage) {
-    win.addEventListener && addEventListener('message', handleMessage, true)
-    win.attachEvent && attachEvent('onmessage', handleMessage)
-    o_O.nextTick = function(fn) {
-      timeouts.push(fn)
-      postMessage(msg, '*')
-    }
-  }
-  return function(fn) { setTimeout(fn, 0) }
-})(this)
+// !(function() {
+// o_O.timeout = function(fn, timing) {
+//   setTimeout(fn, timing) 
+// }
+// })
+// 
+// (function(win) {
+//   
+//   
+//   if(typeof process != 'undefined' && process.nextTick) return process.nextTick
+// 
+//   var timeouts = [], msg = 'o_O.timeout'
+// 
+//   function handleMessage(event) {
+//     if (event.source != win || event.data != msg) return    
+//     event.stopPropagation && event.stopPropagation()
+//     timeouts.length && timeouts.shift()()
+//   }
+// 
+//   if (win.postMessage) {
+//     win.addEventListener && addEventListener('message', handleMessage, true)
+//     win.attachEvent && attachEvent('onmessage', handleMessage)
+//     return function(fn) {
+//       timeouts.push(fn)
+//       postMessage(msg, '*')
+//     }
+//   }
+//   
+// })(this)
 
 
 /*
@@ -193,7 +199,7 @@ var emitProperty = (function() {
     
   return function (prop) {
     if(prop._emitting) return
-    if(o_O.syncEmit) {
+    if(prop.timeout == null) {
       prop._emitting = true
       prop.emit('set', prop.value, prop.old_value)
       delete prop._emitting
@@ -202,7 +208,7 @@ var emitProperty = (function() {
 
     list.push(prop)
     prop._emitting = true
-    timer = timer || o_O.nextTick(run)
+    timer = timer || setTimeout(run, prop.timeout)
   }
 })();
 
