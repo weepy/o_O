@@ -705,19 +705,19 @@ function inherits(parent, child) {
 
 o_O.model = model
 
-/*        ___   ____      _ _           _   _             
-  ___    / _ \ / ___|___ | | | ___  ___| |_(_) ___  _ __  
- / _ \  | | | | |   / _ \| | |/ _ \/ __| __| |/ _ \| '_ \ 
-| (_) | | |_| | |__| (_) | | |  __/ (__| |_| | (_) | | | |
- \___/___\___(_)____\___/|_|_|\___|\___|\__|_|\___/|_| |_|
-    |_____|                                               */
+/*        ___   _ _     _
+  ___    / _ \ | (_)___| |_
+ / _ \  | | | || | / __| __|
+| (_) | | |_| || | \__ \ |_
+ \___/___\___(_)_|_|___/\__|
+    |_____|                                                */
 
-function collection(models) {
-  if(this.constructor != collection) return new collection(models)
-  
+function list(models) {
+  if(this.constructor != list) return new list(models)
+
   this.objects = {}
   this.count = o_O(0)
-  
+
   eventize(this) 
   if(models) {
     for(var i=0; i< models.length;i++) {
@@ -726,19 +726,19 @@ function collection(models) {
   }
 }
 
-var proto = collection.prototype
+var proto = list.prototype
 
 proto.genId = function() {
   return ++this.genId.id
 }
 proto.genId.id = 0
-  
+
 proto.add = function(o) {
   o.id = o.id || this.genId()
   this.objects[o.id] = o
-  
-  o.collection = this
-  
+
+  o.list = this
+
   if(o.on) {
     o.on('*', this._onevent, this)
     o.emit('add', o, this)
@@ -749,8 +749,8 @@ proto.add = function(o) {
   this.count.incr()
 }
 
-proto._onevent = function(ev, o, collection) {
-  if ((ev == 'add' || ev == 'remove') && collection != this) return
+proto._onevent = function(ev, o, list) {
+  if ((ev == 'add' || ev == 'remove') && list != this) return
   if (ev == 'destroy') {
     this.remove(o)
   }
@@ -758,7 +758,7 @@ proto._onevent = function(ev, o, collection) {
 }
 
 proto.filter = function(fn) {
-  var ret = [];  
+  var ret = [];
   this.each(function(o) {
     if(fn(o)) ret.push(o)
   })
@@ -769,7 +769,6 @@ proto.find = function(i) {
   return this.objects[i]
 }
 
-
 proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
   for(var i in this.objects)
@@ -777,16 +776,17 @@ proto.each = proto.forEach = function(fn) {
 }
 
 proto.remove = function(o) {
+  if(undefined === this.objects[o.id])
+    return
   delete this.objects[o.id]
   this.count.incr(-1)
-  // delete o._id
-  
-  // o.emit('remove', o)
-  //this.emit('remove', o)
-  if(this == o.collection) delete o.collection
+
+  if(this == o.list) delete o.list
   if(o.off) {
-    o.emit('remove', o, this) 
+    o.emit('remove', o, this)
     o.off('all', this._onevent, this)
+  }else{
+    this.emit('remove', o)
   }
 }
 
@@ -800,11 +800,11 @@ proto.renderOne = function(item, $el) {
 
 proto.bind = function($el) {
   var self = this
-  
+
   this.on('add', function(item) {
     self.renderOne(item, $el)
   })
-  
+
   this.on('remove', this.removeElement, this)
 }
 
@@ -813,15 +813,134 @@ proto.removeElement = function(item) {
 }
 
 proto.toString = function() {
-  return '#<collection>'
+  return '#<list>'
 }
 
 proto.extend = function() {
   return inherits(this)
 }
 
-o_O.collection = collection
+o_O.list = list
 
+/*        ___
+  ___    / _ \  __ _ _ __ _ __ __ _ _   _
+ / _ \  | | | |/ _` | '__| '__/ _` | | | |
+| (_) | | |_| | (_| | |  | | | (_| | |_| |
+ \___/___\___(_)__,_|_|  |_|  \__,_|\__, |
+    |_____|                         |___/                  */
+
+function array(models) {
+  var self = this
+  if(this.constructor != array) return new array(models)
+
+  this.objects = []
+  this.count = o_O(function(){
+    return self.objects.length
+  })
+
+  eventize(this)
+  if(models) {
+    for(var i=0; i< models.length; i++) {
+      this.push(models[i])
+    }
+  }
+}
+
+var proto = array.prototype
+
+var add = function(col, o) {
+  if(o.on && o.emit) {
+    o.on('*', col._onevent, col)
+    o.emit('add', o, col)
+  }else{
+    col.emit('add', o)
+  }
+  return col.count()
+}
+
+proto.push = function(o) {
+  this.objects.push(o)
+  return add(this, o)
+}
+
+proto.unshift = function(o) {
+  this.objects.unshift(o)
+  return add(this, o)
+}
+
+proto._onevent = function(ev, o, array) {
+  if ((ev == 'add' || ev == 'remove') && array != this) return
+  if (ev == 'destroy') {
+    this.remove(o)
+  }
+  this.emit.apply(this, arguments)
+}
+
+proto.filter = function(fn) {
+  return this.objects.filter(fn)
+}
+
+proto.each = proto.forEach = function(fn) {
+  this.count(); // force the dependency
+  for(var i = 0; i < this.objects.length; i++)
+    fn.call(this, this.objects[i], i)
+}
+
+proto.pop = function(){
+  return this.remove(this.objects.pop())
+}
+
+proto.shift = function(){
+  return this.remove(this.objects.shift())
+}
+
+proto.remove = function(o) {
+  var index = this.objects.indexOf(o)
+  if(index < 0)
+    return o
+  this.objects.splice(index, 1)
+
+  if(o.off) {
+    o.emit('remove', o, this)
+    o.off('all', this._onevent, this)
+  } else {
+    this.emit('remove', o)
+  }
+
+  return o
+}
+
+proto.renderOne = function(item, $el) {
+  $(getTemplate($el)).each(function(i, elem) {
+    var $$ = $(elem)
+    $$.appendTo($el)
+    o_O.bind(item, $$)
+  })
+}
+
+proto.bind = function($el) {
+  var self = this
+
+  this.on('add', function(item) {
+    self.renderOne(item, $el)
+  })
+
+  this.on('remove', this.removeElement, this)
+}
+
+proto.removeElement = function(item) {
+  $(item.el).remove()
+}
+
+proto.toString = function() {
+  return '#<o_O.array>'
+}
+
+proto.extend = function() {
+  return inherits(this)
+}
+
+o_O.array = array
 
 // shims for IE compatability
 function forEach(array, action) {

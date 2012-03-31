@@ -20,7 +20,7 @@
         this.editing(false); 
       },
       remove: function() {
-        this.collection.remove(this)
+        window.view.todos.remove(this)
       }
     })
 
@@ -29,7 +29,7 @@
         var self = this;
 
         //map array of passed in todos to an observableArray of Todo objects
-        self.todos = o_O.collection(todos)
+        self.todos = o_O.array(todos)
 
         //store the new todo value being entered
         self.current = o_O("");
@@ -37,7 +37,7 @@
         //add a new todo, when enter key is pressed
         self.add = function () {
             var newTodo = new Todo({content: self.current()});
-            self.todos.add(newTodo);
+            self.todos.push(newTodo);
             self.current("");
         };
 
@@ -58,11 +58,20 @@
           }).length
         })
 
-        self.todos.on('set:done', function(object, val, old) {
+        self.todos.on('add', function() {
+          self.remainingCount.change()
+          self.allCompleted.change()
           self.persist()
+        })
+
+        self.todos.on('set:done', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()
+        })
+
+        self.todos.on('update', function() {
+          self.persist()
         })
 
         self.todos.on('remove', function() {
@@ -112,7 +121,6 @@
           self.todos.forEach(function(todo){
             todos.push({id: todo.id, content: todo.content(), done: todo.done()});
           });
-          console.log(todos)
           amplify.store('todos', todos);
         };
     };
