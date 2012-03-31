@@ -515,7 +515,7 @@ o_O.bindings.foreach = function(list, $el) {
   
   $el.html('')
   list.forEach(function(item, index) {
-    renderOne(item, $el)
+    renderOne(item, $el, index)
   })
   
   if(list.bind) {
@@ -809,7 +809,7 @@ proto.remove = function(o) {
   return o
 }
 
-proto.renderOne = function(item, $el) {
+proto.renderOne = function(item, $el, index) {
   $(getTemplate($el)).each(function(i, elem) {
     var $$ = $(elem)
     $$.appendTo($el)
