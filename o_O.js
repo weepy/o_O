@@ -810,29 +810,32 @@ proto.at = function(index) {
 }
 
 proto.remove = function(o) {
-  if('function' === typeof o){
-    var fn = o
-    var itemsToRemove = this.items.filter(fn)
-    for(var i = 0; i < itemsToRemove.length; i++){
-      var item = itemsToRemove[i]
-      var index = this.items.indexOf(item)
-      if(index !== -1)
-        this.items.splice(index, 1)
-    }
-    for(var i = 0; i < itemsToRemove.length; i++){
-      var item = itemsToRemove[i]
-      remove(this, item)
-    }
-  } else {
-    var index = this.items.indexOf(o)
-    if(index < 0)
-      return o
-    this.items.splice(index, 1)
+  var itemsToRemove
+  if('function' === typeof o)
+    itemsToRemove = this.items.filter(o)
+  else
+    itemsToRemove = [o]
 
-    remove(this, o)
-
-    return o
+  // loop through and remove items from internal array
+  for(var i = 0; i < itemsToRemove.length; i++){
+    var item = itemsToRemove[i]
+    var index = this.items.indexOf(item)
+    if(index !== -1)
+      this.items.splice(index, 1)
   }
+
+  // now that they're all gone, pop the events for each
+  for(var i = 0; i < itemsToRemove.length; i++){
+    var item = itemsToRemove[i]
+    remove(this, item)
+  }
+
+  this.count.change()
+
+  if(itemsToRemove.length === 1)
+    return itemsToRemove[0]
+  else
+    return itemsToRemove
 }
 
 proto.renderToHead = function(item, $el, index) {

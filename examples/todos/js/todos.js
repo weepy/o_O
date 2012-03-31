@@ -57,25 +57,20 @@
           }).length
         })
 
-        self.todos.on('add', function() {
-          self.remainingCount.change()
-          self.allCompleted.change()
-          self.persist()
-        })
-
         self.todos.on('set:done', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()
         })
 
-        self.todos.on('update', function() {
+        self.todos.count.on('set', function() {
+          self.completedCount.change()
+          self.remainingCount.change()
+          self.allCompleted.change()
           self.persist()
         })
 
-        self.todos.on('remove', function() {
-          //self.remainingCount.change()
-          //self.allCompleted.change()
+        self.todos.on('update', function() {
           self.persist()
         })
 
