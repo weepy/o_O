@@ -78,29 +78,29 @@ homer.on('set:name', function(character, name_new, name_old){
 You can also create an o_O `array` that lets you create an array of o_O `models` and aggregates events across all of them:
 
 ```javascript
-var characters = o_O.array();
+var cast = o_O.array();
 
-characters.push(new Character({name: 'Homer', age: 40}));
-characters.push(new Character({name: 'Marge', age: 36}));
-characters.push(new Character({name: 'Bart', age: 10}));
-characters.push(new Character({name: 'Lisa', age: 8}));
-characters.push(new Character({name: 'Maggie', age: 2}));
+cast.push(new Character({name: 'Homer', age: 40}));
+cast.push(new Character({name: 'Marge', age: 36}));
+cast.push(new Character({name: 'Bart', age: 10}));
+cast.push(new Character({name: 'Lisa', age: 8}));
+cast.push(new Character({name: 'Maggie', age: 2}));
 
-characters.on('set:age', function(character, age_new, age_old){
+cast.on('set:age', function(character, age_new, age_old){
   console.log(character.name + "'s age changed from " + age_old + " to " + age_new + ".");
 });
 
 // this will trigger the above 'set:' event for each character:
-characters.forEach(function(character){
+cast.forEach(function(character){
   character.age(character.age() + 1);
 });
 
-characters.on('add', function(new_character){
+cast.on('add', function(new_character){
   console.log(new_character);
 });
 
 // this will trigger the above 'add' event:
-characters.push(new Character({name: 'Mr. Burns', age: 99}));
+cast.push(new Character({name: 'Mr. Burns', age: 99}));
 ```
 
 ## Running Tests
