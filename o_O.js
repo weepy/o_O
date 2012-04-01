@@ -747,7 +747,7 @@ function _add(col, o, index) {
     o.on('*', col._onevent, col)
     o.emit('add', o, col, index)
   }else{
-    col.emit('add', o, index)
+    col.emit('add', o, col, index)
   }
   col.length.incr()
   return col.items.length
@@ -837,7 +837,7 @@ proto.remove = function(o) {
   var func = 'function' === typeof o,   // what about if o is a function itself? - perhaps this should be another method ?
       items = func ? this.items.filter(o) : [o],
       index
-  
+
   for(var i = 0; i < items.length; i++){
     index = this.items.indexOf(items[i])
     if(index !== -1) this.removeAt(index)
@@ -853,12 +853,12 @@ proto.renderItem = function(item, $el, index) {
     var nextElem = this.at(index).el || $el.children()[index]
     $$.insertBefore(nextElem)
   }
-  o_O.bind(item, $$)  
+  o_O.bind(item, $$)
 }
 
 proto.bind = function($el) {
   var self = this
-  this.on('add', function(item, index) {
+  this.on('add', function(item, col, index) {
     self.renderItem(item, $el, index)
   })
   this.on('remove', this.removeElement, this)
