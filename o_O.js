@@ -124,6 +124,7 @@ function o_O(v, name) {
     fn
       ? prop.on('set', fn)          // setup observer
       : prop.emit('set', prop(), prop.old_val)
+    return prop
   }
   
   prop.mirror = function(other, both) {
@@ -132,10 +133,11 @@ function o_O(v, name) {
     })
     other.change()
     both && other.mirror(prop)
+    return prop
   }
   
   prop.incr = function(val) {
-    prop(prop.value + (val || 1))
+    return prop(prop.value + (val || 1))
   }
   
   if(name) prop._name = name
