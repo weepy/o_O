@@ -136,9 +136,8 @@ function o_O(v, name) {
     return prop
   }
   
-  prop.incr = function(val) {
-    return prop(prop.value + (val || 1))
-  }
+  prop.incr = function(val) { return prop(prop.value + (val || 1)) }
+  prop.toggle = function() { return prop(!prop.value) }
   
   if(name) prop._name = name
   
@@ -839,7 +838,7 @@ proto.remove = function(o) {
       index
 
   for(var i = 0; i < items.length; i++){
-    index = this.items.indexOf(items[i])
+    index = this.indexOf(items[i])
     if(index !== -1) this.removeAt(index)
   }
   return func ? items : items[0]

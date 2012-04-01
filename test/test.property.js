@@ -93,6 +93,16 @@ describe('complex property', function() {
   
 })
 
+describe('toggle', function() {  
+  it('changes a value from truthy to false and falsey to true', function() {
+    var x = o_O("hello")
+    x.toggle()
+    expect(x()).to.eql(false)
+    x.toggle()
+    expect(x()).to.eql(true)
+  })
+})
+
 describe('change', function() {
   
   it('is called when property is set', function(done) {
