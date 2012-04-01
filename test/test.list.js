@@ -1,7 +1,7 @@
 expect = global.expect || require('expect.js')
 o_O = global.o_O || require('../o_O')
 
-require('../o_O.list')
+if(typeof(require) != 'undefined') require('../o_O.list')
 
 describe('a list', function() {
   var col
@@ -11,7 +11,7 @@ describe('a list', function() {
   })
 
   it('has a count of 0', function() {
-    expect(col.count()).to.be(0)
+    expect(col.length()).to.be(0)
   })
 
   describe('adding/removing', function() {
@@ -22,16 +22,16 @@ describe('a list', function() {
     })
 
 		it('has a count of 1', function() {
-			expect(col.count()).to.be(1)
+			expect(col.length()).to.be(1)
 		})
 
 		it('handles the removal of an item it doesn\'t have gracefully', function() {
 			col.remove({foo: 'bar'})
-			expect(col.count()).to.be(1)
+			expect(col.length()).to.be(1)
 		})
 
     it('increases count after add', function() {
-      expect(col.count()).to.be(1)
+      expect(col.length()).to.be(1)
     })
 
 		it('triggers the *add* event after add', function() {
@@ -51,7 +51,7 @@ describe('a list', function() {
 
     it('decreases count after remove', function() {
       col.remove(obj)
-      expect(col.count()).to.be(0)
+      expect(col.length()).to.be(0)
     })
 
 		it('triggers the *remove* event after remove', function() {

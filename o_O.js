@@ -134,6 +134,10 @@ function o_O(v, name) {
     both && other.mirror(prop)
   }
   
+  prop.incr = function(val) {
+    prop(prop.value + (val || 1))
+  }
+  
   if(name) prop._name = name
   
   prop.toString = function() { return '<' + (prop._name ? prop._name : '') + ':'+ prop.value + '>'}
@@ -235,9 +239,6 @@ function simple(defaultValue) {
   prop.value = defaultValue
   prop.dependencies = []     // should depend on self?
   
-  prop.incr = function(val) {
-    prop(prop.value + (val || 1))
-  }
   return prop
 }
 
@@ -505,7 +506,7 @@ o_O.bindings.options = function(options, $el) {
 o_O.bindings.foreach = function(list, $el) {
   var template = getTemplate($el)
   
-  var renderOne = list.renderOne || function(item) {
+  var renderItem = list.renderItem || function(item) {
     $(template).each(function(i, elem) {
       var $$ = $(elem)
       $$.appendTo($el)
@@ -515,7 +516,7 @@ o_O.bindings.foreach = function(list, $el) {
   
   $el.html('')
   list.forEach(function(item, index) {
-    renderOne(item, $el, index)
+    renderItem(item, $el, index)
   })
   
   if(list.bind) {
@@ -725,7 +726,7 @@ function array(models) {
   if(this.constructor != array) return new array(models)
 
   this.items = []
-  this.count = o_O(function(){
+  this.length = o_O(function(){
     return self.items.length
   })
 
@@ -739,37 +740,28 @@ function array(models) {
 
 var proto = array.prototype
 
-var add = function(col, o) {
+function _add(col, o, index) {
   if(o.on && o.emit) {
     o.on('*', col._onevent, col)
-    o.emit('add', o, col)
+    o.emit('add', o, col, index)
   }else{
-    col.emit('add', o)
+    col.emit('add', o, index)
   }
-  col.count.change()
+  col.length.incr()
   return col.items.length
 }
 
-var remove = function(col, o) {
+function _remove(col, o) {
   if(o.off && o.emit) {
     o.emit('remove', o, col)
     o.off('all', col._onevent, col)
   } else {
     col.emit('remove', o)
   }
-  col.count.change() //force re-binding
+  col.length.incr(-1) //force re-binding
   return o
 }
 
-proto.push = function(o) {
-  this.items.push(o)
-  return add(this, o)
-}
-
-proto.unshift = function(o) {
-  this.items.unshift(o)
-  return add(this, o)
-}
 
 proto._onevent = function(ev, o, array) {
   if ((ev == 'add' || ev == 'remove') && array != this) return
@@ -787,8 +779,15 @@ proto.filter = function(fn){
   return this.items.filter(fn)
 }
 
+proto.find = function(fn){
+  for(var i in this.items) {
+    var it = this.items[i]
+    if(fn(it, i)) return it
+  }
+}
+
 proto.map = proto.each = proto.forEach = function(fn) {
-  this.count(); // force the dependency
+  this.length(); // force the dependency
   var ret = []
   for(var i = 0; i < this.items.length; i++) {
     var result = fn.call(this, this.items[i], i)
@@ -797,71 +796,69 @@ proto.map = proto.each = proto.forEach = function(fn) {
   return ret
 }
 
+proto.push = function(o) {
+  return this.insert(o, this.items.length)
+}
+
+proto.unshift = function(o) {
+  return this.insert(o, 0)
+}
+
 proto.pop = function(){
-  return remove(this, this.items.pop())
+  return this.removeAt(this.items.length-1) //remove(this, this.items.pop())
 }
 
 proto.shift = function(){
-  return remove(this, this.items.shift())
+  return this.removeAt(0) //remove(this, this.items.shift())
 }
 
 proto.at = function(index) {
   return this.items[index]
 }
 
+proto.insert = function(o, index) {
+  if(index < 0 || index > this.length()) return false
+  this.items.splice(index, 0, o)
+  _add(this, o, index)
+  return o
+}
+
+proto.removeAt = function(index) {
+  if(index < 0 || index > this.length()) return false
+  var o = this.items[index]
+  this.items.splice(index, 1)
+  _remove(this, o)
+  return o
+}
+
 proto.remove = function(o) {
-  var itemsToRemove
-  if('function' === typeof o)
-    itemsToRemove = this.items.filter(o)
-  else
-    itemsToRemove = [o]
-
-  // loop through and remove items from internal array
-  for(var i = 0; i < itemsToRemove.length; i++){
-    var item = itemsToRemove[i]
-    var index = this.items.indexOf(item)
-    if(index !== -1)
-      this.items.splice(index, 1)
+  var func = 'function' === typeof o,   // what about if o is a function itself? - perhaps this should be another method ?
+      items = func ? this.items.filter(o) : [o],
+      index
+  
+  for(var i = 0; i < items.length; i++){
+    index = this.items.indexOf(items[i])
+    if(index !== -1) this.removeAt(index)
   }
-
-  // now that they're all gone, pop the events for each
-  for(var i = 0; i < itemsToRemove.length; i++){
-    var item = itemsToRemove[i]
-    remove(this, item)
-  }
-
-  this.count.change()
-
-  if(itemsToRemove.length === 1)
-    return itemsToRemove[0]
-  else
-    return itemsToRemove
+  return func ? items : items[0]
 }
 
-proto.renderToHead = function(item, $el, index) {
-  $(getTemplate($el)).each(function(i, elem) {
-    var $$ = $(elem)
-    $$.prependTo($el)
-    o_O.bind(item, $$)
-  })
-}
-
-proto.renderToTail = function(item, $el, index) {
-  $(getTemplate($el)).each(function(i, elem) {
-    var $$ = $(elem)
-    $$.appendTo($el)
-    o_O.bind(item, $$)
-  })
+proto.renderItem = function(item, $el, index) {
+  var $$ = $(getTemplate($el))
+  if(index == this.items.length - 1)
+    $el.append($$)
+  else {
+    var nextElem = this.at(index).el || $el.children()[index]
+    $$.insertBefore(nextElem)
+  }
+  o_O.bind(item, $$)  
 }
 
 proto.bind = function($el) {
-  this.on('add', function(item) {
-    if(this.items.indexOf(item) > 0)
-      this.renderToTail(item, $el)
-    else
-      this.renderToHead(item, $el)
+  var self = this
+  this.on('add', function(item, index) {
+    self.renderItem(item, $el, index)
   })
-
   this.on('remove', this.removeElement, this)
 }
 

@@ -63,7 +63,7 @@
           self.allCompleted.change()
         })
 
-        self.todos.count.on('set', function() {
+        self.todos.length.on('set', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()
@@ -76,7 +76,7 @@
 
         //count of todos that are not complete
         self.remainingCount = o_O(function () {
-          return self.todos.count() - self.completedCount();
+          return self.todos.length() - self.completedCount();
         })
 
         //writeable computed observable to handle marking all complete/incomplete
