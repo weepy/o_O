@@ -140,6 +140,12 @@ Tested in:
 
 Other browsers should work, (eg IE6) but are currently untested
 
+
+## Contributers
+
+* Jonah Fox aka weepy
+* Troy Goode
+
 ## License
 
 o_O is released under the [MIT license](http://www.opensource.org/licenses/mit-license.html):
