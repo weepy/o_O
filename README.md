@@ -75,7 +75,7 @@ homer.on('set:name', function(character, name_new, name_old){
 });
 ```
 
-You can also create an o_O `array` that lets you create an array of o_O `models` and aggregates events across all of them:
+You can also create an o_O `array` that lets you create an array of items (can be anything) and if the items support it (i.e. they are o_O `models`) aggregates events across all of them:
 
 ```javascript
 var cast = o_O.array();
