@@ -37,4 +37,14 @@ describe('foreach array', function() {
     expect($(el).html()).to.be('<li>zero</li><li>one</li><li>two</li>')
   })
   
+  it('should remove ok', function() {
+    array.unshift('zero')
+    array.push('two')
+    array.insert('one', 1)
+    array.shift()
+    array.pop()
+    expect($(el).html()).to.be('<li>one</li>')
+  })
+  
+  
 })

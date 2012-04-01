@@ -751,12 +751,12 @@ function _add(col, o, index) {
   return col.items.length
 }
 
-function _remove(col, o) {
+function _remove(col, o, index) {
   if(o.off && o.emit) {
-    o.emit('remove', o, col)
-    o.off('all', col._onevent, col)
+    o.emit('remove', o, col, index)
+    o.off('*', col._onevent, col)
   } else {
-    col.emit('remove', o)
+    col.emit('remove', o, index)
   }
   col.length.incr(-1) //force re-binding
   return o
@@ -827,7 +827,7 @@ proto.removeAt = function(index) {
   if(index < 0 || index > this.length()) return false
   var o = this.items[index]
   this.items.splice(index, 1)
-  _remove(this, o)
+  _remove(this, o, index)
   return o
 }
 
@@ -860,10 +860,11 @@ proto.bind = function($el) {
     self.renderItem(item, $el, index)
   })
   this.on('remove', this.removeElement, this)
+  this.el = $el[0]
 }
 
-proto.removeElement = function(item) {
-  $(item.el).remove()
+proto.removeElement = function(item, index) {
+  $(item.el || $(this.el).children()[index]).remove()
 }
 
 proto.toString = function() {
