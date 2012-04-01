@@ -42,13 +42,12 @@
         };
 
         //remove all completed todos
-        self.removeCompleted = function () {
-          self.todos.forEach(function(todo) {
-            if(todo.done()) {
-              self.todos.remove(todo);
-            }
-          });
+        self.removeCompleted = function (evt) {
+          self.todos.remove(function(todo) {
+            return todo.done()
+          })
           self.persist();
+          evt.preventDefault()
         }
 
         //count of all completed todos
@@ -58,23 +57,20 @@
           }).length
         })
 
-        self.todos.on('add', function() {
-          self.remainingCount.change()
-          self.allCompleted.change()
-          self.persist()
-        })
-
         self.todos.on('set:done', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()
         })
 
-        self.todos.on('update', function() {
+        self.todos.count.on('set', function() {
+          self.completedCount.change()
+          self.remainingCount.change()
+          self.allCompleted.change()
           self.persist()
         })
 
-        self.todos.on('remove', function() {
+        self.todos.on('update', function() {
           self.persist()
         })
 
