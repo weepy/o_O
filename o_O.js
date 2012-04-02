@@ -751,7 +751,7 @@ function _add(col, o, index) {
     col.emit('add', o, col, index)
   }
   col.count.incr()
-  return col.items.length
+  return col.length
 }
 
 function _remove(col, o, index) {
@@ -792,7 +792,7 @@ proto.find = function(fn){
 proto.map = proto.each = proto.forEach = function(fn) {
   this.count(); // force the dependency
   var ret = []
-  for(var i = 0; i < this.items.length; i++) {
+  for(var i = 0; i < this.length; i++) {
     var result = fn.call(this, this.items[i], i)
     ret.push(result)
   }
@@ -800,7 +800,7 @@ proto.map = proto.each = proto.forEach = function(fn) {
 }
 
 proto.push = function(o) {
-  return this.insert(o, this.items.length)
+  return this.insert(o, this.length)
 }
 
 proto.unshift = function(o) {
@@ -808,7 +808,7 @@ proto.unshift = function(o) {
 }
 
 proto.pop = function(){
-  return this.removeAt(this.items.length-1) //remove(this, this.items.pop())
+  return this.removeAt(this.length-1) //remove(this, this.items.pop())
 }
 
 proto.shift = function(){
@@ -848,7 +848,7 @@ proto.remove = function(o) {
 
 proto.renderItem = function(item, $el, index) {
   var $$ = $(getTemplate($el))
-  if(index == this.items.length - 1)
+  if(index == this.length - 1)
     $el.append($$)
   else {
     var nextElem = this.at(index).el || $el.children()[index]
