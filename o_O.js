@@ -871,7 +871,7 @@ proto.removeElement = function(item, index) {
 }
 
 proto.toString = function() {
-  return '#<o_O.array>'
+  return '#<o_O.array:'+this.length+'>'
 }
 
 proto.extend = function() {
