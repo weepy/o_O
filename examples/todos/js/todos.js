@@ -76,7 +76,7 @@
 
         //count of todos that are not complete
         self.remainingCount = o_O(function () {
-          return self.todos.length() - self.completedCount();
+          return self.todos.count() - self.completedCount();
         })
 
         //writeable computed observable to handle marking all complete/incomplete

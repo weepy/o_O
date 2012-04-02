@@ -11,7 +11,7 @@ describe('an array', function() {
   })
 
   it('has a count of 0', function() {
-    expect(col.length()).to.be(0)
+    expect(col.count()).to.be(0)
   })
 
   describe('adding/removing', function() {
@@ -22,16 +22,16 @@ describe('an array', function() {
     })
 
 		it('has a count of 1', function() {
-			expect(col.length()).to.be(1)
+			expect(col.count()).to.be(1)
 		})
 
 		it('handles the removal of an item it doesn\'t have gracefully', function() {
 			col.remove({foo: 'bar'})
-			expect(col.length()).to.be(1)
+			expect(col.count()).to.be(1)
 		})
 
     it('increases count after add', function() {
-      expect(col.length()).to.be(1)
+      expect(col.count()).to.be(1)
     })
 
 		it('triggers the *add* event after add', function() {
@@ -51,7 +51,7 @@ describe('an array', function() {
 
     it('decreases count after remove', function() {
       col.remove(obj)
-      expect(col.length()).to.be(0)
+      expect(col.count()).to.be(0)
     })
 
 		it('triggers the *remove* event after remove', function() {
@@ -90,7 +90,7 @@ describe('an array', function() {
 			col.push(m)
 			col.push(m)
 
-			expect(col.length()).to.be(5)
+			expect(col.count()).to.be(5)
 		})
 
 		it('returns the removed item', function() {
@@ -113,7 +113,7 @@ describe('an array', function() {
 
 		it('decrements the count', function() {
 			col.shift()
-			expect(col.length()).to.be(2)
+			expect(col.count()).to.be(2)
 		})
 
 		it('removes an item from the front of the array', function() {
@@ -136,7 +136,7 @@ describe('an array', function() {
 		it('decrements the count', function() {
 			col.pop()
 
-			expect(col.length()).to.be(2)
+			expect(col.count()).to.be(2)
 		})
 
 		it('removes an item from the end of the array', function() {
@@ -158,7 +158,7 @@ describe('an array', function() {
 		})
 
 		it('increments the count', function() {
-			expect(col.length()).to.be(3)
+			expect(col.count()).to.be(3)
 		})
 
 		it('adds an item to the end of the array', function() {
@@ -179,7 +179,7 @@ describe('an array', function() {
 		})
 
 		it('increments the count', function() {
-			expect(col.length()).to.be(3)
+			expect(col.count()).to.be(3)
 		})
 
 		it('adds an item to the start of the array', function() {
@@ -199,7 +199,7 @@ describe('an array', function() {
 		})
 
 		it('increments the count', function() {
-			expect(col.length()).to.be(2)
+			expect(col.count()).to.be(2)
 		})
 
 		it('adds an item to the start of the array', function() {
@@ -216,7 +216,7 @@ describe('an array', function() {
 		it('fails if inserting to invalid place', function() {
 			expect(col.insert({}, -1)).to.be(false)
 			expect(col.insert({}, 4)).to.be(false)
-			expect(col.length()).to.be(2)
+			expect(col.count()).to.be(2)
 		})
 		
 		
@@ -235,7 +235,7 @@ describe('an array', function() {
 
 		it('decrements the count', function() {
 		  col.removeAt(0)
-			expect(col.length()).to.be(2)
+			expect(col.count()).to.be(2)
 		})
 
 		it('removes the item to the start of the array', function() {

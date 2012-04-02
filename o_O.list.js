@@ -11,7 +11,7 @@ function list(models) {
   if(this.constructor != list) return new list(models)
 
   this.objects = {}
-  this.length = o_O(0)
+  this.count = o_O(0)
 
   o_O.eventize(this) 
   if(models) {
@@ -41,7 +41,7 @@ proto.add = function(o) {
   else
     this.emit('add', o)
 
-  this.length.incr()
+  this.count.incr()
 }
 
 proto._onevent = function(ev, o, list) {
@@ -65,7 +65,7 @@ proto.find = function(i) {
 }
 
 proto.each = proto.forEach = function(fn) {
-  this.length(); // force the dependency
+  this.count(); // force the dependency
   for(var i in this.objects)
     fn.call(this, this.find(i), i)
 }
@@ -74,7 +74,7 @@ proto.remove = function(o) {
   if(undefined === this.objects[o.id])
     return
   delete this.objects[o.id]
-  this.length.incr(-1)
+  this.count.incr(-1)
 
   if(this == o.list) delete o.list
   if(o.off) {

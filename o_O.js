@@ -727,7 +727,7 @@ function array(models) {
   if(this.constructor != array) return new array(models)
 
   this.items = []
-  this.length = o_O(function(){
+  this.count = o_O(function(){
     return self.items.length
   })
 
@@ -748,7 +748,7 @@ function _add(col, o, index) {
   }else{
     col.emit('add', o, col, index)
   }
-  col.length.incr()
+  col.count.incr()
   return col.items.length
 }
 
@@ -759,7 +759,7 @@ function _remove(col, o, index) {
   } else {
     col.emit('remove', o, index)
   }
-  col.length.incr(-1) //force re-binding
+  col.count.incr(-1) //force re-binding
   return o
 }
 
@@ -788,7 +788,7 @@ proto.find = function(fn){
 }
 
 proto.map = proto.each = proto.forEach = function(fn) {
-  this.length(); // force the dependency
+  this.count(); // force the dependency
   var ret = []
   for(var i = 0; i < this.items.length; i++) {
     var result = fn.call(this, this.items[i], i)
@@ -818,14 +818,14 @@ proto.at = function(index) {
 }
 
 proto.insert = function(o, index) {
-  if(index < 0 || index > this.length()) return false
+  if(index < 0 || index > this.count()) return false
   this.items.splice(index, 0, o)
   _add(this, o, index)
   return o
 }
 
 proto.removeAt = function(index) {
-  if(index < 0 || index > this.length()) return false
+  if(index < 0 || index > this.count()) return false
   var o = this.items[index]
   this.items.splice(index, 1)
   _remove(this, o, index)
