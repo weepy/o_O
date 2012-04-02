@@ -820,14 +820,14 @@ proto.at = function(index) {
 }
 
 proto.insert = function(o, index) {
-  if(index < 0 || index > this.count()) return false
+  if(index < 0 || index > this.length) return false
   this.items.splice(index, 0, o)
   _add(this, o, index)
   return o
 }
 
 proto.removeAt = function(index) {
-  if(index < 0 || index >= this.count()) return false
+  if(index < 0 || index >= this.length) return false
   var o = this.items[index]
   this.items.splice(index, 1)
   _remove(this, o, index)
