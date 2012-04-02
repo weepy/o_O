@@ -775,7 +775,7 @@ proto._onevent = function(ev, o, array) {
 }
 
 proto.indexOf = function(o){
-  return this.items.indexOf(o)
+  return indexOf(this.items, o)
 }
 
 proto.filter = function(fn){
