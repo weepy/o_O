@@ -727,10 +727,12 @@ function array(models) {
   if(this.constructor != array) return new array(models)
 
   this.items = []
-  this.count = o_O(function(){
-    return self.items.length
+  this.count = o_O(0)
+  this.length = 0
+  this.count.on('setsync', function(count) {
+    self.length = count 
   })
-
+  
   eventize(this)
   if(models) {
     for(var i=0; i< models.length; i++) {
