@@ -340,7 +340,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
             }
           : x
 
-    if($.fn[attr]) {
+    if($.prototype[attr]) {
       if(y instanceof String) y = y.toString() // strange problem
       return $(el)[attr].call($(el), y)
     } 
@@ -751,7 +751,7 @@ function _add(col, o, index) {
     col.emit('add', o, col, index)
   }
   col.count.incr()
-  return col.length
+  return col.items.length
 }
 
 function _remove(col, o, index) {
@@ -775,7 +775,7 @@ proto._onevent = function(ev, o, array) {
 }
 
 proto.indexOf = function(o){
-  return indexOf(this.items, o)
+  return this.items.indexOf(o)
 }
 
 proto.filter = function(fn){
@@ -820,14 +820,14 @@ proto.at = function(index) {
 }
 
 proto.insert = function(o, index) {
-  if(index < 0 || index > this.length) return false
+  if(index < 0 || index > this.count()) return false
   this.items.splice(index, 0, o)
   _add(this, o, index)
   return o
 }
 
 proto.removeAt = function(index) {
-  if(index < 0 || index >= this.length) return false
+  if(index < 0 || index > this.count()) return false
   var o = this.items[index]
   this.items.splice(index, 1)
   _remove(this, o, index)
@@ -848,7 +848,7 @@ proto.remove = function(o) {
 
 proto.renderItem = function(item, $el, index) {
   var $$ = $(getTemplate($el))
-  if(index == this.length - 1)
+  if(index == this.items.length - 1)
     $el.append($$)
   else {
     var nextElem = this.at(index).el || $el.children()[index]
@@ -871,7 +871,7 @@ proto.removeElement = function(item, index) {
 }
 
 proto.toString = function() {
-  return '#<o_O.array:'+this.length+'>'
+  return '#<o_O.array>'
 }
 
 proto.extend = function() {
