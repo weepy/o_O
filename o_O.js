@@ -827,7 +827,7 @@ proto.insert = function(o, index) {
 }
 
 proto.removeAt = function(index) {
-  if(index < 0 || index > this.count()) return false
+  if(index < 0 || index >= this.count()) return false
   var o = this.items[index]
   this.items.splice(index, 1)
   _remove(this, o, index)
