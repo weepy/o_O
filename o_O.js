@@ -443,8 +443,7 @@ o_O.helpers.position = function(fn) {
 
 o_O.bindings = {}
 
-
-o_O.bindings.element = function(property, $el) {
+o_O.bindings.run = function(property, $el) {
   property($el)
 }
 
