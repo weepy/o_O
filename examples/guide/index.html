@@ -180,7 +180,7 @@ o_O.bind(model,  '#example')
 <a class=btn>Animation</a>
 <div id=Animation class=example>
 <div class=inner>
-<p data-bind='run: animate; text: "fading every " + speed() + "ms"'>Animate Me!</p>
+<p data-bind='onbind: animate; text: "fading every " + speed() + "ms"'>Animate Me!</p>
 <button data-bind='click: slowDown'>Slow Down</button>
 <button data-bind='click: speedUp'>Speed Up</button>
 </div>
@@ -209,39 +209,7 @@ o_O.bind(thing, '#example')
 </div>
 
 <a class=btn>Animation (OnBind)</a>
-<div id=Animation2 class=example>
-<div class=inner>
-<p data-bind='onbind: animate; text: "fading every " + speed() + "ms"'>Animate Me!</p>
-<button data-bind='click: slowDown'>Slow Down</button>
-<button data-bind='click: speedUp'>Speed Up</button>
-</div>
-<script type='text/skip'>
-var thing = {
-  speed: o_O(800),
-  slowDown: function(){
-    this.speed(this.speed() * 2)
-  },
-  speedUp: function(){
-    this.speed(this.speed() / 2)
-  },
-  animate: function(){
-    console.log('thing.animate fired')
-    var self = this
-    var $el = $(self.el).children("p")
-    function go(){
-      $el.fadeToggle(self.speed(), function() {
-        go()
-      })
-    }
-    go()
-  }
-};
-o_O.bind(thing, '#example')
-</script>
-</div>
-
-<a class=btn>Animation (OnBind 2)</a>
-<div id=Animation3 class=example>
+<div id=AnimationOnBind class=example>
 <div class=inner>
 <p data-bind='text: "fading every " + speed() + "ms"'>Animate Me!</p>
 <button data-bind='click: slowDown'>Slow Down</button>
