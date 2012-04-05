@@ -136,8 +136,9 @@ function o_O(v, name) {
     return prop
   }
   
-  prop.incr = function(val) { return prop(prop.value + (val || 1)) }
-  prop.toggle = function() { return prop(!prop.value) }
+  prop.incr   = function(val) { return prop(prop.value + (val || 1)) }
+  prop.scale  = function(val) { return prop(prop.value * (val || 1)) }
+  prop.toggle = function()    { return prop(!prop.value) }
   
   if(name) prop._name = name
   
