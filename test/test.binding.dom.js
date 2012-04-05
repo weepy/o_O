@@ -124,3 +124,50 @@ describe('binding to dom element manually', function() {
       
 })
 
+
+describe('call binding', function() {
+
+  window.__count = 0
+  
+  var __dependency = o_O(1)
+  window.__incr = function() {
+    __dependency() // force dependency
+    __count++
+  }
+  
+  beforeEach(function() {
+    if(el) $(el).remove()
+    el = $("<div>", {id: 'el', html: "el"}).appendTo("body")[0]
+    __count = 0
+  })
+  
+  it('gets called once when set as a function call', function(done) {
+    $(el).attr('data-bind', 'call: __incr')
+    expect(__count).to.eql(0)
+    o_O.bind({}, el)
+    setTimeout(function() {
+      expect(__count).to.eql(1)
+      __dependency.incr()
+      setTimeout(function() {
+        expect(__count).to.eql(1)
+        done()
+      }, 0)
+    }, 0)
+  })
+
+  it('gets called twice when set as a called function ', function(done) {
+    $(el).attr('data-bind', 'call: __incr()')
+    expect(__count).to.eql(0)
+    o_O.bind({}, el)
+    setTimeout(function() {
+      expect(__count).to.eql(1)
+      __dependency.incr()
+      setTimeout(function() {
+        expect(__count).to.eql(2)
+        done()
+      }, 0)
+    }, 0)
+  })
+  
+})
+  

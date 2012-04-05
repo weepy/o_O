@@ -396,7 +396,7 @@ o_O.bind = function(context, dom, recursing) {
       o_O.bind(context, el, true)
     })
   }
-  if(!recursing) context.onbind && context.onbind()
+  // if(!recursing) context.onbind && context.onbind()
 }
 
 
@@ -529,6 +529,10 @@ o_O.bindings.log = function(context, $el) {
   console.log('o_O', context, $el, this)
 }
 
+o_O.bindings.call = function(func, $el) {
+  typeof func == 'function' && func($el)
+}
+
 /// UUID
 
 o_O.uniqueId = function() {
@@ -544,8 +548,6 @@ o_O.uuid = function(len, radix) {
 o_O.uuid.len = 8
 o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
 
-
-
  /*                                         	
            ___   __  __           _      _ 
    ___    / _ \ |  \/  | ___   __| | ___| |
@@ -560,45 +562,73 @@ o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 Model with observable properties, subclasses, evented
 */
 
+
+
+
 function model(o, proto) {
   if(!(this instanceof model)) {
     return model.extend(o, proto)
   }
   o = o || {}
-  var properties = this.constructor.properties
-  for(var name in properties) {
-    var defaultValue = (name in o) ? o[name] : properties[name]
-    this[name] = o_O(defaultValue, name)
-    this.observeProperty(name)
-  }
+  var defaults = this.constructor.defaults
+  
+  this.properties = []
+  
+  for(var name in o)
+    addProperty(this, name, o[name])
+  
+  for(var name in defaults)
+    if(!(name in o)) addProperty(this, name, defaults[name])
+  
+  if(this.constructor.type && !this.type) this.type = o_O(this.constructor.type)
+  
+  this.initialize(o)
+}
 
-  if(this.constructor.type) this.type = this.constructor.type
-  // if('id' in o) this.id = o.id
-  this.id = o.id || o_O.uniqueId()
-  this.initialize.call(this, o)
+function observeProperty(model, name) {
+  model[name].on('set', function(val, old) {
+    model.emit('set:' + name, model, val, old)
+  })
+  
+  model[name].on('setsync', function(val, old) {
+    if(val === old) return
+    var x = {}, y = {}    
+    x[name] = val
+    y[name] = old
+    model.emit('update', model, x, y)
+  })
+}
+
+function addProperty(model, name, val) {
+  model[name] = o_O(val)
+  observeProperty(model, name)
+  model.properties.push(name)
+  observeProperty(model, name)
 }
 
 eventize(model.prototype)
 eventize(model)
   
-model.extend = function(properties, proto) {    
+model.extend = function(defaults, proto) {    
   var parent = this
   
-  properties = properties || {}
-  var type = properties.type
-  delete properties.type
+  defaults = defaults || {}
+  // var type = defaults.type
+  // delete defaults.type
   
-  function Model() { return parent.apply(this, arguments) }
+  function Model() { 
+    return parent.apply(this, arguments)
+  }
   
   eventize(Model)
   inherits(this, Model)
   
-  if(type) {
+  if(defaults.type) {
     model.types[type] = Model
     Model.type = type
   }
   
-  Model.properties = properties
+  Model.defaults = defaults
   Model.extend = this.extend
   
   if(proto) {
@@ -608,7 +638,7 @@ model.extend = function(properties, proto) {
   return Model
 }
 
-model.properties = {}
+model.defaults = {}
 model.types = {}
 
 
@@ -620,21 +650,7 @@ model.create = function(o) {
 
 var proto = model.prototype
 
-proto.observeProperty = function(name) {
-  var self = this
-  
-  this[name].on('set', function(val, old) {
-    self.emit('set:' + name, self, val, old)
-  })
-  
-  this[name].on('setsync', function(val, old) {
-    if(val === old) return
-    var x = {}, y = {}    
-    x[name] = val
-    y[name] = old
-    self.emit('update', self, x, y)
-  })
-}
+
 
 proto.toString = function() {
   return '#<'+this.type+':'+this.id+'>'
@@ -649,7 +665,7 @@ proto.valid = function() {
 // update a json model of named values
 // if resultant model is invalid - it is set back to previous values
 proto.update = function(o) {
-  var old = {}, props = this.constructor.properties
+  var old = {}, props = this.constructor.defaults
   for(var key in o) {
     if(key in props) {
       old[key] = this[key].value
@@ -676,22 +692,14 @@ proto.destroy = function() {
 }
 
 proto.toJSON = function() {
-  var properties = this.constructor.properties
   var json = {}
-  for(var i in properties) {
-    var value = this[i]()
-    if(value !== properties[i]) json[i] = value
-  }
-  if('type' in this) json.type = this.type
-  if('id' in this) json.id = this.id
-  
+  for(var i in this.properties)
+    json[i] = this[i]()  
   return json
 }
 
 proto.clone = function() {
-  var json = this.toJSON()
-  delete json.id
-  return model.create(json)
+  return model.create(this.toJSON())
 }
 
 function inherits(parent, child) { 
