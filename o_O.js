@@ -139,9 +139,8 @@ var prop_methods = {
   }
 }
 
-function o_O(v, name) {
-  var func = typeof v == 'function'
-  var prop = func ? computed(v) : simple(v)
+function o_O(val, name) {
+  var prop = typeof val == 'function' ? computed(val) : simple(val)
   eventize(prop)
   for(var i in prop_methods) prop[i] = prop_methods[i]  
   prop._name = name
