@@ -444,6 +444,10 @@ o_O.helpers.position = function(fn) {
 
 o_O.bindings = {}
 
+o_O.bindings.onbind = function(property, $el) {
+  property($el)
+}
+
 /* Two-way binding to a form element
  * usage: bind='value: myProperty'
  * special cases for checkbox
