@@ -113,38 +113,40 @@ a8"     "8a           88          88
   * sync: whether to emit changes immediately, or in the next event loop
   */
 
- 
- 
+
+var prop_methods = {
+  incr: function (val) { return this(this.value + (val || 1)) },
+  scale: function (val) { return this(this.value * (val || 1)) },
+  toggle: function (val) { 
+    return this(!this.value) 
+  },
+  change: function(fn) {
+    fn
+      ? this.on('set', fn)          // setup observer
+      : this.emit('set', this(), this.old_val)
+    return this
+  },
+  mirror: function(other, both) {
+    other.change(function(val) {
+      if(val != this.value) this(val)
+    })
+    other.change()
+    both && other.mirror(this)
+    return this
+  },
+  toString: function() { 
+    return '<' + (this._name || '') + ':'+ this.value + '>'
+  }
+}
+
 function o_O(v, name) {
   var func = typeof v == 'function'
   var prop = func ? computed(v) : simple(v)
-  prop.timeout = 0
   eventize(prop)
-  prop.change = function(fn) {
-    fn
-      ? prop.on('set', fn)          // setup observer
-      : prop.emit('set', prop(), prop.old_val)
-    return prop
-  }
-  
-  prop.mirror = function(other, both) {
-    other.change(function(val) {
-      if(val != prop.value) prop(val)
-    })
-    other.change()
-    both && other.mirror(prop)
-    return prop
-  }
-  
-  prop.incr   = function(val) { return prop(prop.value + (val || 1)) }
-  prop.scale  = function(val) { return prop(prop.value * (val || 1)) }
-  prop.toggle = function()    { return prop(!prop.value) }
-  
-  if(name) prop._name = name
-  
-  prop.toString = function() { return '<' + (prop._name ? prop._name : '') + ':'+ prop.value + '>'}
+  for(var i in prop_methods) prop[i] = prop_methods[i]  
+  prop._name = name
+  prop.timeout = 0
   prop.__o_O = true
-
   return prop
 }
 
