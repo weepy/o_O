@@ -8,7 +8,7 @@
     }
 
     //represent a single todo item
-    var Todo = o_O.model({
+    var Todo = o_O.model.extend({
         content: '',
         done: false,
         editing: false
@@ -36,7 +36,7 @@
 
         //add a new todo, when enter key is pressed
         self.add = function () {
-            var newTodo = new Todo({content: self.current()});
+            var newTodo = new Todo({id: o_O.uuid(), content: self.current()});
             self.todos.push(newTodo);
             self.current("");
         };
@@ -63,7 +63,7 @@
           self.allCompleted.change()
         })
 
-        self.todos.length.on('set', function() {
+        self.todos.count.on('set', function() {
           self.completedCount.change()
           self.remainingCount.change()
           self.allCompleted.change()

@@ -191,7 +191,8 @@ function simple(defaultValue) {
       prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
-      if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+      if(checking_deps) 
+        o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
@@ -215,7 +216,12 @@ function computed(getset) {
       emitProperty(prop)
     } else {
       prop.value = getset()
-      //if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker  -- are we interested in computed properties here ??
+      
+      // WHY DO WE NEED THIS
+      // WITHOUT IT THE GUIDE EXAMPLES DONT WORK
+      // BUT YOUD EXPECT THAT ANY COMPUTED PROPERTY WOULD DEPEND ON SIMPLE?
+      // if(checking_deps) 
+      //   o_O.deps.hook.emit('get', prop)   // emit to dependency checker 
     }
     return prop.value
   }
@@ -426,7 +432,7 @@ o_O.bindings.value = function(property, $el) {
  * set visibility depenent on val
  */
 
-o_O.bindings.value = function(val, $el) {
+o_O.bindings.visible = function(val, $el) {
   val ? $el.show() : $el.hide()
 }
 
@@ -471,7 +477,7 @@ o_O.bindings.foreach = function(list, $el) {
   
   $el.html('')
   list.forEach(function(item, index) {
-    renderItem(item, $el, index)
+    renderItem.call(this, item, $el, index)
   })
   
   if(list.bind) {
@@ -774,13 +780,13 @@ proto.remove = function(o) {
 }
 
 proto.renderItem = function(item, $el, index) {
-  var $$ = $(getTemplate($el))
-  if(index == this.items.length - 1)
-    $el.append($$)
-  else {
-    var nextElem = this.at(index).el || $el.children()[index]
-    $$.insertBefore(nextElem)
-  }
+  var $$ = $(getTemplate($el)),
+      nextElem = this.at(index).el || $el.children()[index]
+  
+  nextElem 
+    ? $$.insertBefore(nextElem)
+    : $el.append($$) 
+  
   o_O.bind(item, $$)
 }
 
@@ -858,7 +864,7 @@ function inherits(parent, child) {
   return child; 
 };
 
-o_O.unique_id = function(len) {
+o_O.uuid = function(len) {
   return Math.random().toString(36).slice(2)
 };
 

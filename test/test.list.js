@@ -1,7 +1,7 @@
 expect = global.expect || require('expect.js')
 o_O = global.o_O || require('../o_O')
 
-if(typeof(require) != 'undefined') require('../o_O.list')
+if(typeof(require) != 'undefined') require('../ideas/o_O.list')
 
 describe('a list', function() {
   var col

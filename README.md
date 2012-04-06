@@ -9,8 +9,8 @@
   `"YbbdP"'              `"Y8888Y"'            
 
             888888888888                       
-```           
-           
+```            
+
 # Funnyface.js
 ## HTML binding for teh lulz
 
@@ -44,11 +44,13 @@ name('Bart Simpson')
 
 o_O properties are evented, so it's possible to bind to a change event: 
 
+```
 name.change(function(new_name, old_name) {
   console.log('my name changed from', old_name, 'to', new_name)
 })
+```
 
-# computed properties
+# Computed properties
 
 o_O can also create computed properties:
 
@@ -105,7 +107,7 @@ The binding names are associated with jQuery (or whatever $ is), so css will cal
 * `log`: outputs to console.log
 * `call`: general purpose
 
-Event handler will also work, e.g. `click: handleClick`.
+Event handlers will also work, e.g. `click: handleClick`.
 
 NB if there's no corresponding binding found, it will simply update the attribute on the element; this is especially useful for attributes such as id, class, src, href
 
