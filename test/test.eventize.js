@@ -4,10 +4,10 @@ o_O = global.o_O || require('../o_O')
 
 var x, count
 
-describe('eventize', function() {
+describe('Events', function() {
   beforeEach(function() {
     count = 0 
-    x = o_O.eventize({})
+    x = o_O.extend({}, o_O.Events)
     x.on('up', function(v) {
       count += v
     })

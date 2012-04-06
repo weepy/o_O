@@ -12,23 +12,13 @@ a8"     "8a           88          88
                                          
            888888888888                       Plays well with others
 							
-																odel							(c) 2012 by Jonah Fox (weepy), MIT Licensed */
+															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
+                            
+                                
+ /* adapted from backbone */
 
- /* * * * * * * * *   _   _        
-  *   _____ _____ _ _| |_(_)______ 
-  *  / -_) V / -_) ' \  _| |_ / -_)
-  *  \___|\_/\___|_||_\__|_/__\___|     
-  *
-  * adapted from backbone */
-
- function eventize(obj) {
-  for (var prop in eventize.methods)
-    obj[prop] = eventize.methods[prop]
-  return obj
- }
-
- eventize.methods = {	
+ var Events = {	
   /*
  	* Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
  	* */
@@ -106,15 +96,13 @@ a8"     "8a           88          88
  }
 
 
-
-
  /*
   * Public function to return an observable property
   * sync: whether to emit changes immediately, or in the next event loop
   */
 
 
-var prop_methods = {
+var propertyMethods = {
   incr: function (val) { return this(this.value + (val || 1)) },
   scale: function (val) { return this(this.value * (val || 1)) },
   toggle: function (val) { 
@@ -136,53 +124,22 @@ var prop_methods = {
   },
   toString: function() { 
     return '<' + (this._name || '') + ':'+ this.value + '>'
-  }
+  },
+  timeout: 0,
+  __o_O: true
 }
 
 function o_O(val, name) {
-  var prop = typeof val == 'function' ? computed(val) : simple(val)
-  eventize(prop)
-  for(var i in prop_methods) prop[i] = prop_methods[i]  
-  prop._name = name
-  prop.timeout = 0
-  prop.__o_O = true
+  var prop = (typeof val == 'function' ? computed : simple)(val)
+  extend(prop, Events)
+  extend(prop, propertyMethods)
+  arguments.length > 1 && (prop._name = name)
   return prop
 }
 
 o_O.property = o_O // for backwards compat
 
-o_O.is = function(o) { return o.__o_O == true }
-
-// !(function() {
-// o_O.timeout = function(fn, timing) {
-//   setTimeout(fn, timing) 
-// }
-// })
-// 
-// (function(win) {
-//   
-//   
-//   if(typeof process != 'undefined' && process.nextTick) return process.nextTick
-// 
-//   var timeouts = [], msg = 'o_O.timeout'
-// 
-//   function handleMessage(event) {
-//     if (event.source != win || event.data != msg) return    
-//     event.stopPropagation && event.stopPropagation()
-//     timeouts.length && timeouts.shift()()
-//   }
-// 
-//   if (win.postMessage) {
-//     win.addEventListener && addEventListener('message', handleMessage, true)
-//     win.attachEvent && attachEvent('onmessage', handleMessage)
-//     return function(fn) {
-//       timeouts.push(fn)
-//       postMessage(msg, '*')
-//     }
-//   }
-//   
-// })(this)
-
+o_O.instance = function(o) { return o.__o_O == true }
 
 /*
  * Simple registry which emits all property change from one event loop in the next
@@ -221,7 +178,7 @@ var emitProperty = (function() {
 
 
 // simple variable to indicate if we're checking dependencies
-var checking = false
+var checking_deps = false
 /*
  * Simple property ...
  */
@@ -234,7 +191,7 @@ function simple(defaultValue) {
       prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
-      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+      if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
@@ -254,10 +211,11 @@ function computed(getset) {
     if(arguments.length) {
       prop.old_value = prop.value
       prop.value = getset(v)
+      prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
       prop.value = getset()
-      if(checking) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+      //if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker  -- are we interested in computed properties here ??
     }
     return prop.value
   }
@@ -270,10 +228,8 @@ function computed(getset) {
       emitProperty(prop)
     })
   }
-  
   return prop
 }
-
 
 
 /*
@@ -286,16 +242,16 @@ o_O.deps = function(func) {
     if(indexOf(deps, dep) < 0 && dep != func) deps.push(dep)
   }
   
-  checking = true
+  checking_deps = true
   o_O.deps.hook.on('get', add)
   o_O.deps.lastResult = func() // run the function
   o_O.deps.hook.off('get', add)
-  checking = false
+  checking_deps = false
   
   return deps
 }
 
-o_O.deps.hook = eventize({})
+o_O.deps.hook = extend({}, Events)
 
 o_O.expression = function(text) {
   o_O.expression.last = text      // useful for catching syntax errors 
@@ -336,7 +292,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   }
 
   o_O.bindFunction(trigger, function(x) {
-    var y = typeof x == 'function' && !o_O.is(x)
+    var y = typeof x == 'function' && !o_O.instance(x)
           ? function() { 
               return x.apply(context, arguments)
             }
@@ -354,11 +310,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   })
 }
 
-function map(array, fn) {
-  var ret = []
-  for(var i=0; i<array.length;i++) ret.push(fn(array[i], i))
-  return ret
-}
+
 
 function extractRules(str) {
   if(!str) return []
@@ -535,20 +487,6 @@ o_O.bindings.call = function(func, $el) {
   typeof func == 'function' && func($el)
 }
 
-/// UUID
-
-o_O.uniqueId = function() {
-  return o_O.uuid()
-}
-o_O.uuid = function(len, radix) {
-  var chars = o_O.uuid.chars, uuid = [], i=0
-  radix = radix || chars.length
-  len = len || o_O.uuid.len
-  for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random()*radix]
-  return uuid.join('')
-};
-o_O.uuid.len = 8
-o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
 
  /*                                         	
            ___   __  __           _      _ 
@@ -564,30 +502,32 @@ o_O.uuid.chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 Model with observable properties, subclasses, evented
 */
 
-
-
-
 function model(o, proto) {
-  if(!(this instanceof model)) {
-    return model.extend(o, proto)
-  }
+  if(!(this instanceof model))
+    return new model(o, proto)
+
   o = o || {}
-  var defaults = this.constructor.defaults
-  
+  var defaults = this.constructor.defaults  
   this.properties = []
   
-  for(var name in o)
-    addProperty(this, name, o[name])
+  for(var name in o) {
+    model.addProperty(this, name, o[name])
+    model.observeProperty(this, name)
+  }
   
-  for(var name in defaults)
-    if(!(name in o)) addProperty(this, name, defaults[name])
+  for(var name in defaults) {
+    if(name in o) continue
+    model.addProperty(this, name, defaults[name])
+    model.observeProperty(this, name)
+  }
   
-  if(this.constructor.type && !this.type) this.type = o_O(this.constructor.type)
+  if(this.constructor.type && !this.type) 
+    this.type = o_O(this.constructor.type)
   
   this.initialize(o)
 }
 
-function observeProperty(model, name) {
+model.observeProperty = function(model, name) {
   model[name].on('set', function(val, old) {
     model.emit('set:' + name, model, val, old)
   })
@@ -601,42 +541,36 @@ function observeProperty(model, name) {
   })
 }
 
-function addProperty(model, name, val) {
+model.addProperty = function(model, name, val) {
   model[name] = o_O(val)
-  observeProperty(model, name)
   model.properties.push(name)
-  observeProperty(model, name)
 }
 
-eventize(model.prototype)
-eventize(model)
+extend(model.prototype, Events)
+extend(model, Events)
   
 model.extend = function(defaults, proto) {    
-  var parent = this
+  var parent = this, type
   
-  defaults = defaults || {}
-  // var type = defaults.type
-  // delete defaults.type
-  
-  function Model() { 
-    return parent.apply(this, arguments)
+  function Model(o) {
+    return this instanceof Model
+            ? parent.apply(this, arguments)
+            : new Model(o)
   }
   
-  eventize(Model)
-  inherits(this, Model)
+  Model.defaults = defaults || {}
   
-  if(defaults.type) {
+  extend(Model, Events)
+  inherits(parent, Model)
+  
+  if(type = Model.defaults.type) {
     model.types[type] = Model
     Model.type = type
   }
   
-  Model.defaults = defaults
-  Model.extend = this.extend
+  Model.extend = parent.extend
   
-  if(proto) {
-    for(var i in proto)
-      Model.prototype[i] = proto[i]
-  }
+  extend(Model.prototype, proto)
   return Model
 }
 
@@ -652,10 +586,8 @@ model.create = function(o) {
 
 var proto = model.prototype
 
-
-
 proto.toString = function() {
-  return '#<'+this.type+':'+this.id+'>'
+  return '#<'+this.type+'>'
 }
 
 proto.initialize = function(o) {}
@@ -695,31 +627,17 @@ proto.destroy = function() {
 
 proto.toJSON = function() {
   var json = {}
-  for(var i in this.properties)
-    json[i] = this[i]()  
+  for(var i=0; i< this.properties.length;i++) {
+    var prop = this.properties[i]
+    json[prop] = this[prop]()
+  }
+    
   return json
 }
 
 proto.clone = function() {
   return model.create(this.toJSON())
 }
-
-function inherits(parent, child) { 
-  child = child || function() { parent.apply(this, arguments) }
-  
-  // dont copy over class variables/functions
-  // for (var key in parent) { 
-  //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
-  //     child[key] = parent[key]; 
-  // } 
-  function ctor() { 
-    this.constructor = child; 
-  } 
-  ctor.prototype = parent.prototype; 
-  child.prototype = new ctor; 
-  child.__super__ = parent.prototype; 
-  return child; 
-};
 
 o_O.model = model
 
@@ -743,35 +661,34 @@ function array(models) {
     self.length = count 
   })
   
-  eventize(this)
   if(models) {
-    for(var i=0; i< models.length; i++) {
+    for(var i=0; i< models.length; i++)
       this.push(models[i])
-    }
   }
 }
 
 var proto = array.prototype
+extend(proto, Events)
 
-function _add(col, o, index) {
+array.add = function (arr, o, index) {
   if(o.on && o.emit) {
-    o.on('*', col._onevent, col)
-    o.emit('add', o, col, index)
+    o.on('*', arr._onevent, arr)
+    o.emit('add', o, arr, index)
   }else{
-    col.emit('add', o, col, index)
+    arr.emit('add', o, arr, index)
   }
-  col.count.incr()
-  return col.items.length
+  arr.count.incr()
+  return arr.items.length
 }
 
-function _remove(col, o, index) {
+array.remove = function(arr, o, index) {
   if(o.off && o.emit) {
-    o.emit('remove', o, col, index)
-    o.off('*', col._onevent, col)
+    o.emit('remove', o, arr, index)
+    o.off('*', arr._onevent, arr)
   } else {
-    col.emit('remove', o, index)
+    arr.emit('remove', o, index)
   }
-  col.count.incr(-1) //force re-binding
+  arr.count.incr(-1) //force re-binding
   return o
 }
 
@@ -832,7 +749,7 @@ proto.at = function(index) {
 proto.insert = function(o, index) {
   if(index < 0 || index > this.count()) return false
   this.items.splice(index, 0, o)
-  _add(this, o, index)
+  array.add(this, o, index)
   return o
 }
 
@@ -840,7 +757,7 @@ proto.removeAt = function(index) {
   if(index < 0 || index > this.count()) return false
   var o = this.items[index]
   this.items.splice(index, 1)
-  _remove(this, o, index)
+  array.remove(this, o, index)
   return o
 }
 
@@ -869,7 +786,7 @@ proto.renderItem = function(item, $el, index) {
 
 proto.bind = function($el) {
   var self = this
-  this.on('add', function(item, col, index) {
+  this.on('add', function(item, arr, index) {
     self.renderItem(item, $el, index)
   })
   this.on('remove', this.removeElement, this)
@@ -881,7 +798,7 @@ proto.removeElement = function(item, index) {
 }
 
 proto.toString = function() {
-  return '#<o_O.array>'
+  return '#<o_O.array:' + this.length + '>'
 }
 
 proto.extend = function() {
@@ -890,7 +807,19 @@ proto.extend = function() {
 
 o_O.array = array
 
-// shims for IE compatability
+
+// Extend a given object with all the properties in passed-in object(s).
+function map(array, fn) {
+  var ret = []
+  for(var i=0; i<array.length;i++) ret.push(fn(array[i], i))
+  return ret
+}
+
+function extend(obj, source) {
+  if(source) for (var prop in source) obj[prop] = source[prop]
+  return obj
+}
+
 function forEach(array, action) {
   if(array.forEach) return array.forEach(action)  
   for (var i= 0, n= array.length; i<n; i++)
@@ -910,11 +839,35 @@ function indexOf(array, obj, start) {
   return -1;
 }
 
+function inherits(parent, child) { 
+  child = child || function() { 
+    parent.apply(this, arguments) 
+  }
+  
+  // dont copy over class variables/functions
+  // for (var key in parent) { 
+  //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
+  //     child[key] = parent[key]; 
+  // } 
+  function ctor() { 
+    this.constructor = child; 
+  } 
+  ctor.prototype = parent.prototype; 
+  child.prototype = new ctor; 
+  child.__super__ = parent.prototype; 
+  return child; 
+};
+
+o_O.unique_id = function(len) {
+  return Math.random().toString(36).slice(2)
+};
+
 // export
 o_O.bindingAttribute = 'data-bind';
-o_O.eventize = eventize
 o_O.inherits = inherits
-typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
+o_O.extend = extend
+o_O.Events = Events
 
+typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 
 }();

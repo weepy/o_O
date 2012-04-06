@@ -66,8 +66,7 @@ describe('a list', function() {
 		})
 
 		it('triggers the *remove* event after remove (on model)', function() {
-			var M = o_O.model({age: 1})
-			var m = new M({age:2})
+			var m = o_O.model({age:2})
 			var eventTriggered = false
 			col.on('remove', function(){
 				eventTriggered = true

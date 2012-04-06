@@ -97,8 +97,8 @@ describe('an array', function() {
 		})
 
 		it('triggers the *remove* event after remove (on model)', function() {
-			var M = o_O.model({age: 1})
-			var m = new M({age:2})
+      // var M = ({age: 1})
+			var m = o_O.model({age:2})
 			var eventTriggered = false
 			arr.on('remove', function(){
 				eventTriggered = true
@@ -111,8 +111,7 @@ describe('an array', function() {
 		})
 
 		it('can add the same model more than once', function() {
-			var M = o_O.model({age: 1})
-			var m = new M({age: 2})
+			var m = o_O.model({age: 2})
 
 			arr.pop()
 			arr.push(m)

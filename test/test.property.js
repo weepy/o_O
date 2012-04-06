@@ -81,12 +81,13 @@ describe('complex property', function() {
         return fullName()
       }
     })
-    it('should should have 3 dependencies', function() {
+    it('should should have 2 dependencies', function() {
       var deps = o_O.deps(fullNameFn)
-
-      expect(deps).to.have.length(3)
+// console.log(deps[2])
+      expect(deps).to.have.length(2)
       expect(deps[0]).to.be(firstName)
       expect(deps[1]).to.be(secondName)
+      
     })
   })
   
@@ -102,6 +103,23 @@ describe('toggle', function() {
     expect(x()).to.eql(true)
   })
 })
+
+describe('incr', function() {  
+  it('increases a property by 1', function() {
+    var x = o_O(0)
+    x.incr()
+    expect(x()).to.eql(1)
+  })
+})
+
+describe('scale', function() {  
+  it('scales a property', function() {
+    var x = o_O(2)
+    x.scale(10)
+    expect(x()).to.eql(20)
+  })
+})
+
 
 describe('change', function() {
   

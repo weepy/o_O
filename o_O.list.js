@@ -13,7 +13,7 @@ function list(models) {
   this.objects = {}
   this.count = o_O(0)
 
-  o_O.eventize(this) 
+  o_O.extend(this, o_O.Events) 
   if(models) {
     for(var i=0; i< models.length;i++) {
       this.add(models[i])
