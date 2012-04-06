@@ -27,45 +27,94 @@
 
 ## The Basics
 
-Use `o_O.property(...)` (or the shortcut: `o_O(...)`) to create an evented o_O `property`:
+# o_O properties
+
+Use `o_O(...)` to create an evented o_O `property`:
 
 ```javascript
-var viewmodel = {
-  name: o_O.property('Homer Simpson'),
-  age: o_O(40) //o_O(...) proxies to o_O.property(...) and is the preferred usage
-};
 
-//change a value:
-viewmodel.name('Bart Simpson');
-viewmodel.age(10);
+name = o_O('Homer Simpson')
 
-//get a value:
-alert(viewmodel.name());
+// read a value
+name() // => 'Homer Simpson'
+
+// write a value
+name('Bart Simpson')
 ```
+
+o_O properties are evented, so it's possible to bind to a change event: 
+
+name.change(function(new_name, old_name) {
+  console.log('my name changed from', old_name, 'to', new_name)
+})
+
+# computed properties
+
+o_O can also create computed properties:
+
+```javascript
+firstName = o_O('Homer')
+surName = o_O('Simpson')
+fullName = function() {
+  return firstName() + ' ' + surName()
+}
+
+fullName() // => 'Homer Simpson'
+```
+
+A computed property automatically determines it's dependencies and is recalculated whenever a dependency changes:
+
+```javascript
+firstName('Bart')
+
+fullName() // => 'Bart Simpson'
+```
+
+# HTML binding with o_O.bind
 
 Bind an object to a section of HTML with the `o_O.bind(...)` method, and bind parts of that HTML section to o_O `properties` with the `data-bind` attribute:
 
 ```javascript
-o_O.bind(viewmodel, '#character');
+person = {
+  firstName: o_O('Michael'),
+  surName: o_O('Jackson'),
+  fullName: function() {
+    return person.firstName() + ' ' + person.surName()
+  },
+  age: o_O(50)
+}
+o_O.bind(person, '#person');
 ```
 ```html
-<div id="#character">
-  <div data-bind="text: name()"></div>
+<div id="#person">
+  <div data-bind="text: fullName()"></div>
   <div data-bind="text: age()"></div>
 </div>
 ```
 
+This will render the HTML and retrigger the bindings whenever a dependency changes. So e.g calling `person.firstName('Miss')` will update the HTML.
+
+The binding names are associated with jQuery (or whatever $ is), so css will call $.fn.css. There are also some custom bindings: 
+
+* `foreach` : renders the innerHTML for a list of items
+* `value` : two-way binding for forms
+* `visible` : hides an element if falsey
+* `if/unless` : removes/shows the inner HTML
+* `with` : rebinds the context (similar to javascript `with`)
+* `options`: options for a select
+* `log`: outputs to console.log
+* `call`: general purpose
+
+Event handler will also work, e.g. `click: handleClick`.
+
+NB if there's no corresponding binding found, it will simply update the attribute on the element; this is especially useful for attributes such as id, class, src, href
+
 ## Digging Deeper
 
-Besides creating basic javascript hashes to contain o_O `properties`, you can also create an o_O `model` (using `o_O.model(...)`) that creates o_O `properties` for you out of the box as well as giving you access to event aggregation:
+Besides creating basic javascript objects containing o_O `properties`, you can also create an o_O `model` (using `o_O.model(...)`) that creates o_O `properties` for you out of the box as well as giving you access to event aggregation:
 
 ```javascript
-var Character = o_O.model({
-  name: '',
-  age: 0
-});
-
-var homer = new Character({
+var homer = o_O.model({
   name: 'Homer Simpson',
   age: 40
 });
@@ -75,16 +124,16 @@ homer.on('set:name', function(character, name_new, name_old){
 });
 ```
 
-You can also create an o_O `array` that lets you create an array of items (can be anything) and if the items support it (i.e. they are o_O `models`) aggregates events across all of them:
+You can also create an o_O evented `array` that lets you create an array of items (can be anything) and if the items support it (i.e. they are o_O `models`) aggregates events across all of them:
 
 ```javascript
 var cast = o_O.array();
 
-cast.push(new Character({name: 'Homer', age: 40}));
-cast.push(new Character({name: 'Marge', age: 36}));
-cast.push(new Character({name: 'Bart', age: 10}));
-cast.push(new Character({name: 'Lisa', age: 8}));
-cast.push(new Character({name: 'Maggie', age: 2}));
+cast.push(o_O.model({name: 'Homer', age: 40}));
+cast.push(o_O.model({name: 'Marge', age: 36}));
+cast.push(o_O.model({name: 'Bart', age: 10}));
+cast.push(o_O.model({name: 'Lisa', age: 8}));
+cast.push(o_O.model({name: 'Maggie', age: 2}));
 
 cast.on('set:age', function(character, age_new, age_old){
   console.log(character.name + "'s age changed from " + age_old + " to " + age_new + ".");
@@ -101,6 +150,18 @@ cast.on('add', function(new_character){
 
 // this will trigger the above 'add' event:
 cast.push(new Character({name: 'Mr. Burns', age: 99}));
+```
+
+The special `foreach` binding will render this list: 
+
+```html
+<ul id="#cast" data-bind='foreach: cast'>
+  <li data-bind="text: fullName() +',' + age()" ></li>
+</ul>
+
+<script>
+o_O.bind(cast, '#cast')
+</script>
 ```
 
 ## Running Tests

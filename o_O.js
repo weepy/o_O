@@ -426,7 +426,7 @@ o_O.bindings.value = function(property, $el) {
  * set visibility depenent on val
  */
 
-o_O.bindings.visible = function(val, $el) {
+o_O.bindings.value = function(val, $el) {
   val ? $el.show() : $el.hide()
 }
 
