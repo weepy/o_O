@@ -523,7 +523,9 @@ function model(o, proto) {
   
   for(var name in defaults) {
     if(name in o) continue
-    model.addProperty(this, name, defaults[name])
+    var val = defaults[name]
+    typeof val == 'function' && (val = val.call(this)) // if a default value is a function call it to get the result
+    model.addProperty(this, name, val)
     model.observeProperty(this, name)
   }
   
