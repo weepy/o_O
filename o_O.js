@@ -14,6 +14,8 @@ a8"     "8a           88          88
 							
 															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
+var slice = Array.prototype.slice
+
 var Events = {	
   /*
  	* Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
@@ -79,7 +81,7 @@ var Events = {
 
      //Traverse each list, stopping when the saved tail is reached.
 
-     rest = Array.prototype.slice.call(arguments, 1);
+     rest = slice.call(arguments, 1);
      while (node = events.pop()) {
        tail = node.tail;
        args = node.event ? [node.event].concat(rest) : rest;
@@ -122,7 +124,7 @@ var propertyMethods = {
     return '<' + (this.type ? this.type + ':' : '') + this.value + '>'
   },
   timeout: 0,
-  constructor: o_O
+  'constructor': o_O  // fake this - useful for checking
 }
 
 // Flag to indicate if we're checking dependencies
@@ -260,25 +262,22 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   }
 
   o_O.bindFunction(trigger, function(x) {
-    var y = typeof x == 'function' && x.constructor == o_O
-          ? function() { 
-              return x.apply(context, arguments)
-            }
-          : x
+    var $el = $(el),
+        y = typeof x == 'function' && x.constructor == o_O
+              ? function() { return x.apply(context, arguments) }
+              : x
 
     if($.prototype[attr]) {
       if(y instanceof String) y = y.toString() // strange problem
-      return $(el)[attr].call($(el), y)
+      return $el[attr].call($el, y)
     } 
     
     var binding = o_O.bindings[attr]
     binding
-      ? binding.call(context, y, $(el))
-      : $(el).attr(attr, y)
+      ? binding.call(context, y, $el)
+      : $el.attr(attr, y)
   })
 }
-
-
 
 function extractRules(str) {
   if(!str) return []
@@ -336,22 +335,21 @@ function getTemplate($el) {
 
 // converts a DOM event from an element with a value into it's value
 // useful for setting properties based on form events
-o_O.helpers = {}
-
-o_O.helpers.value = function(fn) {
-  return function(e) { 
-    return fn.call(this, $(e.currentTarget).val(), e) 
+o_O.helpers = {
+  value: function(fn) {
+    return function(e) { 
+      return fn.call(this, $(e.currentTarget).val(), e) 
+    }
+  },
+  position: function(fn) {
+  	return function(e) {
+  	  var el = e.currentTarget
+  		var o = $(el).offset()
+      fn.call(this, e.pageX - o.left, e.pageY - o.top, e)
+  	}
   }
 }
 
-// helper functions
-o_O.helpers.position = function(fn) {
-	return function(e) {
-	  var el = e.currentTarget
-		var o = $(el).offset()
-    fn.call(this, e.pageX - o.left, e.pageY - o.top, e)
-	}
-}
 
 /*                                     
  _    __|_ _ ._ _  |_ o._  _|o._  _  _ 
@@ -363,111 +361,88 @@ o_O.helpers.position = function(fn) {
  *  this will be the context itself
  */
 
-o_O.bindings = {}
-
-/* Two-way binding to a form element
- * usage: bind='value: myProperty'
- * special cases for checkbox
- */
-o_O.bindings.value = function(property, $el) {
-
-  
-  $el.change(function(e) {
-    var checkbox = $(this).attr('type') == 'checkbox'
-    var val = checkbox ? (!!$(this).attr('checked')) : $(this).val()
-    property(val, e)
-  })
-
-  if(property.on) {
-    property.on('set', function(val) {
-      $el.attr('type') == 'checkbox'
-        ? $el.attr('checked', val) 
-        : $el.val(val)
+o_O.bindings = {
+  /* Two-way binding to a form element
+   * usage: bind='value: myProperty'
+   * special cases for checkbox
+   */
+  value: function(property, $el) {
+    $el.change(function(e) {
+      var checkbox = $(this).attr('type') == 'checkbox'
+      var val = checkbox ? (!!$(this).attr('checked')) : $(this).val()
+      property(val, e)
     })
 
-    property.change() // force a change    
-  }
+    if(property.on) {
+      property.on('set', function(val) {
+        $el.attr('type') == 'checkbox'
+          ? $el.attr('checked', val) 
+          : $el.val(val)
+      })
+      property.change() // force a change    
+    }
+  },
+  /*
+   * set visibility depenent on val
+   */
+  visible: function(val, $el) {
+    val ? $el.show() : $el.hide()
+  },
+  'if': function(context, $el) {
+    var template = getTemplate($el)
+    $el.html(context ? template : '')
+  },
+  unless: function(val, $el) {
+    return o_O.bindings['if'](!val, $el)
+  },
+  'with': function(context, $el) {
+    var template = getTemplate($el)
+    $el.html(context ? template : '')
+    if(context) o_O.bind(context, $el)    
+  },
+  options: function(options, $el) {
+    var isArray = options instanceof Array
+    $.each(options, function(key, value) { 
+      var text = isArray ? value : key
+      $el.append($("<option>").attr("value", value).html(text))
+    }) 
+  },
+  /* 
+   * Allows binding of a list of elements - expected to respond to forEach 
+   */
+  foreach: function(list, $el) {
+    var template = getTemplate($el)
+    var renderItem = list.renderItem || function(item) {
+      $(template).each(function(i, elem) {
+        var $$ = $(elem)
+        $$.appendTo($el)
+        o_O.bind(item, $$)
+      })
+    }
 
-}
-
-/*
- * set visibility depenent on val
- */
-
-o_O.bindings.visible = function(val, $el) {
-  val ? $el.show() : $el.hide()
-}
-
-
-o_O.bindings['if'] = function(context, $el) {
-  var template = getTemplate($el)
-  $el.html(context ? template : '')
-}
-
-o_O.bindings.unless = function(val, $el) {
-  return o_O.bindings['if'](!val, $el)
-}
-
-o_O.bindings['with'] = function(context, $el) {
-  var template = getTemplate($el)
-  $el.html(context ? template : '')
-  if(context) o_O.bind(context, $el)    
-}
-
-o_O.bindings.options = function(options, $el) {
-  var isArray = options instanceof Array
-  
-  $.each(options, function(key, value) { 
-    var text = isArray ? value : key
-    $el.append($("<option>").attr("value", value).html(text))
-  }) 
-}
-
-
-/* Allows binding of a list of elements - expected to respond to forEach */
-
-o_O.bindings.foreach = function(list, $el) {
-  var template = getTemplate($el)
-  
-  var renderItem = list.renderItem || function(item) {
-    $(template).each(function(i, elem) {
-      var $$ = $(elem)
-      $$.appendTo($el)
-      o_O.bind(item, $$)
+    $el.html('')
+    list.forEach(function(item, index) {
+      renderItem.call(list, item, $el, index)
     })
+
+    list.bind && list.bind($el)
+  },
+  log: function(context, $el) {
+    console.log('o_O', context, $el, this)
+  },
+  call: function(func, $el) {
+    typeof func == 'function' && func($el)
   }
-  
-  $el.html('')
-  list.forEach(function(item, index) {
-    renderItem.call(list, item, $el, index)
-  })
-  
-  if(list.bind) {
-    list.bind($el)
-  }  
 }
 
-o_O.bindings.log = function(context, $el) {
-  console.log('o_O', context, $el, this)
-}
-
-o_O.bindings.call = function(func, $el) {
-  typeof func == 'function' && func($el)
-}
-
-
- /*                                         	
-           ___   __  __           _      _ 
+/*         ___   __  __           _      _ 
    ___    / _ \ |  \/  | ___   __| | ___| |
   / _ \  | | | || |\/| |/ _ \ / _` |/ _ \ |
  | (_) | | |_| || |  | | (_) | (_| |  __/ |
   \___/___\___(_)_|  |_|\___/ \__,_|\___|_|
      |_____|                               
-
-																							
-(c) 2012 by Jonah Fox (weepy), MIT Licensed
-																							
-Model with observable properties, subclasses, evented
+  																							
+  Model with observable properties, subclasses, evented
 */
 
 function model(o, proto) {  
@@ -538,7 +513,7 @@ extend(model.prototype, Events, {
   },
   // update a json model of named values
   // if resultant model is invalid - it is set back to previous values
-  // THIS SHOULD BE REMOVED
+  // THIS SHOULD BE SIMPLIFIED
   update: function(o) {
     var old = {}, props = this.constructor.defaults
     for(var key in o) {
@@ -570,7 +545,6 @@ extend(model.prototype, Events, {
       var prop = this.properties[i]
       json[prop] = this[prop]()
     }
-
     return json
   },
   clone: function() {
@@ -589,10 +563,10 @@ o_O.model = model
  / _ \  | | | |/ _` | '__| '__/ _` | | | |
 | (_) | | |_| | (_| | |  | | | (_| | |_| |
  \___/___\___(_)__,_|_|  |_|  \__,_|\__, |
-    |_____|                         |___/                  */
+    |_____|                         |___/   */
 
-function array(models) {
-  if(!(this instanceof array)) return new array(models)
+function array(items) {
+  if(!(this instanceof array)) return new array(items)
   
   var self = this
   this.items = []
@@ -601,11 +575,37 @@ function array(models) {
   this.count.on('setsync', function(count) {
     self.length = count 
   })
-  if(models) {
-    for(var i=0; i< models.length; i++)
+  if(items) {
+    for(var i=0; i< items.length; i++)
       this.push(models[i])
   }
 }
+
+extend(array, {
+  add: function (arr, o, index) {
+    if(o.on && o.emit) {
+      o.on('all', arr._onevent, arr)
+      o.emit('add', o, arr, index)
+    }else{
+      arr.emit('add', o, arr, index)
+    }
+    arr.count.incr()
+    return arr.items.length
+  },
+  remove: function(arr, o, index) {
+    if(o.off && o.emit) {
+      o.emit('remove', o, arr, index)
+      o.off('all', arr._onevent, arr)
+    } else {
+      arr.emit('remove', o, index)
+    }
+    arr.count.incr(-1) //force re-binding
+    return o
+  },
+  extend: function() {
+    return inherits.apply(this, arguments)
+  }
+})
 
 extend(array.prototype, Events, {
   _onevent : function(ev, o, array) {
@@ -702,40 +702,9 @@ extend(array.prototype, Events, {
 })
 
 array.prototype.each = array.prototype.forEach = array.prototype.map
- 
- 
-extend(array, {
-  add: function (arr, o, index) {
-    if(o.on && o.emit) {
-      o.on('all', arr._onevent, arr)
-      o.emit('add', o, arr, index)
-    }else{
-      arr.emit('add', o, arr, index)
-    }
-    arr.count.incr()
-    return arr.items.length
-  },
-  remove: function(arr, o, index) {
-    if(o.off && o.emit) {
-      o.emit('remove', o, arr, index)
-      o.off('all', arr._onevent, arr)
-    } else {
-      arr.emit('remove', o, index)
-    }
-    arr.count.incr(-1) //force re-binding
-    return o
-  },
-  extend: function() {
-    return inherits.apply(this, arguments)
-  }
-})
 
 o_O.array = array
 
-
-function slice(a, x) {
-  return Array.prototype.slice.call(a, x)
-}
 // Extend a given object with all the properties in passed-in object(s).
 function map(array, fn) {
   var ret = []
@@ -744,7 +713,7 @@ function map(array, fn) {
 }
 
 function extend(obj) {
-  var args = slice(arguments, 1)
+  var args = slice.call(arguments, 1)
   for(var i=0; i<args.length;i++) {
     var source = args[i]
     for (var prop in source)
