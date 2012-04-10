@@ -14,11 +14,7 @@ a8"     "8a           88          88
 							
 															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-                            
-                                
- /* adapted from backbone */
-
- var Events = {	
+var Events = {	
   /*
  	* Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
  	* */
@@ -123,7 +119,7 @@ var propertyMethods = {
     return this
   },
   toString: function() { 
-    return '<' + (this._name || '') + ':'+ this.value + '>'
+    return '<' + (this._name ? this._name + ':' : '') + this.value + '>'
   },
   timeout: 0,
   __o_O: true
@@ -131,8 +127,7 @@ var propertyMethods = {
 
 function o_O(val, name) {
   var prop = (typeof val == 'function' ? computed : simple)(val)
-  extend(prop, Events)
-  extend(prop, propertyMethods)
+  extend(prop, Events, propertyMethods)
   arguments.length > 1 && (prop._name = name)
   return prop
 }
@@ -191,8 +186,7 @@ function simple(defaultValue) {
       prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
-      if(checking_deps) 
-        o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+      if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
     }
     return prop.value
   }
@@ -216,12 +210,7 @@ function computed(getset) {
       emitProperty(prop)
     } else {
       prop.value = getset()
-      
-      // WHY DO WE NEED THIS
-      // WITHOUT IT THE GUIDE EXAMPLES DONT WORK
-      // BUT YOUD EXPECT THAT ANY COMPUTED PROPERTY WOULD DEPEND ON SIMPLE?
-      // if(checking_deps) 
-      //   o_O.deps.hook.emit('get', prop)   // emit to dependency checker 
+      // if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker  -- are we interested in computed properties here ??
     }
     return prop.value
   }
@@ -280,7 +269,7 @@ o_O.bindFunction = function(fn, callback) {
   
   // if this is an event watch for changes and reapply
   if(!isEvent) {
-    forEach(deps, function(dep) {
+    each(deps, function(dep) {
       dep.on('set', function(value) {
         callback(fn())
       })
@@ -477,7 +466,7 @@ o_O.bindings.foreach = function(list, $el) {
   
   $el.html('')
   list.forEach(function(item, index) {
-    renderItem.call(this, item, $el, index)
+    renderItem.call(list, item, $el, index)
   })
   
   if(list.bind) {
@@ -508,147 +497,118 @@ o_O.bindings.call = function(func, $el) {
 Model with observable properties, subclasses, evented
 */
 
-function model(o, proto) {
-  if(!(this instanceof model))
-    return new model(o, proto)
-
+function model(o, proto) {  
+  if(!(this instanceof model)) return new model(o, proto)
+    
   o = o || {}
-  var defaults = this.constructor.defaults  
   this.properties = []
-  
   for(var name in o) {
     model.addProperty(this, name, o[name])
     model.observeProperty(this, name)
   }
   
+  var defaults = this.constructor.defaults
+  
   for(var name in defaults) {
-    if(name in o) continue
-    var val = defaults[name]
-    typeof val == 'function' && (val = val.call(this)) // if a default value is a function call it to get the result
-    model.addProperty(this, name, val)
-    model.observeProperty(this, name)
+     if(name in o) continue
+     var val = defaults[name]
+     model.addProperty(this, name, val)
+     model.observeProperty(this, name)
+   }
+  
+  proto && extend(this, proto)
+  this.initialize.apply(this, arguments)
+}
+
+extend(model, {
+  observeProperty: function(model, name) {
+    model[name].on('set', function(val, old) {
+      model.emit('set:' + name, model, val, old)
+    })
+  
+    model[name].on('setsync', function(val, old) {
+      if(val === old) return
+      var x = {}, y = {}    
+      x[name] = val
+      y[name] = old
+      model.emit('update', model, x, y)
+    })
+  },
+  addProperty: function(model, name, val) {
+    model[name] = o_O(val)
+    model.properties.push(name)
+  },
+  defaults: {},
+  types: {},
+  extend: function(defaults, protoProps, classProps) {
+    defaults = defaults || {}
+    var child = inherits(this, protoProps, classProps);
+    child.defaults = defaults
+    child.extend = this.extend;
+    if(defaults.type) model.types[defaults.type] = child
+    return child;
+  },
+  create: function(o) {
+    var type = model.types[o.type]
+    if(!type) throw new Error('no such Model with type: ' + o.type)
+    return new type(o)
   }
-  
-  if(this.constructor.type && !this.type) 
-    this.type = o_O(this.constructor.type)
-  
-  this.initialize(o)
-}
+})
 
-model.observeProperty = function(model, name) {
-  model[name].on('set', function(val, old) {
-    model.emit('set:' + name, model, val, old)
-  })
-  
-  model[name].on('setsync', function(val, old) {
-    if(val === old) return
-    var x = {}, y = {}    
-    x[name] = val
-    y[name] = old
-    model.emit('update', model, x, y)
-  })
-}
-
-model.addProperty = function(model, name, val) {
-  model[name] = o_O(val)
-  model.properties.push(name)
-}
-
-extend(model.prototype, Events)
-extend(model, Events)
-  
-model.extend = function(defaults, proto) {    
-  var parent = this, type
-  
-  function Model(o) {
-    return this instanceof Model
-            ? parent.apply(this, arguments)
-            : new Model(o)
-  }
-  
-  Model.defaults = defaults || {}
-  
-  extend(Model, Events)
-  inherits(parent, Model)
-  
-  if(type = Model.defaults.type) {
-    model.types[type] = Model
-    Model.type = type
-  }
-  
-  Model.extend = parent.extend
-  
-  extend(Model.prototype, proto)
-  return Model
-}
-
-model.defaults = {}
-model.types = {}
-
-
-model.create = function(o) {
-  var type = model.types[o.type]
-  if(!type) throw new Error('no such Model with type: ' + o.type)
-  return new type(o)
-}
-
-var proto = model.prototype
-
-proto.toString = function() {
-  return '#<'+this.type+'>'
-}
-
-proto.initialize = function(o) {}
-
-proto.valid = function() {
-  return true
-}
-
-// update a json model of named values
-// if resultant model is invalid - it is set back to previous values
-proto.update = function(o) {
-  var old = {}, props = this.constructor.defaults
-  for(var key in o) {
-    if(key in props) {
-      old[key] = this[key].value
-      this[key].value = o[key]
+extend(model.prototype, Events, {
+  toString: function() {
+    return '#<'+(this.type ? this.type() : 'model')+'>'
+  },
+  initialize: function(o) {},
+  valid: function() {
+    return true
+  },
+  // update a json model of named values
+  // if resultant model is invalid - it is set back to previous values
+  // THIS SHOULD BE REMOVED
+  update: function(o) {
+    var old = {}, props = this.constructor.defaults
+    for(var key in o) {
+      if(key in props) {
+        old[key] = this[key].value
+        this[key].value = o[key]
+      }
+    }  
+    if(this.valid()) {
+      for(var key in old) {
+        this[key].value = old[key]
+        this[key](o[key])
+      }
+      this.emit('update', this, o, old)
+      return old
+    } 
+    else {
+      for(var key in old) this[key](old[key])
+      return false
+    }  
+  },
+  destroy: function() {
+    // console.log('destroy', this)
+    this.emit('destroy', this)
+  },
+  toJSON: function() {
+    var json = {}
+    for(var i=0; i< this.properties.length;i++) {
+      var prop = this.properties[i]
+      json[prop] = this[prop]()
     }
-  }  
-  if(this.valid()) {
-    for(var key in old) {
-      this[key].value = old[key]
-      this[key](o[key])
-    }
-    this.emit('update', this, o, old)
-    return old
-  } 
-  else {
-    for(var key in old) this[key](old[key])
-    return false
-  }  
-}
 
-proto.destroy = function() {
-  // console.log('destroy', this)
-  this.emit('destroy', this)
-}
-
-proto.toJSON = function() {
-  var json = {}
-  for(var i=0; i< this.properties.length;i++) {
-    var prop = this.properties[i]
-    json[prop] = this[prop]()
+    return json
+  },
+  clone: function() {
+    return model.create(this.toJSON())
   }
-    
-  return json
-}
-
-proto.clone = function() {
-  return model.create(this.toJSON())
-}
+})
 
 o_O.model = model
 
+
+// model.extend = 
 
 
 /*        ___
@@ -659,163 +619,150 @@ o_O.model = model
     |_____|                         |___/                  */
 
 function array(models) {
+  if(!(this instanceof array)) return new array(models)
+  
   var self = this
-  if(this.constructor != array) return new array(models)
-
   this.items = []
   this.count = o_O(0)
   this.length = 0
   this.count.on('setsync', function(count) {
     self.length = count 
   })
-  
   if(models) {
     for(var i=0; i< models.length; i++)
       this.push(models[i])
   }
 }
 
-var proto = array.prototype
-extend(proto, Events)
+extend(array.prototype, Events, {
+  _onevent : function(ev, o, array) {
+    if ((ev == 'add' || ev == 'remove') && array != this) return
+    if (ev == 'destroy') {
+      this.remove(o)
+    }
+    this.emit.apply(this, arguments)
+  },
+  indexOf: function(o){
+    return this.items.indexOf(o)
+  },
+  filter: function(fn){
+    return this.items.filter(fn)
+  },
+  find: function(fn){
+    for(var i in this.items) {
+      var it = this.items[i]
+      if(fn(it, i)) return it
+    }
+  },
+  map: function(fn) {
+    this.count(); // force the dependency
+    var ret = []
+    for(var i = 0; i < this.length; i++) {
+      var result = fn.call(this, this.items[i], i)
+      ret.push(result)
+    }
+    return ret
+  },
+  push: function(o) {
+    return this.insert(o, this.length)
+  },
+  unshift: function(o) {
+    return this.insert(o, 0)
+  },
+  pop: function(){
+    return this.removeAt(this.length-1) //remove(this, this.items.pop())
+  },
+  shift: function(){
+    return this.removeAt(0) //remove(this, this.items.shift())
+  },
+  at: function(index) {
+    return this.items[index]
+  },
+  insert: function(o, index) {
+    if(index < 0 || index > this.count()) return false
+    this.items.splice(index, 0, o)
+    array.add(this, o, index)
+    return o
+  },
+  removeAt: function(index) {
+    if(index < 0 || index > this.count()) return false
+    var o = this.items[index]
+    this.items.splice(index, 1)
+    array.remove(this, o, index)
+    return o
+  },
+  remove: function(o) {
+    var func = 'function' === typeof o,   // what about if o is a function itself? - perhaps this should be another method ?
+        items = func ? this.items.filter(o) : [o],
+        index
 
-array.add = function (arr, o, index) {
-  if(o.on && o.emit) {
-    o.on('*', arr._onevent, arr)
-    o.emit('add', o, arr, index)
-  }else{
-    arr.emit('add', o, arr, index)
+    for(var i = 0; i < items.length; i++){
+      index = this.indexOf(items[i])
+      if(index !== -1) this.removeAt(index)
+    }
+    return func ? items : items[0]
+  },
+  renderItem: function(item, $el, index) {
+    var $$ = $(getTemplate($el))
+    if(index == this.items.length - 1)
+      $el.append($$)
+    else {
+      var nextElem = this.at(index).el || $el.children()[index]
+      $$.insertBefore(nextElem)
+    }
+    o_O.bind(item, $$)
+  },
+  bind: function($el) {
+    var self = this
+    this.on('add', function(item, arr, index) {
+      self.renderItem(item, $el, index)
+    })
+    this.on('remove', this.removeElement, this)
+    this.el = $el[0]
+  },
+  removeElement: function(item, index) {
+    $(item.el || $(this.el).children()[index]).remove()
+  },
+  toString: function() {
+    return '#<o_O.array:' + this.length + '>'
   }
-  arr.count.incr()
-  return arr.items.length
-}
+})
 
-array.remove = function(arr, o, index) {
-  if(o.off && o.emit) {
-    o.emit('remove', o, arr, index)
-    o.off('*', arr._onevent, arr)
-  } else {
-    arr.emit('remove', o, index)
+array.prototype.each = array.prototype.forEach = array.prototype.map
+ 
+ 
+extend(array, {
+  add: function (arr, o, index) {
+    if(o.on && o.emit) {
+      o.on('*', arr._onevent, arr)
+      o.emit('add', o, arr, index)
+    }else{
+      arr.emit('add', o, arr, index)
+    }
+    arr.count.incr()
+    return arr.items.length
+  },
+  remove: function(arr, o, index) {
+    if(o.off && o.emit) {
+      o.emit('remove', o, arr, index)
+      o.off('*', arr._onevent, arr)
+    } else {
+      arr.emit('remove', o, index)
+    }
+    arr.count.incr(-1) //force re-binding
+    return o
+  },
+  extend: function() {
+    return inherits.apply(this, arguments)
   }
-  arr.count.incr(-1) //force re-binding
-  return o
-}
-
-
-proto._onevent = function(ev, o, array) {
-  if ((ev == 'add' || ev == 'remove') && array != this) return
-  if (ev == 'destroy') {
-    this.remove(o)
-  }
-  this.emit.apply(this, arguments)
-}
-
-proto.indexOf = function(o){
-  return this.items.indexOf(o)
-}
-
-proto.filter = function(fn){
-  return this.items.filter(fn)
-}
-
-proto.find = function(fn){
-  for(var i in this.items) {
-    var it = this.items[i]
-    if(fn(it, i)) return it
-  }
-}
-
-proto.map = proto.each = proto.forEach = function(fn) {
-  this.count(); // force the dependency
-  var ret = []
-  for(var i = 0; i < this.length; i++) {
-    var result = fn.call(this, this.items[i], i)
-    ret.push(result)
-  }
-  return ret
-}
-
-proto.push = function(o) {
-  return this.insert(o, this.length)
-}
-
-proto.unshift = function(o) {
-  return this.insert(o, 0)
-}
-
-proto.pop = function(){
-  return this.removeAt(this.length-1) //remove(this, this.items.pop())
-}
-
-proto.shift = function(){
-  return this.removeAt(0) //remove(this, this.items.shift())
-}
-
-proto.at = function(index) {
-  return this.items[index]
-}
-
-proto.insert = function(o, index) {
-  if(index < 0 || index > this.count()) return false
-  this.items.splice(index, 0, o)
-  array.add(this, o, index)
-  return o
-}
-
-proto.removeAt = function(index) {
-  if(index < 0 || index > this.count()) return false
-  var o = this.items[index]
-  this.items.splice(index, 1)
-  array.remove(this, o, index)
-  return o
-}
-
-proto.remove = function(o) {
-  var func = 'function' === typeof o,   // what about if o is a function itself? - perhaps this should be another method ?
-      items = func ? this.items.filter(o) : [o],
-      index
-
-  for(var i = 0; i < items.length; i++){
-    index = this.indexOf(items[i])
-    if(index !== -1) this.removeAt(index)
-  }
-  return func ? items : items[0]
-}
-
-proto.renderItem = function(item, $el, index) {
-  var $$ = $(getTemplate($el)),
-      nextElem = this.at(index).el || $el.children()[index]
-  
-  nextElem 
-    ? $$.insertBefore(nextElem)
-    : $el.append($$) 
-  
-  o_O.bind(item, $$)
-}
-
-proto.bind = function($el) {
-  var self = this
-  this.on('add', function(item, arr, index) {
-    self.renderItem(item, $el, index)
-  })
-  this.on('remove', this.removeElement, this)
-  this.el = $el[0]
-}
-
-proto.removeElement = function(item, index) {
-  $(item.el || $(this.el).children()[index]).remove()
-}
-
-proto.toString = function() {
-  return '#<o_O.array:' + this.length + '>'
-}
-
-proto.extend = function() {
-  return inherits(this)
-}
+})
 
 o_O.array = array
 
 
+function slice(a, x) {
+  return Array.prototype.slice.call(a, x)
+}
 // Extend a given object with all the properties in passed-in object(s).
 function map(array, fn) {
   var ret = []
@@ -823,12 +770,17 @@ function map(array, fn) {
   return ret
 }
 
-function extend(obj, source) {
-  if(source) for (var prop in source) obj[prop] = source[prop]
+function extend(obj) {
+  var args = slice(arguments, 1)
+  for(var i=0; i<args.length;i++) {
+    var source = args[i]
+    for (var prop in source)
+      obj[prop] = source[prop]
+  }    
   return obj
 }
 
-function forEach(array, action) {
+function each(array, action) {
   if(array.forEach) return array.forEach(action)  
   for (var i= 0, n= array.length; i<n; i++)
     if (i in array)
@@ -847,23 +799,29 @@ function indexOf(array, obj, start) {
   return -1;
 }
 
-function inherits(parent, child) { 
-  child = child || function() { 
-    parent.apply(this, arguments) 
-  }
+function ctor(){};
+
+function inherits(parent, protoProps, staticProps) {
   
-  // dont copy over class variables/functions
-  // for (var key in parent) { 
-  //   if (Object.prototype.hasOwnProperty.call(parent, key)) 
-  //     child[key] = parent[key]; 
-  // } 
-  function ctor() { 
-    this.constructor = child; 
-  } 
-  ctor.prototype = parent.prototype; 
-  child.prototype = new ctor; 
-  child.__super__ = parent.prototype; 
-  return child; 
+  function construct(a, b) {
+    if(this instanceof construct)
+      parent.apply(this, arguments)
+    else
+      return new construct(a, b)
+  };
+    
+  var child = protoProps && protoProps.hasOwnProperty('constructor')
+                ? protoProps.constructor
+                : construct
+
+  extend(child, parent)
+  ctor.prototype = parent.prototype
+  child.prototype = new ctor()
+  if (protoProps) extend(child.prototype, protoProps);
+  if (staticProps) extend(child, staticProps);
+  child.prototype.constructor = child;
+  child.__super__ = parent.prototype;
+  return child;
 };
 
 o_O.uuid = function(len) {

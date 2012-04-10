@@ -5,7 +5,7 @@ var m
 
 describe('model', function() {
   var Person = o_O.model
-    
+  
   it('should create a person when called with new', function() {
     expect(new Person).to.be.a(Person)
   })
@@ -32,7 +32,7 @@ describe('model', function() {
 
 describe('extended model', function() {
   var Person = o_O.model.extend({
-    type:'Person', 
+    type: 'Person', 
     age: 10}, { 
       adult: function() {
         return this.age >= 18
