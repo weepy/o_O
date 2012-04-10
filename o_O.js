@@ -747,16 +747,15 @@ function ctor(){};
 
 function inherits(parent, protoProps, staticProps) {
   
-  function construct(a, b) {
-    if(this instanceof construct)
+  var child = function(a, b) {
+    if(this instanceof child)
       parent.apply(this, arguments)
     else
-      return new construct(a, b)
+      return new child(a, b)
   };
     
-  var child = protoProps && protoProps.hasOwnProperty('constructor')
-                ? protoProps.constructor
-                : construct
+  if(protoProps && protoProps.hasOwnProperty('constructor'))
+    child = protoProps.constructor
 
   extend(child, parent)
   ctor.prototype = parent.prototype
