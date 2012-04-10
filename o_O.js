@@ -257,7 +257,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
 
   o_O.bindFunction(trigger, function(x) {
     var $el = $(el),
-        y = typeof x == 'function' && x.constructor == o_O
+        y = typeof x == 'function' && x.constructor != o_O
               ? function() { return x.apply(context, arguments) }
               : x
 
