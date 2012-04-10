@@ -317,7 +317,6 @@ o_O.bind = function(context, dom, recursing) {
       o_O.bind(context, el, true)
     })
   }
-  // if(!recursing) context.onbind && context.onbind()
 }
 
 
@@ -705,7 +704,10 @@ array.prototype.each = array.prototype.forEach = array.prototype.map
 
 o_O.array = array
 
-// Extend a given object with all the properties in passed-in object(s).
+/* * * * * * * * * * 
+ * HELPER FUNCTIONS
+ */
+
 function map(array, fn) {
   var ret = []
   for(var i=0; i<array.length;i++) ret[i] = fn(array[i], i)
