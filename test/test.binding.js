@@ -21,7 +21,7 @@ describe('bindFunction for non-function returns', function() {
     })
     count = 0
     last = null
-    delete o_O.deps.hook._events
+    delete o_O.dependencies._events
   })
 
 
@@ -81,7 +81,7 @@ describe('bindFunction for function returns', function() {
     }
     count = 0
     last = null
-    delete o_O.deps.hook._events
+    delete o_O.dependencies._events
   })
 
 

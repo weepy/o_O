@@ -22,10 +22,8 @@ describe('simple property', function() {
     expect(age()).to.be(20)
   })
 
-  it('should should have 0 dependencies', function() {
-  
-    expect(age.dependencies).to.have.length(0)
-
+  it('should should have no dependencies', function() {
+    expect(age.dependencies).to.be(undefined)
   })
   
   it('should emit set events', function(done) {
@@ -52,7 +50,7 @@ describe('complex property', function() {
       return firstName() + " " + secondName() 
     })
     count = 0
-    delete o_O.deps.hook._events
+    delete o_O.dependencies._events
   })
   
   it('should get ok', function() {
@@ -67,9 +65,10 @@ describe('complex property', function() {
   describe('dependencies', function() {
     
     it('should should have 2 dependencies', function() {
-      expect(fullName.dependencies).to.have.length(2)
-      expect(fullName.dependencies[0]).to.be(firstName)
-      expect(fullName.dependencies[1]).to.be(secondName)
+      var dependencies = o_O.dependencies(fullName)
+      expect(dependencies).to.have.length(2)
+      expect(dependencies[0]).to.be(firstName)
+      expect(dependencies[1]).to.be(secondName)
 
     })    
   })
@@ -82,7 +81,7 @@ describe('complex property', function() {
       }
     })
     it('should should have 2 dependencies', function() {
-      var deps = o_O.deps(fullNameFn)
+      var deps = o_O.dependencies(fullNameFn)
 // console.log(deps[2])
       expect(deps).to.have.length(2)
       expect(deps[0]).to.be(firstName)

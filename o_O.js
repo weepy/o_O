@@ -127,9 +127,6 @@ var propertyMethods = {
   'constructor': o_O  // fake this - useful for checking
 }
 
-// Flag to indicate if we're checking dependencies
-var checking_deps = false
-
 function o_O(arg, type) { 
   var simple = typeof arg != 'function'
   
@@ -141,26 +138,22 @@ function o_O(arg, type) {
       emitProperty(prop)
     } else {
       if(simple)
-        checking_deps && o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+        dependencies.checking && dependencies.emit('get', prop)   // emit to dependency checker
       else
         prop.value = arg()
     }
     return prop.value
   }
   
-  if(simple) {
+  if(simple)
     prop.value = arg
-    prop.dependencies = []
-  }
-  else {
-    prop.dependencies = o_O.deps(prop) 
-    each(prop.dependencies, function(dep) {
+  else
+    each(dependencies(prop), function(dep) {
       dep.change(function() {
         emitProperty(prop)
       })
     })
-  }
-  
+
   extend(prop, Events, propertyMethods)
   arguments.length > 1 && (prop.type = type)
   return prop
@@ -205,23 +198,24 @@ var emitProperty = (function() {
 /*
  *  Hook to listen to all get events
  */
-o_O.deps = function(func) {
+function dependencies(func) {
   var deps = []
-  
   function add(dep) {
     if(indexOf(deps, dep) < 0 && dep != func) deps.push(dep)
   }
   
-  checking_deps = true
-  o_O.deps.hook.on('get', add)
-  o_O.deps.lastResult = func() // run the function
-  o_O.deps.hook.off('get', add)
-  checking_deps = false
-  
+  // Flag to indicate if we're checking dependencies
+  dependencies.checking = true
+  dependencies.on('get', add)
+  dependencies.lastResult = func() // run the function
+  dependencies.off('get', add)
+  dependencies.checking = false
   return deps
 }
 
-o_O.deps.hook = extend({}, Events)
+o_O.dependencies = dependencies
+
+extend(dependencies, Events)
 
 o_O.expression = function(text) {
   o_O.expression.last = text      // useful for catching syntax errors 
@@ -237,8 +231,8 @@ o_O.expression = function(text) {
  */
 
 o_O.bindFunction = function(fn, callback) {
-  var deps = o_O.deps(fn)
-  var result = o_O.deps.lastResult
+  var deps = dependencies(fn)
+  var result = dependencies.lastResult
   var isEvent = typeof result == 'function'
   callback(result)
   
