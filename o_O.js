@@ -67,7 +67,7 @@ var Events = {
    emit: function(events) {
      var event, node, calls, tail, args, all, rest;
      if (!(calls = this._callbacks)) return this;
-     all = calls['*'];
+     all = calls['all'];
      (events = events.split(/\s+/)).push(null);
 
      // Save references to the current heads & tails.
@@ -734,7 +734,7 @@ array.prototype.each = array.prototype.forEach = array.prototype.map
 extend(array, {
   add: function (arr, o, index) {
     if(o.on && o.emit) {
-      o.on('*', arr._onevent, arr)
+      o.on('all', arr._onevent, arr)
       o.emit('add', o, arr, index)
     }else{
       arr.emit('add', o, arr, index)
@@ -745,7 +745,7 @@ extend(array, {
   remove: function(arr, o, index) {
     if(o.off && o.emit) {
       o.emit('remove', o, arr, index)
-      o.off('*', arr._onevent, arr)
+      o.off('all', arr._onevent, arr)
     } else {
       arr.emit('remove', o, index)
     }

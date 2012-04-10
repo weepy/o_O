@@ -27,7 +27,7 @@ describe('Events', function() {
   
   
   it('* should trigger on any events', function() {
-    x.on('*', function() {
+    x.on('all', function() {
       count++
     })
     x.emit('xx')

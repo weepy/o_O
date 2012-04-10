@@ -35,7 +35,7 @@ proto.add = function(o) {
   o.list = this
 
   if(o.on) {
-    o.on('*', this._onevent, this)
+    o.on('all', this._onevent, this)
     o.emit('add', o, this)
   } 
   else
