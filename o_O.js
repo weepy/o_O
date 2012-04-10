@@ -119,22 +119,50 @@ var propertyMethods = {
     return this
   },
   toString: function() { 
-    return '<' + (this._name ? this._name + ':' : '') + this.value + '>'
+    return '<' + (this.type ? this.type + ':' : '') + this.value + '>'
   },
   timeout: 0,
-  __o_O: true
+  constructor: o_O
 }
 
-function o_O(val, name) {
-  var prop = (typeof val == 'function' ? computed : simple)(val)
+// Flag to indicate if we're checking dependencies
+var checking_deps = false
+
+function o_O(arg, type) { 
+  var simple = typeof arg != 'function'
+  
+  function prop(v) {
+    if(arguments.length) {
+      prop.old_value = prop.value
+      prop.value = simple ? v : arg(v)
+      prop.emit('setsync', prop.value, prop.old_value)
+      emitProperty(prop)
+    } else {
+      if(simple)
+        checking_deps && o_O.deps.hook.emit('get', prop)   // emit to dependency checker
+      else
+        prop.value = arg()
+    }
+    return prop.value
+  }
+  
+  if(simple) {
+    prop.value = arg
+    prop.dependencies = []
+  }
+  else {
+    prop.dependencies = o_O.deps(prop) 
+    each(prop.dependencies, function(dep) {
+      dep.change(function() {
+        emitProperty(prop)
+      })
+    })
+  }
+  
   extend(prop, Events, propertyMethods)
-  arguments.length > 1 && (prop._name = name)
+  arguments.length > 1 && (prop.type = type)
   return prop
 }
-
-o_O.property = o_O // for backwards compat
-
-o_O.instance = function(o) { return o.__o_O == true }
 
 /*
  * Simple registry which emits all property change from one event loop in the next
@@ -170,61 +198,6 @@ var emitProperty = (function() {
     timer = timer || setTimeout(run, prop.timeout)
   }
 })();
-
-
-// simple variable to indicate if we're checking dependencies
-var checking_deps = false
-/*
- * Simple property ...
- */
-function simple(defaultValue) {
-  
-  function prop(v) {
-    if(arguments.length) {
-      prop.old_value = prop.value
-      prop.value = v
-      prop.emit('setsync', prop.value, prop.old_value)
-      emitProperty(prop)
-    } else {
-      if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker
-    }
-    return prop.value
-  }
-  
-  prop.value = defaultValue
-  prop.dependencies = []     // should depend on self?
-  
-  return prop
-}
-
-/*
- * Computed property ...
- */
-function computed(getset) {
-  
-  function prop(v) {
-    if(arguments.length) {
-      prop.old_value = prop.value
-      prop.value = getset(v)
-      prop.emit('setsync', prop.value, prop.old_value)
-      emitProperty(prop)
-    } else {
-      prop.value = getset()
-      // if(checking_deps) o_O.deps.hook.emit('get', prop)   // emit to dependency checker  -- are we interested in computed properties here ??
-    }
-    return prop.value
-  }
-
-  prop.dependencies = o_O.deps(prop)
-  
-  // bind to dependencies
-  for(var i in prop.dependencies) {
-    prop.dependencies[i].change(function() {
-      emitProperty(prop)
-    })
-  }
-  return prop
-}
 
 
 /*
@@ -287,7 +260,7 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
   }
 
   o_O.bindFunction(trigger, function(x) {
-    var y = typeof x == 'function' && !o_O.instance(x)
+    var y = typeof x == 'function' && x.constructor == o_O
           ? function() { 
               return x.apply(context, arguments)
             }

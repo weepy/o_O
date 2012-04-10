@@ -16,10 +16,10 @@ describe('model', function() {
   
   it('create properties for each passed property', function() {
     var person = new Person({id: 10, name: 'John', age: 50})
-    expect(o_O.instance(person.name)).to.be(true)
-    expect(o_O.instance(person.id)).to.be(true)
-    expect(o_O.instance(person.age)).to.be(true)
-    
+    expect(person.name.constructor).to.be(o_O)
+    expect(person.id.constructor).to.be(o_O)
+    expect(person.age.constructor).to.be(o_O)
+ 
     expect(person.name()).to.be('John')
   })
   
@@ -62,9 +62,8 @@ describe('extended model', function() {
   
   it('create properties for each passed property', function() {
     var person = new Person({id: 10, name: 'John'})
-    expect(o_O.instance(person.name)).to.be(true)
-    expect(o_O.instance(person.id)).to.be(true)
-    expect(o_O.instance(person.age)).to.be(true)
+    expect(person.name.constructor).to.be(o_O)
+    expect(person.id.constructor).to.be(o_O)
     
     expect(person.name()).to.be('John')
   })
