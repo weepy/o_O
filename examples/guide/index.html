@@ -202,16 +202,17 @@ o_O.bind(model,  '#example')
 <div id=Animation class=example>
 <div class=inner>
 <p data-bind='call: animate; text: "fading every " + speed() + "ms"'>Animate Me!</p>
-<button data-bind='click: changeSpeed(2)'>Slow Down</button>
-<button data-bind='click: changeSpeed(0.5)'>Speed Up</button>
+<button data-bind='click: slower'>Slower</button>
+<button data-bind='click: faster'>Faster</button>
 </div>
 <script type='text/skip'>
 var thing = {
   speed: o_O(800),
-  changeSpeed: function(ratio){
-    return function() {
-      thing.speed.scale(ratio)
-    }
+  slower: function() {
+    thing.speed.scale(2)
+  },
+  faster: function() {
+    thing.speed.scale(0.5)
   },
   animate: function($el){
     function go() {
