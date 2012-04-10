@@ -577,7 +577,7 @@ function array(items) {
   })
   if(items) {
     for(var i=0; i< items.length; i++)
-      this.push(models[i])
+      this.push(items[i])
   }
 }
 
