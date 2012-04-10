@@ -155,7 +155,7 @@ function o_O(arg, type) {
     })
 
   extend(prop, Events, propertyMethods)
-  arguments.length > 1 && (prop.type = type)
+  if(type) prop.type = type
   return prop
 }
 
