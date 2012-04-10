@@ -708,7 +708,7 @@ o_O.array = array
 // Extend a given object with all the properties in passed-in object(s).
 function map(array, fn) {
   var ret = []
-  for(var i=0; i<array.length;i++) ret.push(fn(array[i], i))
+  for(var i=0; i<array.length;i++) ret[i] = fn(array[i], i)
   return ret
 }
 
