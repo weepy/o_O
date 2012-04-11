@@ -245,12 +245,12 @@ code, pre {
 pre {
   padding: 20px;
   background: #3A3C42;
-  color: #f8f8f2;
+  color: #eaeaea;
   margin: 0 -20px 20px;
   overflow-x:auto;
 }
 pre code {
-  color: #f8f8f2;
+  color: #eaeaea;
 }
 li pre {
   margin-left: -60px;

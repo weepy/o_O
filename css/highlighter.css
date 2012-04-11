@@ -1,0 +1,27 @@
+code.javascript .string, code .regexp { color: #e6db74  }
+code.javascript .keywords { color: #66d9ef }
+code.javascript .class{ color: #f2777a }
+code.javascript .special { color: blue }
+code.javascript .number { color: pink }
+code.javascript .comment { color: grey }
+code.javascript .brackets { color: #e2e2e2}
+code.javascript .operator { color: #f92672}
+
+
+code.html .tag {
+	color : #66d9ef;
+}
+
+code.html .comment {
+	color : gray;
+	font-style: italic;
+}
+
+code.html .string {
+	color : #e6db74;
+}
+
+
+code.html .attribute {
+  color: #f92672;
+}

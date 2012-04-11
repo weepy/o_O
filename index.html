@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Funnyface.js by weepy</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/highlighter.css">
+    <script src="js/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!--[if lt IE 9]>
@@ -75,7 +75,7 @@ name(&#39;Bart Simpson&#39;)
 
 <p>o_O properties are evented, so it&#39;s possible to bind to a change event: </p>
 
-<pre><code>name.change(function(new_name, old_name) {
+<pre><code class="javascript">name.change(function(new_name, old_name) {
   console.log(&#39;my name changed from&#39;, old_name, &#39;to&#39;, new_name)
 })
 </code></pre>
@@ -264,4 +264,5 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     </footer>
     <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
   </body>
+  <script src='js/highlighter.js'></script>
 </html>

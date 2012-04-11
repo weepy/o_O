@@ -44,7 +44,7 @@ name('Bart Simpson')
 
 o_O properties are evented, so it's possible to bind to a change event: 
 
-```
+```javascript
 name.change(function(new_name, old_name) {
   console.log('my name changed from', old_name, 'to', new_name)
 })
