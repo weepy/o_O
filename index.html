@@ -27,14 +27,14 @@
         </ul>
       </header>
       <section>
-        <pre><code>                         ,ad8888ba,            
-                        d8"'    `"8b           
-                       d8'        `8b     
+<pre><code>                         ,ad8888ba,            
+                        d8&quot;&#39;    `&quot;8b           
+                       d8&#39;        `8b     
   ,adPPYba,            88          88          
- a8"     "8a           88          88     
+ a8&quot;     &quot;8a           88          88     
  8b       d8           Y8,        ,8P          
- "8a,   ,a8"            Y8a.    .a8P           
-  `"YbbdP"'              `"Y8888Y"'            
+ &quot;8a,   ,a8&quot;            Y8a.    .a8P           
+  `&quot;YbbdP&quot;&#39;              `&quot;Y8888Y&quot;&#39;            
 
             888888888888                       
 </code></pre>
@@ -48,34 +48,35 @@
 <li>Proxies through jQuery, Ender, or whatever $ is</li>
 <li>Automatic dependency resolution</li>
 <li>Plays well with others</li>
-</ul><h2>Examples</h2>
+</ul>
+
+<h2>Examples</h2>
 
 <ul>
 <li><a href="http://weepy.github.com/o_O/examples/guide/index.html">Basic Overview</a></li>
 <li><a href="http://weepy.github.com/o_O/examples/todos/index.html">TodoMVC Example</a></li>
-</ul><h2>The Basics</h2>
+</ul>
+
+<h2>The Basics</h2>
 
 <h1>o_O properties</h1>
 
 <p>Use <code>o_O(...)</code> to create an evented o_O <code>property</code>:</p>
 
-<div class="highlight">
-<pre>
-<span class="nx">name</span> <span class="o">=</span> <span class="nx">o_O</span><span class="p">(</span><span class="s1">'Homer Simpson'</span><span class="p">)</span>
+<pre><code class="javascript">
+name = o_O(&#39;Homer Simpson&#39;)
 
-<span class="c1">// read a value</span>
-<span class="nx">name</span><span class="p">()</span> <span class="c1">// =&gt; 'Homer Simpson'</span>
+// read a value
+name() // =&gt; &#39;Homer Simpson&#39;
 
-<span class="c1">// write a value</span>
-<span class="nx">name</span><span class="p">(</span><span class="s1">'Bart Simpson'</span><span class="p">)</span>
-</pre>
-</div>
+// write a value
+name(&#39;Bart Simpson&#39;)
+</code></pre>
 
-
-<p>o_O properties are evented, so it's possible to bind to a change event: </p>
+<p>o_O properties are evented, so it&#39;s possible to bind to a change event: </p>
 
 <pre><code>name.change(function(new_name, old_name) {
-  console.log('my name changed from', old_name, 'to', new_name)
+  console.log(&#39;my name changed from&#39;, old_name, &#39;to&#39;, new_name)
 })
 </code></pre>
 
@@ -83,174 +84,135 @@
 
 <p>o_O can also create computed properties:</p>
 
-<div class="highlight">
-<pre><span class="nx">firstName</span> <span class="o">=</span> <span class="nx">o_O</span><span class="p">(</span><span class="s1">'Homer'</span><span class="p">)</span>
-<span class="nx">surName</span> <span class="o">=</span> <span class="nx">o_O</span><span class="p">(</span><span class="s1">'Simpson'</span><span class="p">)</span>
-<span class="nx">fullName</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="nx">firstName</span><span class="p">()</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">surName</span><span class="p">()</span>
-<span class="p">}</span>
+<pre><code class="javascript">firstName = o_O(&#39;Homer&#39;)
+surName = o_O(&#39;Simpson&#39;)
+fullName = function() {
+  return firstName() + &#39; &#39; + surName()
+}
 
-<span class="nx">fullName</span><span class="p">()</span> <span class="c1">// =&gt; 'Homer Simpson'</span>
-</pre>
-</div>
+fullName() // =&gt; &#39;Homer Simpson&#39;
+</code></pre>
 
+<p>A computed property automatically determines it&#39;s dependencies and is recalculated whenever a dependency changes:</p>
 
-<p>A computed property automatically determines it's dependencies and is recalculated whenever a dependency changes:</p>
+<pre><code class="javascript">firstName(&#39;Bart&#39;)
 
-<div class="highlight">
-<pre><span class="nx">firstName</span><span class="p">(</span><span class="s1">'Bart'</span><span class="p">)</span>
-
-<span class="nx">fullName</span><span class="p">()</span> <span class="c1">// =&gt; 'Bart Simpson'</span>
-</pre>
-</div>
-
+fullName() // =&gt; &#39;Bart Simpson&#39;
+</code></pre>
 
 <h1>HTML binding with o_O.bind</h1>
 
 <p>Bind an object to a section of HTML with the <code>o_O.bind(...)</code> method, and bind parts of that HTML section to o_O <code>properties</code> with the <code>data-bind</code> attribute:</p>
 
-<div class="highlight">
-<pre><span class="nx">person</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="nx">firstName</span><span class="o">:</span> <span class="nx">o_O</span><span class="p">(</span><span class="s1">'Michael'</span><span class="p">),</span>
-  <span class="nx">surName</span><span class="o">:</span> <span class="nx">o_O</span><span class="p">(</span><span class="s1">'Jackson'</span><span class="p">),</span>
-  <span class="nx">fullName</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">person</span><span class="p">.</span><span class="nx">firstName</span><span class="p">()</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">person</span><span class="p">.</span><span class="nx">surName</span><span class="p">()</span>
-  <span class="p">},</span>
-  <span class="nx">age</span><span class="o">:</span> <span class="nx">o_O</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
-<span class="p">}</span>
-<span class="nx">o_O</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">person</span><span class="p">,</span> <span class="s1">'#person'</span><span class="p">);</span>
-</pre>
-</div>
+<pre><code class="javascript">person = {
+  firstName: o_O(&#39;Michael&#39;),
+  surName: o_O(&#39;Jackson&#39;),
+  fullName: function() {
+    return person.firstName() + &#39; &#39; + person.surName()
+  },
+  age: o_O(50)
+}
+o_O.bind(person, &#39;#person&#39;);
+</code></pre>
 
+<pre><code class="html">&lt;div id=&quot;#person&quot;&gt;
+  &lt;div data-bind=&quot;text: fullName()&quot;&gt;&lt;/div&gt;
+  &lt;div data-bind=&quot;text: age()&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
 
-<div class="highlight">
-<pre><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"#person"</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"text: fullName()"</span><span class="nt">&gt;&lt;/div&gt;</span>
-  <span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"text: age()"</span><span class="nt">&gt;&lt;/div&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-</pre>
-</div>
-
-
-<p>This will render the HTML and retrigger the bindings whenever a dependency changes. So e.g calling <code>person.firstName('Miss')</code> will update the HTML.</p>
+<p>This will render the HTML and retrigger the bindings whenever a dependency changes. So e.g calling <code>person.firstName(&#39;Miss&#39;)</code> will update the HTML.</p>
 
 <p>The binding names are associated with jQuery (or whatever $ is), so css will call $.fn.css. There are also some custom bindings: </p>
 
 <ul>
-<li>
-<code>foreach</code> : renders the innerHTML for a list of items</li>
-<li>
-<code>value</code> : two-way binding for forms</li>
-<li>
-<code>visible</code> : hides an element if falsey</li>
-<li>
-<code>if/unless</code> : removes/shows the inner HTML</li>
-<li>
-<code>with</code> : rebinds the context (similar to javascript <code>with</code>)</li>
-<li>
-<code>options</code>: options for a select</li>
-<li>
-<code>log</code>: outputs to console.log</li>
-<li>
-<code>call</code>: general purpose</li>
-</ul><p>Event handlers will also work, e.g. <code>click: handleClick</code>.</p>
+<li><code>foreach</code> : renders the innerHTML for a list of items</li>
+<li><code>value</code> : two-way binding for forms</li>
+<li><code>visible</code> : hides an element if falsey</li>
+<li><code>if/unless</code> : removes/shows the inner HTML</li>
+<li><code>with</code> : rebinds the context (similar to javascript <code>with</code>)</li>
+<li><code>options</code>: options for a select</li>
+<li><code>log</code>: outputs to console.log</li>
+<li><code>call</code>: general purpose</li>
+</ul>
 
-<p>NB if there's no corresponding binding found, it will simply update the attribute on the element; this is especially useful for attributes such as id, class, src, href</p>
+<p>Event handlers will also work, e.g. <code>click: handleClick</code>.</p>
+
+<p>NB if there&#39;s no corresponding binding found, it will simply update the attribute on the element; this is especially useful for attributes such as id, class, src, href</p>
 
 <h2>Digging Deeper</h2>
 
-<p>Besides creating basic javascript objects containing o_O <code>properties</code>, you can also create an o_O <code>model</code> (using <code>o_O.model(...)</code>) that creates o_O <code>properties</code> for you out of the box as well as giving you access to event aggregation:</p>
+<p>Besides creating basic javascript objects containing o<em>O <code>properties</code>, you can also create an o</em>O <code>model</code> (using <code>o_O.model(...)</code>) that creates o_O <code>properties</code> for you out of the box as well as giving you access to event aggregation:</p>
 
-<div class="highlight">
-<pre><span class="kd">var</span> <span class="nx">homer</span> <span class="o">=</span> <span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span>
-  <span class="nx">name</span><span class="o">:</span> <span class="s1">'Homer Simpson'</span><span class="p">,</span>
-  <span class="nx">age</span><span class="o">:</span> <span class="mi">40</span>
-<span class="p">});</span>
+<pre><code class="javascript">var homer = o_O.model({
+  name: &#39;Homer Simpson&#39;,
+  age: 40
+});
 
-<span class="nx">homer</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'set:name'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">character</span><span class="p">,</span> <span class="nx">name_new</span><span class="p">,</span> <span class="nx">name_old</span><span class="p">){</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Homer's name changed."</span><span class="p">);</span>
-<span class="p">});</span>
-</pre>
-</div>
+homer.on(&#39;set:name&#39;, function(character, name_new, name_old){
+  console.log(&quot;Homer&#39;s name changed.&quot;);
+});
+</code></pre>
 
+<p>You can also create an o<em>O evented <code>array</code> that lets you create an array of items (can be anything) and if the items support it (i.e. they are o</em>O <code>models</code>) aggregates events across all of them:</p>
 
-<p>You can also create an o_O evented <code>array</code> that lets you create an array of items (can be anything) and if the items support it (i.e. they are o_O <code>models</code>) aggregates events across all of them:</p>
+<pre><code class="javascript">var cast = o_O.array();
 
-<div class="highlight">
-<pre><span class="kd">var</span> <span class="nx">cast</span> <span class="o">=</span> <span class="nx">o_O</span><span class="p">.</span><span class="nx">array</span><span class="p">();</span>
+cast.push(o_O.model({name: &#39;Homer&#39;, age: 40}));
+cast.push(o_O.model({name: &#39;Marge&#39;, age: 36}));
+cast.push(o_O.model({name: &#39;Bart&#39;, age: 10}));
+cast.push(o_O.model({name: &#39;Lisa&#39;, age: 8}));
+cast.push(o_O.model({name: &#39;Maggie&#39;, age: 2}));
 
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Homer'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">40</span><span class="p">}));</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Marge'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">36</span><span class="p">}));</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Bart'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">10</span><span class="p">}));</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Lisa'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">8</span><span class="p">}));</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">o_O</span><span class="p">.</span><span class="nx">model</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Maggie'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">2</span><span class="p">}));</span>
+cast.on(&#39;set:age&#39;, function(character, age_new, age_old){
+  console.log(character.name + &quot;&#39;s age changed from &quot; + age_old + &quot; to &quot; + age_new + &quot;.&quot;);
+});
 
-<span class="nx">cast</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'set:age'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">character</span><span class="p">,</span> <span class="nx">age_new</span><span class="p">,</span> <span class="nx">age_old</span><span class="p">){</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">character</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">"'s age changed from "</span> <span class="o">+</span> <span class="nx">age_old</span> <span class="o">+</span> <span class="s2">" to "</span> <span class="o">+</span> <span class="nx">age_new</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">);</span>
-<span class="p">});</span>
+// this will trigger the above &#39;set:&#39; event for each character:
+cast.forEach(function(character){
+  character.age(character.age() + 1);
+});
 
-<span class="c1">// this will trigger the above 'set:' event for each character:</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">character</span><span class="p">){</span>
-  <span class="nx">character</span><span class="p">.</span><span class="nx">age</span><span class="p">(</span><span class="nx">character</span><span class="p">.</span><span class="nx">age</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
-<span class="p">});</span>
+cast.on(&#39;add&#39;, function(new_character){
+  console.log(new_character);
+});
 
-<span class="nx">cast</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'add'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">new_character</span><span class="p">){</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">new_character</span><span class="p">);</span>
-<span class="p">});</span>
-
-<span class="c1">// this will trigger the above 'add' event:</span>
-<span class="nx">cast</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="k">new</span> <span class="nx">Character</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="s1">'Mr. Burns'</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">99</span><span class="p">}));</span>
-</pre>
-</div>
-
+// this will trigger the above &#39;add&#39; event:
+cast.push(new Character({name: &#39;Mr. Burns&#39;, age: 99}));
+</code></pre>
 
 <p>The special <code>foreach</code> binding will render this list: </p>
 
-<div class="highlight">
-<pre><span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">"#cast"</span> <span class="na">data-bind=</span><span class="s">'foreach: cast'</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;li</span> <span class="na">data-bind=</span><span class="s">"text: fullName() +',' + age()"</span> <span class="nt">&gt;&lt;/li&gt;</span>
-<span class="nt">&lt;/ul&gt;</span>
+<pre><code class="html">&lt;ul id=&quot;#cast&quot; data-bind=&#39;foreach: cast&#39;&gt;
+  &lt;li data-bind=&quot;text: fullName() +&#39;,&#39; + age()&quot; &gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-<span class="nt">&lt;script&gt;</span>
-<span class="nx">o_O</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">cast</span><span class="p">,</span> <span class="s1">'#cast'</span><span class="p">)</span>
-<span class="nt">&lt;/script&gt;</span>
-</pre>
-</div>
-
+&lt;script&gt;
+o_O.bind(cast, &#39;#cast&#39;)
+&lt;/script&gt;
+</code></pre>
 
 <h2>Running Tests</h2>
 
-<p>Make sure you have installed o_O's development dependencies via npm:</p>
+<p>Make sure you have installed o_O&#39;s development dependencies via npm:</p>
 
-<div class="highlight">
-<pre>npm install
-</pre>
-</div>
-
+<pre><code class="bash">npm install
+</code></pre>
 
 <p>A subset of tests can be run via the console:</p>
 
-<div class="highlight">
-<pre>npm <span class="nb">test</span>
-</pre>
-</div>
-
+<pre><code class="bash">npm test
+</code></pre>
 
 <p>Or, if you have mocha install (<code>npm install -g mocha</code>) you can just run:</p>
 
-<div class="highlight">
-<pre>mocha
-</pre>
-</div>
+<pre><code class="bash">mocha
+</code></pre>
 
+<p>Other tests (that rely on the browser&#39;s DOM) must be run in the browser:</p>
 
-<p>Other tests (that rely on the browser's DOM) must be run in the browser:</p>
-
-<div class="highlight">
-<pre>open <span class="nb">test</span>/mocha.html
-</pre>
-</div>
-
+<pre><code class="bash">open test/mocha.html
+</code></pre>
 
 <h2>Browser Compatability</h2>
 
@@ -261,34 +223,39 @@
 <li>Firefox 4-10</li>
 <li>Internet Explorer 7-9 </li>
 <li>Safari 5</li>
-</ul><p>Other browsers should work, (eg IE6) but are currently untested</p>
+</ul>
+
+<p>Other browsers should work, (eg IE6) but are currently untested</p>
 
 <h2>Contributers</h2>
 
 <ul>
 <li>Jonah Fox aka weepy</li>
 <li>Troy Goode</li>
-</ul><h2>License</h2>
+</ul>
+
+<h2>License</h2>
 
 <p>o_O is released under the <a href="http://www.opensource.org/licenses/mit-license.html">MIT license</a>:</p>
 
 <pre><code>The MIT License (MIT)
 
-Copyright (c) 2012 Jonah Fox &lt;jonahfox@gmail.com&gt; (<a href="https://github.com/weepy">https://github.com/weepy</a>)
+Copyright (c) 2012 Jonah Fox &lt;jonahfox@gmail.com&gt; (https://github.com/weepy)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the
 rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
 Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </code></pre>
+
       </section>
     </div>
     <footer>
