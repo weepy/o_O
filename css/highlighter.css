@@ -25,3 +25,22 @@ code.html .string {
 code.html .attribute {
   color: #f92672;
 }
+
+
+code.funnyface .comment {
+	color : #66d9ef;
+}
+
+code.funnyface .tag {
+	color : gray;
+	font-style: italic;
+}
+
+code.funnyface .string {
+	color : #e6db74;
+}
+
+
+code.funnyface .attribute {
+  color: #f92672;
+}

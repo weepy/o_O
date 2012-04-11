@@ -228,3 +228,21 @@ CodeHighlighter.addStyle("html", {
 		exp: /&lt;!DOCTYPE([^&]|&[^g]|&g[^t])*&gt;/
 	}
 });
+
+CodeHighlighter.addStyle("funnyface", {
+	comment : {
+		exp: /8/
+	},
+	tag : {
+		exp: /[,']/,
+	},
+	string : {
+		exp  : /[`d]/
+	},
+	attribute : {
+		exp: /[PYba]/, 
+	},
+	doctype : {
+		exp: /[".]/
+	}
+});
