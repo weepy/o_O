@@ -36,10 +36,10 @@ var Events = {
  	},
 
   /* 
-  	* Remove one or many callbacks. If context is null, removes all callbacks with that function. 
+   * Remove one or many callbacks. If context is null, removes all callbacks with that function. 
    * If callback is null, removes all callbacks for the event. 
- 	* If ev is null, removes all bound callbacks for all events.
- 	* */
+ 	 * If ev is null, removes all bound callbacks for all events.
+ 	 * */
  	off: function(events, callback, context) {
  	  var ev, calls, node;
  	  if (!events) {
@@ -66,32 +66,32 @@ var Events = {
    * Trigger an event, firing all bound callbacks. Callbacks are passed the same arguments as emit is, apart from the event name. 
    * Listening for "*" passes the true event name as the first argument.
    * */
-   emit: function(events) {
-     var event, node, calls, tail, args, all, rest;
-     if (!(calls = this._callbacks)) return this;
-     all = calls['all'];
-     (events = events.split(/\s+/)).push(null);
+  emit: function(events) {
+    var event, node, calls, tail, args, all, rest;
+    if (!(calls = this._callbacks)) return this;
+    all = calls['all'];
+    (events = events.split(/\s+/)).push(null);
 
-     // Save references to the current heads & tails.
-     while (event = events.shift()) {
-       if (all) events.push({next: all.next, tail: all.tail, event: event});
-       if (!(node = calls[event])) continue;
-       events.push({next: node.next, tail: node.tail});
-     }
+    // Save references to the current heads & tails.
+    while (event = events.shift()) {
+      if (all) events.push({next: all.next, tail: all.tail, event: event});
+      if (!(node = calls[event])) continue;
+      events.push({next: node.next, tail: node.tail});
+    }
 
-     //Traverse each list, stopping when the saved tail is reached.
+    //Traverse each list, stopping when the saved tail is reached.
 
-     rest = slice.call(arguments, 1);
-     while (node = events.pop()) {
-       tail = node.tail;
-       args = node.event ? [node.event].concat(rest) : rest;
-       while ((node = node.next) !== tail) {
-         node.callback.apply(node.context || this, args);
-       }
-     }
-     return this;
-   }
- }
+    rest = slice.call(arguments, 1);
+    while (node = events.pop()) {
+     tail = node.tail;
+      args = node.event ? [node.event].concat(rest) : rest;
+      while ((node = node.next) !== tail) {
+        node.callback.apply(node.context || this, args);
+      }
+    }
+    return this;
+  }
+}
 
 
  /*
@@ -103,9 +103,7 @@ var Events = {
 var propertyMethods = {
   incr: function (val) { return this(this.value + (val || 1)) },
   scale: function (val) { return this(this.value * (val || 1)) },
-  toggle: function (val) { 
-    return this(!this.value) 
-  },
+  toggle: function (val) { return this(!this.value) },
   change: function(fn) {
     fn
       ? this.on('set', fn)          // setup observer
@@ -124,7 +122,7 @@ var propertyMethods = {
     return '<' + (this.type ? this.type + ':' : '') + this.value + '>'
   },
   timeout: 0,
-  'constructor': o_O  // fake this - useful for checking
+  constructor: o_O  // fake this - useful for checking
 }
 
 function o_O(arg, type) { 
@@ -162,11 +160,10 @@ function o_O(arg, type) {
 /*
  * Simple registry which emits all property change from one event loop in the next
  */
-
 var emitProperty = (function() {
-
-  var list = []
-  var timer = null
+  var list = [],
+      timer = null
+      
   function run() {
     for(var i=0; i < list.length; i++) {
       var prop = list[i]
@@ -180,8 +177,8 @@ var emitProperty = (function() {
   }
     
   return function (prop) {
-    if(prop._emitting) return
-    if(prop.timeout == null) {
+    if(prop._emitting) return   // property is already emitting
+    if(prop.timeout == null) {  // timeout is null so emit synchonously
       prop._emitting = true
       prop.emit('set', prop.value, prop.old_value)
       delete prop._emitting
@@ -190,35 +187,35 @@ var emitProperty = (function() {
 
     list.push(prop)
     prop._emitting = true
-    timer = timer || setTimeout(run, prop.timeout)
+    timer = timer || setTimeout(run, prop.timeout)   // emit after timeout
   }
 })();
 
 
 /*
- *  Hook to listen to all get events
+ *  Calculate dependencies
  */
 function dependencies(func) {
   var deps = []
   function add(dep) {
-    if(indexOf(deps, dep) < 0 && dep != func) deps.push(dep)
+    if(indexOf(deps, dep) < 0 && dep != func) 
+      deps.push(dep)
   }
-  
-  // Flag to indicate if we're checking dependencies
-  dependencies.checking = true
-  dependencies.on('get', add)
-  dependencies.lastResult = func() // run the function
-  dependencies.off('get', add)
-  dependencies.checking = false
+  dependencies.checking = true      // we're checking dependencies
+  dependencies.on('get', add)       // setup listener
+  dependencies.lastResult = func()  // run the function
+  dependencies.off('get', add)      // remove listener
+  dependencies.checking = false     // no longer checking dependencies
   return deps
 }
+extend(dependencies, Events)
 
 o_O.dependencies = dependencies
 
-extend(dependencies, Events)
 
+// returns a function from some text
 o_O.expression = function(text) {
-  o_O.expression.last = text      // useful for catching syntax errors 
+  o_O.expression.last = text      // remember the last case useful for debugging syntax errors
   return new Function('o_O', 'with(this) { return (' + text + '); } ')
 }
 
@@ -246,8 +243,14 @@ o_O.bindFunction = function(fn, callback) {
   }
 }
 
-o_O.bindElementToRule = function(el, attr, expr, context) {
-  if(attr == '"class"') attr = "class"
+/*
+ * el: dom element
+ * binding: name of the binding rule
+ * expr: text containing binding specification
+ * context: the object that we're binding
+ */
+o_O.bindElementToRule = function(el, binding, expr, context) {
+  if(binding == '"class"') binding = "class"
   
   var expression = o_O.expression(expr)
   
@@ -261,18 +264,21 @@ o_O.bindElementToRule = function(el, attr, expr, context) {
               ? function() { return x.apply(context, arguments) }
               : x
 
-    if($.prototype[attr]) {
+    if($.prototype[binding]) {
       if(y instanceof String) y = y.toString() // strange problem
-      return $el[attr].call($el, y)
+      return $el[binding].call($el, y)
     } 
     
-    var binding = o_O.bindings[attr]
-    binding
-      ? binding.call(context, y, $el)
-      : $el.attr(attr, y)
+    var fn = o_O.bindings[binding]
+    fn
+      ? fn.call(context, y, $el)
+      : $el.attr(binding, y)
   })
 }
 
+/*
+ * Helper function to extract rules from a css like string
+ */
 function extractRules(str) {
   if(!str) return []
   
@@ -283,14 +289,20 @@ function extractRules(str) {
     rule = trim(rule)
     if(!rule) continue // for trailing ;
     var bits = map(trim(rule).split(":"), trim)
-    var attr = trim(bits.shift())
+    var binding = trim(bits.shift())
     var param = trim(bits.join(":"))
     
-    ret.push([attr, param])
+    ret.push([binding, param])
   }
   return ret
 }
 
+/*
+ * Public function to bind an object to an element or selector
+ * context: the object to bind
+ * dom: the element or selector
+ * recursing: internal flag to indicate wether it is an internal call
+ */
 o_O.bind = function(context, dom, recursing) {
   var $el = $(dom)
   if(!recursing) context.el = $el[0]
@@ -313,7 +325,9 @@ o_O.bind = function(context, dom, recursing) {
   }
 }
 
-
+/*
+ * Retrieves HTML string from a dom node (that may have been changed due to binding)
+ */
 function getTemplate($el) {
   var template = $el.data('o_O:template')
   if(template == null) {
@@ -326,14 +340,17 @@ function getTemplate($el) {
 }
 
 
-// converts a DOM event from an element with a value into it's value
-// useful for setting properties based on form events
+
+
 o_O.helpers = {
+  // converts a DOM event from an element with a value into its value
+  // useful for setting properties based on form events
   value: function(fn) {
     return function(e) { 
       return fn.call(this, $(e.currentTarget).val(), e) 
     }
   },
+  // converts a mouse event callback to a callback with the mouse position relative to the target
   position: function(fn) {
   	return function(e) {
   	  var el = e.currentTarget
@@ -401,28 +418,35 @@ o_O.bindings = {
     }) 
   },
   /* 
-   * Allows binding of a list of elements - expected to respond to forEach 
+   * Allows binding of a list of items
+   * list is expected to respond to forEach 
    */
   foreach: function(list, $el) {
     var template = getTemplate($el)
-    var renderItem = list.renderItem || function(item) {
+    
+    // default renderer if list doesn't specify one
+    function defaultRenderer(item) {
       $(template).each(function(i, elem) {
         var $$ = $(elem)
         $$.appendTo($el)
         o_O.bind(item, $$)
       })
     }
+    
+    var renderItem = list.renderItem || defaultRenderer
 
     $el.html('')
     list.forEach(function(item, index) {
       renderItem.call(list, item, $el, index)
     })
-
     list.bind && list.bind($el)
   },
   log: function(context, $el) {
     console.log('o_O', context, $el, this)
   },
+  // general purpose
+  // `call: fn` will run once - useful for `onbind` intialization
+  // `call: fn()` will run once and also for fn's dependencies 
   call: function(func, $el) {
     typeof func == 'function' && func($el)
   }
@@ -770,6 +794,7 @@ o_O.bindingAttribute = 'data-bind';
 o_O.inherits = inherits
 o_O.extend = extend
 o_O.Events = Events
+o_O.VERSION = "0.2.0"
 
 typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 
