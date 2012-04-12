@@ -121,6 +121,10 @@ var propertyMethods = {
   toString: function() { 
     return '<' + (this.type ? this.type + ':' : '') + this.value + '>'
   },
+  bind: function(el) {
+    o_O.bind(this, el)
+    return this
+  },
   timeout: 0,
   constructor: o_O  // fake this - useful for checking
 }
@@ -135,9 +139,9 @@ function o_O(arg, type) {
       prop.emit('setsync', prop.value, prop.old_value)
       emitProperty(prop)
     } else {
-      if(simple)
-        dependencies.checking && dependencies.emit('get', prop)   // emit to dependency checker
-      else
+      if(dependencies.checking)
+         dependencies.emit('get', prop)   // emit to dependency checker
+      if(!simple)
         prop.value = arg()
     }
     return prop.value
@@ -553,7 +557,6 @@ extend(model.prototype, Events, {
     }  
   },
   destroy: function() {
-    // console.log('destroy', this)
     this.emit('destroy', this)
   },
   toJSON: function() {
@@ -571,8 +574,6 @@ extend(model.prototype, Events, {
 
 o_O.model = model
 
-
-// model.extend = 
 
 
 /*        ___
@@ -600,23 +601,27 @@ function array(items) {
 
 extend(array, {
   add: function (arr, o, index) {
+    arr.count.incr()
+    
     if(o.on && o.emit) {
       o.on('all', arr._onevent, arr)
       o.emit('add', o, arr, index)
     }else{
       arr.emit('add', o, arr, index)
     }
-    arr.count.incr()
+    
     return arr.items.length
   },
   remove: function(arr, o, index) {
+    arr.count.incr(-1) //force re-binding
+    
     if(o.off && o.emit) {
       o.emit('remove', o, arr, index)
       o.off('all', arr._onevent, arr)
     } else {
       arr.emit('remove', o, index)
     }
-    arr.count.incr(-1) //force re-binding
+    
     return o
   },
   extend: function() {
@@ -684,9 +689,9 @@ extend(array.prototype, Events, {
   remove: function(o) {
     var func = 'function' === typeof o,   // what about if o is a function itself? - perhaps this should be another method ?
         items = func ? this.items.filter(o) : [o],
-        index
-
-    for(var i = 0; i < items.length; i++){
+        index,
+        len = items.length
+    for(var i = 0; i < len; i++){
       index = this.indexOf(items[i])
       if(index !== -1) this.removeAt(index)
     }
@@ -694,12 +699,10 @@ extend(array.prototype, Events, {
   },
   renderItem: function(item, $el, index) {
     var $$ = $(getTemplate($el))
-    if(index == this.items.length - 1)
-      $el.append($$)
-    else {
-      var nextElem = this.at(index).el || $el.children()[index]
-      $$.insertBefore(nextElem)
-    }
+    var nextElem = this.at(index).el || $el.children()[index]
+    nextElem
+      ? $$.insertBefore(nextElem)
+      : $el.append($$)
     o_O.bind(item, $$)
   },
   bind: function($el) {
@@ -715,6 +718,11 @@ extend(array.prototype, Events, {
   },
   toString: function() {
     return '#<o_O.array:' + this.length + '>'
+  },
+  toJSON: function() {
+    return this.map(function(o) {
+      return o.toJSON ? o.toJSON() : o
+    })
   }
 })
 
@@ -794,7 +802,7 @@ o_O.bindingAttribute = 'data-bind';
 o_O.inherits = inherits
 o_O.extend = extend
 o_O.Events = Events
-o_O.VERSION = "0.2.0"
+o_O.VERSION = "0.2.1"
 
 typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
 

@@ -284,6 +284,28 @@ describe('an array', function() {
 		
 	})
 	
+	describe('toJSON', function(){
+		var one = {one: 1}
+		var two = {two: 2}
+		var three = o_O.model({three: 3})
+
+		beforeEach(function() {
+			arr.insert(one, 0)
+			arr.insert(two, 1)
+			arr.insert(three, 2)
+		})
+
+		it('is as expected', function() {
+      expect(arr.toJSON()).to.eql([
+        {one:1},
+        {two: 2},
+        {three: 3}
+      ])
+		})
+
+
+	})
+	
 	
 	
 })
