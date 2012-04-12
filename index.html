@@ -75,7 +75,7 @@ name(&#39;Bart Simpson&#39;)
 
 <p>o_O properties are evented, so it&#39;s possible to bind to a change event: </p>
 
-<pre><code class="javascript">name.change(function(new_name, old_name) {
+<pre><code>name.change(function(new_name, old_name) {
   console.log(&#39;my name changed from&#39;, old_name, &#39;to&#39;, new_name)
 })
 </code></pre>
@@ -223,9 +223,19 @@ o_O.bind(cast, &#39;#cast&#39;)
 <li>Firefox 4-10</li>
 <li>Internet Explorer 7-9 </li>
 <li>Safari 5</li>
+<li>Node 6.0</li>
 </ul>
 
 <p>Other browsers should work, (eg IE6) but are currently untested</p>
+
+<h2>Importing to alternate namespace</h2>
+
+<p>It&#39;s possible to import o_O to an alternative namespace by appending ?mynamespace to the script, for example </p>
+
+<pre><code class="html">&lt;script src=&quot;../o_O.js?oO&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<p>will import the library to <code>window</code> as <code>oO</code></p>
 
 <h2>Contributers</h2>
 
