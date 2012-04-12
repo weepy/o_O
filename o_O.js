@@ -802,8 +802,15 @@ o_O.bindingAttribute = 'data-bind';
 o_O.inherits = inherits
 o_O.extend = extend
 o_O.Events = Events
-o_O.VERSION = "0.2.1"
+o_O.VERSION = "0.2.2"
 
-typeof module != 'undefined' ? module.exports = o_O : window.o_O = o_O
+if(typeof module == 'undefined') {
+  var scripts = document.getElementsByTagName('script')
+  var namespace = scripts[scripts.length-1].src.split('?')[1]
+  window[namespace || 'o_O'] = o_O
+}
+else {
+  module.exports = o_O
+}
 
 }();

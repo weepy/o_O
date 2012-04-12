@@ -1,0 +1,32 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="lib/mocha.css" />
+  <link rel="stylesheet" href="o_O.test.css" />
+  <script src="lib/jquery.js"></script>
+</head>
+<body>
+  <div id="mocha"></div>
+</body>
+<script>
+var old_keys = Object.keys(window)
+</script>
+<p>... importing o_O.js?oO</p>
+<script src="../o_O.js?oO"></script>
+<script>
+(function() {
+  var new_keys = Object.keys(window)
+  for(var i=0; i<new_keys.length;i++) {
+    if(old_keys.indexOf(new_keys[i]) < 0) {
+      var val = new_keys[i]
+      $('body').append('<h2>New key</h2>')
+               .append('<p>'+val + '</p>')
+               .append('<p>type: ' + typeof window[val] + '</p>')
+    }
+  }
+  
+}).call(this)
+</script>
+
+</html>
