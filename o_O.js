@@ -14,7 +14,8 @@ a8"     "8a           88          88
 							
 															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-var slice = Array.prototype.slice
+var VERSION = "0.2.2";
+var slice = Array.prototype.slice;
 
 var Events = {	
   /*
@@ -443,7 +444,7 @@ o_O.bindings = {
     list.forEach(function(item, index) {
       renderItem.call(list, item, $el, index)
     })
-    list.bind && list.bind($el)
+    list.onbind && list.onbind($el)
   },
   log: function(context, $el) {
     console.log('o_O', context, $el, this)
@@ -527,6 +528,10 @@ extend(model, {
 extend(model.prototype, Events, {
   toString: function() {
     return '#<'+(this.type ? this.type() : 'model')+'>'
+  },
+  bind: function(el) {
+    o_O.bind(this, el);
+    return this;
   },
   initialize: function(o) {},
   valid: function() {
@@ -637,6 +642,10 @@ extend(array.prototype, Events, {
     }
     this.emit.apply(this, arguments)
   },
+  bind: function(el) {
+    o_O.bind(this, el)
+    return this
+  },
   indexOf: function(o){
     return this.items.indexOf(o)
   },
@@ -705,7 +714,7 @@ extend(array.prototype, Events, {
       : $el.append($$)
     o_O.bind(item, $$)
   },
-  bind: function($el) {
+  onbind: function($el) {
     var self = this
     this.on('add', function(item, arr, index) {
       self.renderItem(item, $el, index)
@@ -802,7 +811,7 @@ o_O.bindingAttribute = 'data-bind';
 o_O.inherits = inherits
 o_O.extend = extend
 o_O.Events = Events
-o_O.VERSION = "0.2.2"
+o_O.VERSION = VERSION
 
 if(typeof module == 'undefined') {
   var scripts = document.getElementsByTagName('script')

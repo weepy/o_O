@@ -1,3 +1,10 @@
+0.2.2
+=====
+
+* Moved version string
+* Added ability to export to an alternative namespace
+* extended support for bind to o_O.model and o_O.array
+
 0.2.1
 =====
 
@@ -5,7 +12,6 @@
 * Rewrite array::renderItem
 * Added property.bind
 * Computed properties now also emit
-* Added ability to export to an alternative namespace
 
 0.2.0
 =====
