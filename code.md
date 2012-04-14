@@ -24,6 +24,7 @@
 
 * [Basic Overview](http://weepy.github.com/o_O/examples/guide/index.html)
 * [TodoMVC Example](http://weepy.github.com/o_O/examples/todos/index.html)
+* [Zooming Example](http://weepy.github.com/o_O/examples/zoom/index.html)
 
 ## The Basics
 
