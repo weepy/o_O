@@ -30,7 +30,7 @@ describe('conditionals', function() {
       setTimeout(function() {
         expect($(el).html()).to.be('hello')
         done()
-      }, 0)
+      }, 50)
     })
     
   })
@@ -44,16 +44,20 @@ describe('conditionals', function() {
       {type: 'b', text: '22'}
     ]
     
-    beforeEach(function() {
+    beforeEach(function(done) {
       $(el)
         .attr('data-bind', 'foreach: this')
         .html('<div data-bind="text: text"></div>')
       
       o_O.bind(o, el)
+      o_O.nextFrame(function() {
+        done()
+      })
     })
     
     it('creates a div per item', function() {
-      expect($(el).children().length).to.be(4)
+
+        expect($(el).children().length).to.be(4)
     })
     
     it('creates correct text', function() {
@@ -76,16 +80,18 @@ describe('conditionals', function() {
         .html('<div data-bind="if: type==\'a\'"><i data-bind="text: text"></i></div>')
       
       o_O.bind(o, el)
+      
+
     })
     
     it('creates a div per item ... ', function() {
-      expect($(el).children().length).to.be(4)
+        expect($(el).children().length).to.be(4)
     })
     
     it('creates correct text ... ', function() {
+
       expect($(el).html()).to.be('<div><i>aa</i></div><div><i>11</i></div><div></div><div></div>')
       
-      // '<div><o>aa</o></div><div><o>11</o></div><div></div><div></div>' to equal '<div><i>aa</i></div><div><i>11</i></div><div></div><div></div>'
       
     })
   
@@ -102,6 +108,8 @@ describe('conditionals', function() {
         .html('<i data-bind="if: type==1">A</i><i data-bind="if: type==2">B</i>')
       
       o_O.bind(o, el)
+      
+
     })
     
     it('creates correct text ... ', function() {
@@ -123,6 +131,7 @@ describe('conditionals', function() {
         .html('<o data-bind="text: type"></o><i data-bind="if: type==1">A</i><i data-bind="if: type==2">B</i>')
       
       o_O.bind(o, el)
+
     })
     
     it('creates correct text ... ', function() {

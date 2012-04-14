@@ -52,19 +52,10 @@ describe('bindFunction for non-function returns', function() {
     
     setTimeout(function() {
       expect(count).to.be(2)
-      
       secondName('Woah')
-      expect(last).to.be('Woah Smith')
-      
-      setTimeout(function() {
-        expect(count).to.be(3)
-        expect(last).to.be('Woah Woah')
-        done()
-      }, 0)
-      
+      expect(last).to.be('Woah Woah')
+      done()
     }, 0)
-    
-
     
 
   })

@@ -1,0 +1,24 @@
+<style>
+body { font-family: arial} 
+#container { border: 0px solid black; width: 1000px; height: 1000px; position: relative; }
+#container { overflow: hidden;}
+#rects {background: #eef; width: 2000px; height: 500px; position: relative; color: white; }
+.rect { background: #557; border: 1px solid #335; position: absolute;}
+</style>
+
+<h1>Dragging</h1>
+<h3>Drag the rectangles and also the background. Up/down is zoom</h3>
+
+<div id=container data-bind='call: onbind; scrollLeft: scrollLeft()'>
+  <div id=rects data-bind='foreach: rects; css: {width: 2000* window.zoom()}; '>
+    <div class=rect data-bind='css: css(); html: title(); call: onbind'></div>
+  </div>
+</div>
+
+<script src='../todos/js/jquery.js'></script>
+<script src='./jquery.drag.js'></script>
+<script src='../../o_O.js'></script>
+<script src='zoom.js'></script>
+
+
+

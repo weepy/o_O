@@ -46,5 +46,4 @@ describe('foreach array', function() {
     expect($(el).html()).to.be('<li>one</li>')
   })
   
-  
 })
