@@ -1,4 +1,4 @@
-!function() {
+;(function() {
 
  /*                                         	HTML binding for Lulz 
                         ,ad8888ba,            
@@ -132,7 +132,7 @@ var propertyMethods = {
     this.emit('set', this.value, this.old_value)
     delete this._emitting
   },
-  timeout: 0,
+  // timeout: 0,
   constructor: o_O  // fake this - useful for checking
 }
 
@@ -219,18 +219,6 @@ o_O.bindFunction = function(fn, callback) {
 }
 
 
-// shim layer with setTimeout fallback
-var requestAnimFrame = (function(){
-  return  window.requestAnimationFrame       || 
-          window.webkitRequestAnimationFrame || 
-          window.mozRequestAnimationFrame    || 
-          window.oRequestAnimationFrame      || 
-          window.msRequestAnimationFrame     || 
-          function( callback ){
-            window.setTimeout(callback, 1000 / 60);
-          };
-})();
-
 
 var queueBinding = (function() {
   var fns = [], timeout;
@@ -241,10 +229,26 @@ var queueBinding = (function() {
     timeout = null
   }
   
+  var self = this
+  // shim layer with setTimeout fallback
+  var nextFrame = self.requestAnimationFrame       || 
+                  self.webkitRequestAnimationFrame || 
+                  self.mozRequestAnimationFrame    || 
+                  self.oRequestAnimationFrame      || 
+                  self.msRequestAnimationFrame     || 
+                  function( callback ) {
+                    self.setTimeout(callback, 1000 / 60);
+                  };
+  o_O.nextFrame = function(callback) {
+    nextFrame.call(window, callback)
+  }
+  
   return function(fn) {
     fns.push(fn)
-    timeout = timeout || requestAnimFrame(run)
+    timeout = timeout || o_O.nextFrame(run)
   }
+  
+  
 })();
 
 /*
@@ -257,41 +261,42 @@ var queueBinding = (function() {
 o_O.bindElementToRule = function(el, rule, expr, context) {
   rule == '"class"' && (rule = "class");
   
-  var expression = o_O.expression(expr);
+  var expression = o_O.expression(expr),
+      emitting,
+      arg,
+      $el = $(el),
+      first = true;  // run bindings sync the first time
   
-  var trigger = function() {
-    return expression.call(context, o_O.helpers);
+  function trigger() { 
+    return expression.call(context, o_O.helpers); 
   }
   
-  var emitting;
-  var arg;
   function run(newarg) {
     arg = newarg;
     if(emitting) return;
-    
     emitting = true;    
     
     function emit() {
       emitting = false;
       
-      var $el = $(el),
-          y = typeof arg == 'function' && arg.constructor != o_O
+      var y = typeof arg == 'function' && arg.constructor != o_O
                 ? function() { return arg.apply(context, arguments) }
                 : arg;
       if(y instanceof String) y = y.toString(); // strange problem
-      
-      if($.prototype[rule])
-        return $el[rule](y); // return is so we can return false to stop propagation
-      
+    
+      if($.prototype[rule])  return $el[rule](y); // return is so we can return false to stop propagation  
       var fn = o_O.bindings[rule];
       fn
-        ? fn.call(context, y, $el)
-        : $el.attr(rule, y);
+        ? fn.call(context, y, $el)   // run custom binding
+        : $el.attr(rule, y);         // set DOM attribute
     }
     
-    typeof arg == 'function' 
-      ? emit() 
-      : queueBinding(emit);
+    if(typeof arg == 'function' || first) {
+      emit() 
+      first = false;
+    }
+    else 
+      queueBinding(emit);
   }
   
   o_O.bindFunction(trigger, run)
@@ -335,7 +340,8 @@ o_O.bind = function(context, dom, recursing) {
     if(method == 'with' || method == 'foreach') recurse = false
     o_O.bindElementToRule($el, method, param, context)
   }
-  $el.attr(o_O.bindingAttribute,null)
+  if(o_O.removeBindingAttribute) 
+    $el.attr(o_O.bindingAttribute,null)
   
   if(recurse) {
     $el.children().each(function(i, el) {
@@ -352,7 +358,7 @@ function getTemplate($el) {
   if(template == null) {
     template = $el.html()
     $el.html('')
-    $el.attr(o_O.bindingAttribute, null) // should be here?
+    // $el.attr(o_O.bindingAttribute, null)
     $el.data('o_O:template', template)
   }
   return template
@@ -504,9 +510,7 @@ extend(model, {
   observeProperty: function(model, name) {
     model[name].on('set', function(val, old) {
       model.emit('set:' + name, model, val, old)
-    })
-  
-    model[name].on('set', function(val, old) {
+
       if(val === old) return
       var x = {}, y = {}    
       x[name] = val
@@ -816,20 +820,24 @@ o_O.uuid = function(len) {
   return Math.random().toString(36).slice(2)
 };
 
-// export
-o_O.bindingAttribute = 'data-bind';
-o_O.inherits = inherits
-o_O.extend = extend
-o_O.Events = Events
-o_O.VERSION = VERSION
+// export and options
+extend(o_O, {
+  bindingAttribute: 'data-bind',
+  removeBindingAttribute: true,
+  inherits: inherits,
+  extend: extend,
+  Events: Events,
+  VERSION: VERSION
+})
 
 if(typeof module == 'undefined') {
   var scripts = document.getElementsByTagName('script')
   var namespace = scripts[scripts.length-1].src.split('?')[1]
   window[namespace || 'o_O'] = o_O
-}
-else {
+} else {
   module.exports = o_O
 }
 
-}();
+}).call(this);
+
+
