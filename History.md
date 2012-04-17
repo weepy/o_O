@@ -1,3 +1,10 @@
+0.2.3
+=====
+
+* properties now emit synchronously
+* binding now emit asynchronously via requestAnimationFrame (for HTML writing events), except for the first run
+* Added zooming example
+
 0.2.2
 =====
 

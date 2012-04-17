@@ -17,7 +17,7 @@ o_O.router = o_O.model.extend({}, {
     this.routes = []
   },
   add: function(str, handler) {
-    if(str == null) {
+    if(str === 404) {
       this.routing_404 = {
         handler: handler
       }

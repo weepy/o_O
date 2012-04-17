@@ -4,7 +4,7 @@ r.add('files/*path', function(arg) {
   $('#main').html(arg)
 })
 
-r.add(null, function(arg) {
+r.add(404, function(arg) {
   $('#main').html(404)
 })
 

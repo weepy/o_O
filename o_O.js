@@ -1,4 +1,4 @@
-!function() {
+;(function() {
 
  /*                                         	HTML binding for Lulz 
                         ,ad8888ba,            
@@ -14,7 +14,7 @@ a8"     "8a           88          88
 							
 															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-var VERSION = "0.2.2";
+var VERSION = "0.2.3";
 var slice = Array.prototype.slice;
 
 var Events = {	
@@ -126,7 +126,13 @@ var propertyMethods = {
     o_O.bind(this, el)
     return this
   },
-  timeout: 0,
+  emitset: function() {
+    if(this._emitting) return   // property is already emitting to avoid circular problems
+    this._emitting = true
+    this.emit('set', this.value, this.old_value)
+    delete this._emitting
+  },
+  // timeout: 0,
   constructor: o_O  // fake this - useful for checking
 }
 
@@ -137,8 +143,7 @@ function o_O(arg, type) {
     if(arguments.length) {
       prop.old_value = prop.value
       prop.value = simple ? v : arg(v)
-      prop.emit('setsync', prop.value, prop.old_value)
-      emitProperty(prop)
+      prop.emitset()
     } else {
       if(dependencies.checking)
          dependencies.emit('get', prop)   // emit to dependency checker
@@ -153,7 +158,7 @@ function o_O(arg, type) {
   else
     each(dependencies(prop), function(dep) {
       dep.change(function() {
-        emitProperty(prop)
+        prop.emitset()
       })
     })
 
@@ -161,41 +166,6 @@ function o_O(arg, type) {
   if(type) prop.type = type
   return prop
 }
-
-/*
- * Simple registry which emits all property change from one event loop in the next
- */
-var emitProperty = (function() {
-  var list = [],
-      timer = null
-      
-  function run() {
-    for(var i=0; i < list.length; i++) {
-      var prop = list[i]
-      prop.emit('set', prop.value, prop.old_value)
-    }
-    for(var i=0; i < list.length; i++)
-      delete list[i]._emitting
-
-    timer = null
-    list = []
-  }
-    
-  return function (prop) {
-    if(prop._emitting) return   // property is already emitting
-    if(prop.timeout == null) {  // timeout is null so emit synchonously
-      prop._emitting = true
-      prop.emit('set', prop.value, prop.old_value)
-      delete prop._emitting
-      return
-    }
-
-    list.push(prop)
-    prop._emitting = true
-    timer = timer || setTimeout(run, prop.timeout)   // emit after timeout
-  }
-})();
-
 
 /*
  *  Calculate dependencies
@@ -248,55 +218,104 @@ o_O.bindFunction = function(fn, callback) {
   }
 }
 
+
+
+var queueBinding = (function() {
+  var fns = [], timeout;
+  function run() {
+    while(fns.length)
+      fns.shift()()
+    fns = []
+    timeout = null
+  }
+  
+  var self = this
+  // shim layer with setTimeout fallback
+  var nextFrame = self.requestAnimationFrame       || 
+                  self.webkitRequestAnimationFrame || 
+                  self.mozRequestAnimationFrame    || 
+                  self.oRequestAnimationFrame      || 
+                  self.msRequestAnimationFrame     || 
+                  function( callback ) {
+                    self.setTimeout(callback, 1000 / 60);
+                  };
+  o_O.nextFrame = function(callback) {
+    nextFrame.call(window, callback)
+  }
+  
+  return function(fn) {
+    fns.push(fn)
+    timeout = timeout || o_O.nextFrame(run)
+  }
+  
+  
+})();
+
 /*
  * el: dom element
  * binding: name of the binding rule
  * expr: text containing binding specification
  * context: the object that we're binding
  */
-o_O.bindElementToRule = function(el, binding, expr, context) {
-  if(binding == '"class"') binding = "class"
-  
-  var expression = o_O.expression(expr)
-  
-  var trigger = function() {
-    return expression.call(context, o_O.helpers) 
-  }
 
-  o_O.bindFunction(trigger, function(x) {
-    var $el = $(el),
-        y = typeof x == 'function' && x.constructor != o_O
-              ? function() { return x.apply(context, arguments) }
-              : x
+o_O.bindElementToRule = function(el, rule, expr, context) {
+  rule == '"class"' && (rule = "class");
+  
+  var expression = o_O.expression(expr),
+      emitting,
+      arg,
+      $el = $(el),
+      first = true;  // run bindings sync the first time
+  
+  function trigger() { 
+    return expression.call(context, o_O.helpers); 
+  }
+  
+  function run(newarg) {
+    arg = newarg;
+    if(emitting) return;
+    emitting = true;    
     
-    if($.prototype[binding]) {
-      if(y instanceof String) y = y.toString() // strange problem
-      return $el[binding].call($el, y)
-    } 
+    function emit() {
+      emitting = false;
+      
+      var y = typeof arg == 'function' && arg.constructor != o_O
+                ? function() { return arg.apply(context, arguments) }
+                : arg;
+      if(y instanceof String) y = y.toString(); // strange problem
     
-    var fn = o_O.bindings[binding]
-    fn
-      ? fn.call(context, y, $el)
-      : $el.attr(binding, y)
-  })
+      if($.prototype[rule])  return $el[rule](y); // return is so we can return false to stop propagation  
+      var fn = o_O.bindings[rule];
+      fn
+        ? fn.call(context, y, $el)   // run custom binding
+        : $el.attr(rule, y);         // set DOM attribute
+    }
+    
+    if(typeof arg == 'function' || first) {
+      emit() 
+      first = false;
+    }
+    else 
+      queueBinding(emit);
+  }
+  
+  o_O.bindFunction(trigger, run)
 }
+
 
 /*
  * Helper function to extract rules from a css like string
  */
 function extractRules(str) {
   if(!str) return []
+  var rules = trim(str).split(";"), ret = [], i, bits, binding, param, rule
   
-  var rules = trim(str).split(";")
-  var ret = []
   for(var i=0; i <rules.length; i++) {
-    var rule = rules[i]
-    rule = trim(rule)
+    rule = trim(rules[i])
     if(!rule) continue // for trailing ;
-    var bits = map(trim(rule).split(":"), trim)
-    var binding = trim(bits.shift())
-    var param = trim(bits.join(":"))
-    
+    bits = map(trim(rule).split(":"), trim)
+    binding = trim(bits.shift())
+    param = trim(bits.join(":"))
     ret.push([binding, param])
   }
   return ret
@@ -321,7 +340,8 @@ o_O.bind = function(context, dom, recursing) {
     if(method == 'with' || method == 'foreach') recurse = false
     o_O.bindElementToRule($el, method, param, context)
   }
-  $el.attr(o_O.bindingAttribute,null)
+  if(o_O.removeBindingAttribute) 
+    $el.attr(o_O.bindingAttribute,null)
   
   if(recurse) {
     $el.children().each(function(i, el) {
@@ -338,14 +358,11 @@ function getTemplate($el) {
   if(template == null) {
     template = $el.html()
     $el.html('')
-    $el.attr(o_O.bindingAttribute, null) // should be here?
+    // $el.attr(o_O.bindingAttribute, null)
     $el.data('o_O:template', template)
   }
   return template
 }
-
-
-
 
 o_O.helpers = {
   // converts a DOM event from an element with a value into its value
@@ -364,7 +381,6 @@ o_O.helpers = {
   	}
   }
 }
-
 
 /*                                     
  _    __|_ _ ._ _  |_ o._  _|o._  _  _ 
@@ -494,9 +510,7 @@ extend(model, {
   observeProperty: function(model, name) {
     model[name].on('set', function(val, old) {
       model.emit('set:' + name, model, val, old)
-    })
-  
-    model[name].on('setsync', function(val, old) {
+
       if(val === old) return
       var x = {}, y = {}    
       x[name] = val
@@ -595,7 +609,7 @@ function array(items) {
   this.items = []
   this.count = o_O(0)
   this.length = 0
-  this.count.on('setsync', function(count) {
+  this.count.change(function(count) {
     self.length = count 
   })
   if(items) {
@@ -806,20 +820,23 @@ o_O.uuid = function(len) {
   return Math.random().toString(36).slice(2)
 };
 
-// export
-o_O.bindingAttribute = 'data-bind';
-o_O.inherits = inherits
-o_O.extend = extend
-o_O.Events = Events
-o_O.VERSION = VERSION
+// export and options
+extend(o_O, {
+  bindingAttribute: 'data-bind',
+  removeBindingAttribute: true,
+  inherits: inherits,
+  extend: extend,
+  Events: Events,
+  VERSION: VERSION
+})
 
 if(typeof module == 'undefined') {
   var scripts = document.getElementsByTagName('script')
   var namespace = scripts[scripts.length-1].src.split('?')[1]
   window[namespace || 'o_O'] = o_O
-}
-else {
+} else {
   module.exports = o_O
 }
 
-}();
+}).call(this);
+
