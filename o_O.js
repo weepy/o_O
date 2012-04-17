@@ -268,7 +268,7 @@ o_O.bindElementToRule = function(el, binding, expr, context) {
         y = typeof x == 'function' && x.constructor != o_O
               ? function() { return x.apply(context, arguments) }
               : x
-
+    
     if($.prototype[binding]) {
       if(y instanceof String) y = y.toString() // strange problem
       return $el[binding].call($el, y)
