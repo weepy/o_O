@@ -19,6 +19,9 @@ var Todo = o_O.model.extend({
   edit: function() {  
     this.editing(true); 
   },
+  stopEditing: function() {
+    this.editing(false); 
+  },
   remove: function() {
     view.todos.remove(this)
   },

@@ -3,8 +3,9 @@
 <head>
 <link rel="stylesheet" href='bootstrap.min.css'></link>
 <script src="highlight.min.js"></script>
-<script src='../../o_O.js'></script>
 <script src='http://code.jquery.com/jquery-1.7.1.js'></script>
+<script src='../../o_O.js'></script>
+
 <link rel="stylesheet" href="github.min.css">
 <link rel="stylesheet" href="style.css">
 <script src='app.js'></script>
@@ -21,10 +22,10 @@
 <a class=btn>Basic Binding</a>
 <div id=Simple class=example>
 <div class=inner>
-<p data-bind='text: greeting'></p>
+<p data-bind='text'></p>
 </div>
 <script type='text/skip'>
-o_O.bind({greeting: 'Hello World'}, '#example')
+o_O.bind({text: 'Hello World'}, '#example')
 </script>
 </div>
 
@@ -35,11 +36,11 @@ o_O.bind({greeting: 'Hello World'}, '#example')
 <div class=inner>
 <p>
   <span>ms since 1st Jan 1970: </span>
-  <span data-bind='text: this()'></span>
+  <span data-bind='text: this'></span>
 </p>
 </div>
 <script type='text/skip'>
-var time = o_O()
+window.time = o_O()
 
 o_O.bind(time, '#example')
 
@@ -59,7 +60,7 @@ setInterval(function() {
 <div class=inner>
 
 <input data-bind='value: name'></input>  
-<p data-bind='text: name()'></p> 
+<p data-bind='text: name'></p> 
 </div>
 <script type='text/skip'>
 var person = { name: o_O('John') }
@@ -108,7 +109,7 @@ o_O.bind(farm, '#example')
 <a class=btn>Complex dependencies</a>
 <div id=ComplexDeps class=example> 
 <div class=inner>
-<p data-bind='text: fullName()'></p>
+<p data-bind='text: fullName'></p>
 <input data-bind='value: first'></input>
 <input data-bind='value: family'></input>
 </div>
@@ -163,7 +164,7 @@ o_O.bind(model,  '#example')
 <div id=visible class=example> 
 <div class=inner>
 <input type=checkbox data-bind='value: show' />
-<button data-bind='visible: show(); css: css'>HELLOO</button>
+<button data-bind='visible: show; css: css'>HELLOO</button>
 <button data-bind='visible: !show()'>GOODBYE</button>
 </ul>
 </div>
@@ -184,7 +185,7 @@ o_O.bind(model,  '#example')
   
 <div class=inner>
 <input type=checkbox data-bind='value: big' />
-<span data-bind='class: myClass(); text: myClass()'></span>
+<span data-bind='class: myClass; text: myClass'></span>
 </div>
 <script type='text/skip'>
 var model = {

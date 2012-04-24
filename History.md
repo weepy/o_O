@@ -1,3 +1,19 @@
+0.2.5
+=====
+
+* refactor bindings. Can now omit parans mostly - are added automatically. 
+* bindings are now explicit, and o_O now knows what type of binding each is (inbound/outbound/twoway)
+* add new bindings with o_O.newBinding
+* performance improvements
+* added router
+
+
+0.2.4
+=====
+
+* force read on emit
+* added dependencies as a property
+
 0.2.3
 =====
 

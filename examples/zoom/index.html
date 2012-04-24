@@ -9,13 +9,13 @@ body { font-family: arial}
 <h1>Dragging</h1>
 <h3>Drag the rectangles and also the background. Up/down is zoom</h3>
 
-<div id=container data-bind='call: onbind; scrollLeft: scrollLeft()'>
+<div id=container data-bind='call: onbind; scrollLeft'>
   <div id=rects data-bind='foreach: rects; css: {width: 2000* window.zoom()}; '>
-    <div class=rect data-bind='css: css(); html: title(); call: onbind'></div>
+    <div class=rect data-bind='css; html: title; call: onbind'></div>
   </div>
 </div>
 
-<script src='../todos/js/jquery.js'></script>
+<script src='../todos/lib/jquery.min.js'></script>
 <script src='./jquery.drag.js'></script>
 <script src='../../o_O.js'></script>
 <script src='zoom.js'></script>

@@ -1,6 +1,6 @@
-;(function() {
+!function() {
 
- /*                                         	HTML binding for Lulz 
+ /*                                           HTML binding for Lulz 
                         ,ad8888ba,            
                        d8"'    `"8b           Power of KnockoutJS, with the agility of Backbone
                       d8'        `8b     
@@ -11,58 +11,58 @@ a8"     "8a           88          88
  `"YbbdP"'              `"Y8888Y"'            Automatic dependency resolution
                                          
            888888888888                       Plays well with others
-							
-															                (c) 2012 by Jonah Fox (weepy), MIT Licensed */
+              
+                                              (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-var VERSION = "0.2.3";
+var VERSION = "0.2.5";
 var slice = Array.prototype.slice;
 
-var Events = {	
+var Events = {  
   /*
- 	* Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
- 	* */
- 	on: function(events, callback, context) {
- 	  var ev;
- 	  events = events.split(/\s+/);
- 	  var calls = this._callbacks || (this._callbacks = {});
- 	  while (ev = events.shift()) {
+  * Create an immutable callback list, allowing traversal during modification. The tail is an empty object that will always be used as the next node.
+  * */
+  on: function(events, callback, context) {
+    var ev;
+    events = events.split(/\s+/);
+    var calls = this._callbacks || (this._callbacks = {});
+    while (ev = events.shift()) {
 
- 	    var list  = calls[ev] || (calls[ev] = {});
- 	    var tail = list.tail || (list.tail = list.next = {});
- 	    tail.callback = callback;
- 	    tail.context = context;
- 	    list.tail = tail.next = {};
- 	  }
- 	  return this;
- 	},
+      var list  = calls[ev] || (calls[ev] = {});
+      var tail = list.tail || (list.tail = list.next = {});
+      tail.callback = callback;
+      tail.context = context;
+      list.tail = tail.next = {};
+    }
+    return this;
+  },
 
   /* 
    * Remove one or many callbacks. If context is null, removes all callbacks with that function. 
    * If callback is null, removes all callbacks for the event. 
- 	 * If ev is null, removes all bound callbacks for all events.
- 	 * */
- 	off: function(events, callback, context) {
- 	  var ev, calls, node;
- 	  if (!events) {
- 	    delete this._callbacks;
- 	  } else if (calls = this._callbacks) {
- 	    events = events.split(/\s+/);
- 	    while (ev = events.shift()) {
- 	      node = calls[ev];
- 	      delete calls[ev];
- 	      if (!callback || !node) continue;
+   * If ev is null, removes all bound callbacks for all events.
+   * */
+  off: function(events, callback, context) {
+    var ev, calls, node;
+    if (!events) {
+      delete this._callbacks;
+    } else if (calls = this._callbacks) {
+      events = events.split(/\s+/);
+      while (ev = events.shift()) {
+        node = calls[ev];
+        delete calls[ev];
+        if (!callback || !node) continue;
 
- 	    	// Create a new list, omitting the indicated event/context pairs.
+        // Create a new list, omitting the indicated event/context pairs.
 
- 	      while ((node = node.next) && node.next) {
- 	        if (node.callback === callback &&
- 	          (!context || node.context === context)) continue;
- 	        this.on(ev, node.callback, node.context);
- 	      }
- 	    }
- 	  }
- 	  return this;
- 	},
+        while ((node = node.next) && node.next) {
+          if (node.callback === callback &&
+            (!context || node.context === context)) continue;
+          this.on(ev, node.callback, node.context);
+        }
+      }
+    }
+    return this;
+  },
   /*
    * Trigger an event, firing all bound callbacks. Callbacks are passed the same arguments as emit is, apart from the event name. 
    * Listening for "*" passes the true event name as the first argument.
@@ -99,8 +99,6 @@ var Events = {
   * Public function to return an observable property
   * sync: whether to emit changes immediately, or in the next event loop
   */
-
-
 var propertyMethods = {
   incr: function (val) { return this(this.value + (val || 1)) },
   scale: function (val) { return this(this.value * (val || 1)) },
@@ -129,7 +127,7 @@ var propertyMethods = {
   emitset: function() {
     if(this._emitting) return   // property is already emitting to avoid circular problems
     this._emitting = true
-    this.emit('set', this.value, this.old_value)
+    this.emit('set', this(), this.old_value) // force a read
     delete this._emitting
   },
   // timeout: 0,
@@ -155,12 +153,15 @@ function o_O(arg, type) {
   
   if(simple)
     prop.value = arg
-  else
+  else {
+    prop.dependencies = []
     each(dependencies(prop), function(dep) {
+      prop.dependencies.push(dep)
       dep.change(function() {
         prop.emitset()
       })
     })
+  }
 
   extend(prop, Events, propertyMethods)
   if(type) prop.type = type
@@ -194,62 +195,31 @@ o_O.expression = function(text) {
   return new Function('o_O', 'with(this) { return (' + text + '); } ')
 }
 
-
-/*
- * calculates the dependencies
- * calls the callback with the result
- * if running fn returns a function - nothing more happens
- * otherwise the callback is called with the function result everytime a dependency changes
- */
-
-o_O.bindFunction = function(fn, callback) {
-  var deps = dependencies(fn)
-  var result = dependencies.lastResult
-  var isEvent = typeof result == 'function'
-  callback(result)
-  
-  // if this is an event watch for changes and reapply
-  if(!isEvent) {
-    each(deps, function(dep) {
-      dep.on('set', function(value) {
-        callback(fn())
-      })
-    })
-  }
-}
-
-
-
-var queueBinding = (function() {
+o_O.nextFrame = (function() {
   var fns = [], timeout;
   function run() {
-    while(fns.length)
-      fns.shift()()
-    fns = []
+    while(fns.length) fns.shift()()
     timeout = null
   }
   
   var self = this
   // shim layer with setTimeout fallback
-  var nextFrame = self.requestAnimationFrame       || 
-                  self.webkitRequestAnimationFrame || 
-                  self.mozRequestAnimationFrame    || 
-                  self.oRequestAnimationFrame      || 
-                  self.msRequestAnimationFrame     || 
-                  function( callback ) {
-                    self.setTimeout(callback, 1000 / 60);
-                  };
-  o_O.nextFrame = function(callback) {
-    nextFrame.call(window, callback)
-  }
+  var onNextFrame = self.requestAnimationFrame       || 
+                    self.webkitRequestAnimationFrame || 
+                    self.mozRequestAnimationFrame    || 
+                    self.oRequestAnimationFrame      || 
+                    self.msRequestAnimationFrame     || 
+                    function( callback ) {
+                      self.setTimeout(callback, 1000 / 60);
+                    };
   
   return function(fn) {
     fns.push(fn)
-    timeout = timeout || o_O.nextFrame(run)
+    timeout = timeout || onNextFrame(run)
   }
   
-  
 })();
+
 
 /*
  * el: dom element
@@ -258,55 +228,82 @@ var queueBinding = (function() {
  * context: the object that we're binding
  */
 
-o_O.bindElementToRule = function(el, rule, expr, context) {
-  rule == '"class"' && (rule = "class");
-  
-  var expression = o_O.expression(expr),
-      emitting,
-      arg,
-      $el = $(el),
-      first = true;  // run bindings sync the first time
-  
-  function trigger() { 
-    return expression.call(context, o_O.helpers); 
+o_O.bindRuleToElement = function(method, expressionString, context, $el) {
+  var expression = o_O.expression(expressionString),
+      // outbound = o_O.outboundBindings[method],
+      // twoway,
+      value, // contains the current value of the attribute that emit will use
+      emit,
+      type
+
+  // emit is the function that actually performs the work
+  var binding = o_O.bindings[method]
+
+  if(binding) {
+    // first check if we're in customBinding
+    emit = function() {
+      return binding.call(context, value, $el)
+    }
+
+    type = binding.type
+  } else {
+    // didn't find one - just set the DOM attribute
+    emit = function() {
+      $el.attr(method, value);    // set DOM attribute
+    }
+    type = 'inbound'
+  }
+
+  // evaluates the current expressionString
+  var evaluateExpression = function() { 
+    var val = expression.call(context, o_O.helpers); 
+    if(val instanceof String) val = val.toString(); // strange problem
+    return val
+  }
+
+  // if it's an outbound event - just emit immediately and we're done
+  if(type == 'outbound') {
+    value = evaluateExpression()
+    emit()
+    return
+  } 
+
+  // otherwise we need to calculate our dependencies
+  var deps = dependencies(evaluateExpression)
+  value = dependencies.lastResult
+
+  // if we're not two way and it's a function - then really it's a short hand for missing brackets - recalculate
+  if(typeof value == 'function' && type != 'twoway') {
+    expression = o_O.expression('(' + expressionString + ')()')
+    deps = dependencies(evaluateExpression)
+    value = dependencies.lastResult
   }
   
-  function run(newarg) {
-    arg = newarg;
-    if(emitting) return;
-    emitting = true;    
-    
-    function emit() {
-      emitting = false;
-      
-      var y = typeof arg == 'function' && arg.constructor != o_O
-                ? function() { return arg.apply(context, arguments) }
-                : arg;
-      if(y instanceof String) y = y.toString(); // strange problem
-    
-      if($.prototype[rule])  return $el[rule](y); // return is so we can return false to stop propagation  
-      var fn = o_O.bindings[rule];
-      fn
-        ? fn.call(context, y, $el)   // run custom binding
-        : $el.attr(rule, y);         // set DOM attribute
-    }
-    
-    if(typeof arg == 'function' || first) {
-      emit() 
-      first = false;
-    }
-    else 
-      queueBinding(emit);
-  }
-  
-  o_O.bindFunction(trigger, run)
+  // we should emit immediately
+  emit()
+
+  // and also everytime a dependency changes - but only once per binding per frame - even if > 1 dependency changes 
+  var emitting
+
+  each(deps, function(dep) {
+    dep.change(function() {
+      value = evaluateExpression()
+      if(emitting) return // don't queue another 
+      emitting = true
+      o_O.nextFrame(function() {
+        emit()
+        emitting = false
+      })
+    })
+  })
+
 }
 
 
 /*
  * Helper function to extract rules from a css like string
  */
-function extractRules(str) {
+function parseBindingAttribute(str) {
   if(!str) return []
   var rules = trim(str).split(";"), ret = [], i, bits, binding, param, rule
   
@@ -315,11 +312,12 @@ function extractRules(str) {
     if(!rule) continue // for trailing ;
     bits = map(trim(rule).split(":"), trim)
     binding = trim(bits.shift())
-    param = trim(bits.join(":"))
+    param = trim(bits.join(":")) || binding
     ret.push([binding, param])
   }
   return ret
 }
+
 
 /*
  * Public function to bind an object to an element or selector
@@ -331,14 +329,19 @@ o_O.bind = function(context, dom, recursing) {
   var $el = $(dom)
   if(!recursing) context.el = $el[0]
   
-  var recurse = true
-  var rules = extractRules($el.attr(o_O.bindingAttribute))
+  var recurse = true,
+      method,
+      expressionString,
+      pairs = parseBindingAttribute($el.attr(o_O.bindingAttribute))
   
-  for(var i=0; i <rules.length; i++) {
-    var method = rules[i][0]
-    var param = rules[i][1]
+  for(var i=0; i <pairs.length; i++) {
+    method = pairs[i][0]
+    expressionString = pairs[i][1]
+
     if(method == 'with' || method == 'foreach') recurse = false
-    o_O.bindElementToRule($el, method, param, context)
+    if(method == '"class"') method = "class"
+      
+    o_O.bindRuleToElement(method, expressionString, context, $el)
   }
   if(o_O.removeBindingAttribute) 
     $el.attr(o_O.bindingAttribute,null)
@@ -374,45 +377,20 @@ o_O.helpers = {
   },
   // converts a mouse event callback to a callback with the mouse position relative to the target
   position: function(fn) {
-  	return function(e) {
-  	  var el = e.currentTarget
-  		var o = $(el).offset()
+    return function(e) {
+      var el = e.currentTarget
+      var o = $(el).offset()
       fn.call(this, e.pageX - o.left, e.pageY - o.top, e)
-  	}
+    }
   }
 }
 
 /*                                     
- _    __|_ _ ._ _  |_ o._  _|o._  _  _ 
-(_|_|_> |_(_)| | | |_)|| |(_||| |(_|_> 
-                                  _|    */
-
-/** 
- *  Override proxy methods to $
- *  this will be the context itself
- */
+|_ o._  _|o._  _  _ 
+|_)|| |(_||| |(_|_> 
+               _|    */
 
 o_O.bindings = {
-  /* Two-way binding to a form element
-   * usage: bind='value: myProperty'
-   * special cases for checkbox
-   */
-  value: function(property, $el) {
-    $el.change(function(e) {
-      var checkbox = $(this).attr('type') == 'checkbox'
-      var val = checkbox ? (!!$(this).attr('checked')) : $(this).val()
-      property(val, e)
-    })
-
-    if(property.on) {
-      property.on('set', function(val) {
-        $el.attr('type') == 'checkbox'
-          ? $el.attr('checked', val) 
-          : $el.val(val)
-      })
-      property.change() // force a change    
-    }
-  },
   /*
    * set visibility depenent on val
    */
@@ -467,11 +445,69 @@ o_O.bindings = {
   },
   // general purpose
   // `call: fn` will run once - useful for `onbind` intialization
-  // `call: fn()` will run once and also for fn's dependencies 
   call: function(func, $el) {
-    typeof func == 'function' && func($el)
+    func.call(this, $el)
   }
 }
+
+o_O.newBinding = function(name, type, fn) {
+  if(arguments.length < 3) {
+    fn = type
+    type = 'inbound'
+  }
+  o_O.bindings[name] = fn
+  fn.type = type
+}
+
+
+/* Two-way binding to a form element
+ * usage: bind='value: myProperty'
+ * special cases for checkbox
+ */
+o_O.newBinding('value', 'twoway', function(property, $el) {
+  $el.change(function(e) {
+    var checkbox = $(this).attr('type') == 'checkbox'
+    var val = checkbox ? (!!$(this).attr('checked')) : $(this).val()
+    property(val, e)
+  })
+
+  if(property.on) {
+    property.on('set', function(val) {
+      $el.attr('type') == 'checkbox'
+        ? $el.attr('checked', val ? 'checked' : null)  
+        : $el.val(val)
+    })
+    property.change() // force a change    
+  }
+})
+
+
+/*
+  Outbound bindings - i.e. user events
+*/
+o_O.outboundBindings = {  focus:true, blur:true, change:true, submit:true, 
+                          keypress:true, keydown:true, keyup:true, click:true, 
+                          mouseover:true, mouseout:true, mousedown:true, 
+                          mouseup:true, dblclick:true, load:true, call:true}
+
+
+for(var method in $.prototype) {
+  (function(method) {
+    var type = o_O.outboundBindings[method] ? 'outbound' : 'inbound'
+    o_O.newBinding(method, type, function(value, $el) {
+      var fn = value,
+          context = this
+      if(typeof fn == 'function')
+        fn = function() { 
+          value.apply(context, arguments) 
+        }
+      return $el[method](fn)
+    })
+  })(method)
+}
+
+
+
 
 /*         ___   __  __           _      _ 
    ___    / _ \ |  \/  | ___   __| | ___| |
@@ -479,7 +515,7 @@ o_O.bindings = {
  | (_) | | |_| || |  | | (_) | (_| |  __/ |
   \___/___\___(_)_|  |_|\___/ \__,_|\___|_|
      |_____|                               
-  																							
+                                                
   Model with observable properties, subclasses, evented
 */
 
@@ -838,5 +874,4 @@ if(typeof module == 'undefined') {
   module.exports = o_O
 }
 
-}).call(this);
-
+}();

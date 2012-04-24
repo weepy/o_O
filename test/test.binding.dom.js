@@ -14,13 +14,13 @@ describe('binding to dom element manually', function() {
   })
 
 
-  it('should change color with bindElementToRule', function(done) {
+  it('should change color with bindRuleToElement', function(done) {
 
     var o = {
       color: o_O("rgb(3, 3, 3)")
     }
 
-    o_O.bindElementToRule(el, "css", "{color: color()}", o)
+    o_O.bindRuleToElement("css", "{color: color()}", o, el)
 
     o_O.nextFrame(function() {
       expect($("#el").css("color")).to.be('rgb(3, 3, 3)')
@@ -37,7 +37,7 @@ describe('binding to dom element manually', function() {
   })
 
 
-  it('should call callback click with bindElementToRule', function() {
+  it('should call callback click with bindRuleToElement', function() {
     var count = 0
     var o = {
       add: function() {
@@ -46,7 +46,7 @@ describe('binding to dom element manually', function() {
       }
     }
 
-    o_O.bindElementToRule(el, "click", "add", o)
+    o_O.bindRuleToElement("click", "add", o, el)
     expect(count).to.be(0)
   
     $("#el").click()
@@ -70,7 +70,7 @@ describe('binding to dom element manually', function() {
         }
       }
 
-      o_O.bindElementToRule($("#inp"), "click", "o_O.value(check)", o)
+      o_O.bindRuleToElement("click", "o_O.value(check)", o, $("#inp"))
       expect(last).to.be('')
       $("#inp").click()
       expect(last).to.be('hello')
@@ -86,7 +86,7 @@ describe('binding to dom element manually', function() {
         $el.css("color", val)
       }
       
-      o_O.bindElementToRule(el, "color", "'red'")
+      o_O.bindRuleToElement("color", "'red'", null, el)
       
       o_O.nextFrame(function() {
         expect($(el).css("color")).to.be("rgb(255, 0, 0)")
@@ -102,7 +102,7 @@ describe('binding to dom element manually', function() {
       }
       
       var o = { red: o_O('red') }
-      o_O.bindElementToRule(el, "color", "red()", o)
+      o_O.bindRuleToElement("color", "red()", o, el)
       o_O.nextFrame(function() {
         expect($(el).css("color")).to.be("rgb(255, 0, 0)")
         done()
@@ -125,7 +125,7 @@ describe('binding to dom element manually', function() {
     //   }
     //   
     //   
-    //   o_O.bindElementToRule(el, "wham", "check", o)
+    //   o_O.bindRuleToElement(el, "wham", "check", o)
     //   
     //   o_O.nextFrame(function() {
     //     expect(last).to.be('woah')
@@ -172,7 +172,7 @@ describe('call binding', function() {
   })
 
   it('gets called twice when set as a called function ', function() {
-    $(el).attr('data-bind', 'call: __incr()')
+    $(el).attr('data-bind', 'call: __incr')
     expect(__count).to.eql(0)
     o_O.bind({}, el)
     // o_O.nextFrame(function() {
