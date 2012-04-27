@@ -469,7 +469,7 @@ o_O.bindings.value.type = 'twoway'
 */
 o_O.bindingTypes = {  focus:'outbound', blur:'outbound', change:'outbound', submit:'outbound', 
                       keypress:'outbound', keydown:'outbound', keyup:'outbound', click:'outbound', 
-                      mouseover:'outbound', mouseout:'outbound', mousedown:'outbound', 
+                      mouseover:'outbound', mouseout:'outbound', mousedown:'outbound', mousemove:'outbound',
                       mouseup:'outbound', dblclick:'outbound', load:'outbound' }
 
 function __bind(func, context) {

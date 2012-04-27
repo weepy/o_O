@@ -227,6 +227,47 @@ o_O.bind(thing, '#example')
 </div>
 
 
+<a class=btn>Rate Limiting</a>
+<div id=RateLimiting class=example>
+<div class=inner>
+<p data-bind='text: count'></p>
+
+<div data-bind='mousemove: increment' style='width: 100px; height: 100px; background:#def'>
+Increments upon every mousemove
+</div>
+<br/>
+<div data-bind='mousemove: increment.debounce(50)' style='width: 100px; height: 100px; background:#def'>
+Increments when last mousemove was > 50ms ago
+</div>
+</div>
+
+<script type='text/skip'>
+Function.prototype.debounce = function(wait) {
+  var timeout, func = this
+  return function() {
+    var context = this, args = arguments;
+    var later = function() {
+      timeout = null;
+      func.apply(context, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+
+var thing = {
+  count: o_O(0),
+  increment: function() {
+    thing.count.incr()
+  }
+};
+o_O.bind(thing, '#example')
+
+
+</script>
+</div>
+
 
 
 </div>
