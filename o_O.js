@@ -14,7 +14,7 @@ a8"     "8a           88          88
               
                                               (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-var VERSION = "0.2.5"
+var VERSION = "0.2.6"
   , slice = Array.prototype.slice
   , Events = {  
   /*
