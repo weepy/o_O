@@ -540,7 +540,7 @@ function model(o, proto) {
   this.initialize.apply(this, arguments)
 }
 
-extend(model, {
+extend(model, Events, {
   observeProperty: function(model, name) {
     model[name].on('set', function(val, old) {
       model.emit('set:' + name, model, val, old)
@@ -652,6 +652,7 @@ function array(items) {
     for(var i=0; i< items.length; i++)
       this.push(items[i])
   }
+  this.initialize()
 }
 
 extend(array, {
@@ -661,7 +662,7 @@ extend(array, {
     if(o.on && o.emit) {
       o.on('all', arr._onevent, arr)
       o.emit('add', o, arr, index)
-    }else{
+    } else{
       arr.emit('add', o, arr, index)
     }
     
@@ -679,12 +680,16 @@ extend(array, {
     
     return o
   },
-  extend: function() {
-    return inherits.apply(this, arguments)
+  extend: function(protoProps, classProps) {
+    var child = inherits(this, protoProps, classProps);
+    child.extend = this.extend;
+    return child;
   }
 })
 
 extend(array.prototype, Events, {
+  type: 'o_O.array',
+  initialize: function() {},
   _onevent : function(ev, o, array) {
     if ((ev == 'add' || ev == 'remove') && array != this) return
     if (ev == 'destroy') {
@@ -703,7 +708,7 @@ extend(array.prototype, Events, {
     return this.items.filter(fn)
   },
   find: function(fn){
-    for(var i in this.items) {
+    for(var i=0;i<this.items.length; i++) {
       var it = this.items[i]
       if(fn(it, i)) return it
     }
@@ -776,7 +781,7 @@ extend(array.prototype, Events, {
     $(item.el || $(this.el).children()[index]).remove()
   },
   toString: function() {
-    return '#<o_O.array:' + this.length + '>'
+    return '#<' + this.type + ':' + this.length + '>'
   },
   toJSON: function() {
     return this.map(function(o) {

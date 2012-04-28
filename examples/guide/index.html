@@ -226,6 +226,18 @@ o_O.bind(thing, '#example')
 </script>
 </div>
 
+<script>
+function throttle(fn, ms) {
+    var last
+    return function () {
+        var now = Date.now();
+        if (!last || now - last >= ms) {
+            last = now;
+            fn.apply(this, arguments);
+        }
+    };
+};
+</script>
 
 <a class=btn>Rate Limiting</a>
 <div id=RateLimiting class=example>
@@ -236,24 +248,12 @@ o_O.bind(thing, '#example')
 Increments upon every mousemove
 </div>
 <br/>
-<div data-bind='mousemove: increment.debounce(50)' style='width: 100px; height: 100px; background:#def'>
-Increments when last mousemove was > 50ms ago
+<div data-bind='mousemove: throttle(increment, 150)' style='width: 100px; height: 100px; background:#def'>
+Increments at most 150ms
 </div>
 </div>
 
 <script type='text/skip'>
-Function.prototype.debounce = function(wait) {
-  var timeout, func = this
-  return function() {
-    var context = this, args = arguments;
-    var later = function() {
-      timeout = null;
-      func.apply(context, args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
 
 
 var thing = {
@@ -264,6 +264,17 @@ var thing = {
 };
 o_O.bind(thing, '#example')
 
+
+function throttle(fn, ms) {
+    var last
+    return function () {
+        var now = Date.now();
+        if (!last || now - last >= ms) {
+            last = now;
+            fn.apply(this, arguments);
+        }
+    };
+};
 
 </script>
 </div>

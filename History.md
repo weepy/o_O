@@ -1,3 +1,11 @@
+0.2.6
+=====
+
+* model class itself is now evented
+* array can now be extended
+* added o_O.collection example file
+* fixed bad enumeration in array::find
+
 0.2.5
 =====
 
