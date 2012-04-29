@@ -5,6 +5,7 @@
 * array can now be extended
 * added o_O.collection example file
 * fixed bad enumeration in array::find
+* extended models dont need type on creation
 
 0.2.5
 =====

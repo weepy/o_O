@@ -429,11 +429,6 @@ o_O.bindings = {
   }
 }
 
-// o_O.newBinding = function(name, type, fn) {
-//   o_O.bindings[name] = fn
-//   fn.type = type
-// }
-
 /* general purpose
  * `call: fn` will run once - useful for intialization
  */
@@ -568,7 +563,8 @@ extend(model, Events, {
     return child;
   },
   create: function(o) {
-    var type = model.types[o.type]
+    o = o || {}
+    var type = this == model ? model.types[o.type] : this
     if(!type) throw new Error('no such Model with type: ' + o.type)
     return new type(o)
   }
