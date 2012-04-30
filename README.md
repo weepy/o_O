@@ -105,7 +105,7 @@ The binding names are associated with jQuery (or whatever $ is), so css will cal
 * `with` : rebinds the context (similar to javascript `with`)
 * `options`: options for a select
 * `log`: outputs to console.log
-* `call`: general purpose
+* `onbind`: general purpose
 
 Event handlers will also work, e.g. `click: handleClick`.
 
