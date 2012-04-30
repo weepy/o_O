@@ -9,9 +9,9 @@ body { font-family: arial}
 <h1>Dragging</h1>
 <h3>Drag the rectangles and also the background. Up/down is zoom</h3>
 
-<div id=container data-bind='call: onbind; scrollLeft'>
+<div id=container data-bind='onbind; scrollLeft'>
   <div id=rects data-bind='foreach: rects; css: {width: 2000* window.zoom()}; '>
-    <div class=rect data-bind='css; html: title; call: onbind'></div>
+    <div class=rect data-bind='css; html: title; onbind'></div>
   </div>
 </div>
 

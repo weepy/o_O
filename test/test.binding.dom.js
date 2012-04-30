@@ -158,7 +158,7 @@ describe('call binding', function() {
   })
   
   it('gets called once when set as a function call', function() {
-    $(el).attr('data-bind', 'call: __incr')
+    $(el).attr('data-bind', 'onbind: __incr')
     expect(__count).to.eql(0)
     o_O.bind({}, el)
     // o_O.nextFrame(function() {
@@ -172,7 +172,7 @@ describe('call binding', function() {
   })
 
   it('gets called twice when set as a called function ', function() {
-    $(el).attr('data-bind', 'call: __incr')
+    $(el).attr('data-bind', 'onbind: __incr')
     expect(__count).to.eql(0)
     o_O.bind({}, el)
     // o_O.nextFrame(function() {

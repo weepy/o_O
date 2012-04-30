@@ -1,3 +1,12 @@
+0.2.7
+=====
+
+* fix for property.mirror
+* 'with' binding now ignores it's own element (as it should)
+* added model::each which enumerates the properties
+* changes to renderItem for o_O.array - since an item might belong to > 1 bound lists
+* onbind is back - these bindings occur after all other bindings have run
+
 0.2.6
 =====
 

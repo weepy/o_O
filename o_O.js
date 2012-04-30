@@ -14,7 +14,7 @@ a8"     "8a           88          88
               
                                               (c) 2012 by Jonah Fox (weepy), MIT Licensed */
 
-var VERSION = "0.2.6"
+var VERSION = "0.2.7"
   , slice = Array.prototype.slice
   , Events = {  
   /*
@@ -109,10 +109,11 @@ var propertyMethods = {
     return this
   },
   mirror: function(other, both) {
+    var self = this
     other.change(function(val) {
-      if(val != this.value) this(val)
-    })
-    other.change()
+      if(val != self.value) self(val)
+    }).change()
+
     both && other.mirror(this)
     return this
   },
@@ -317,15 +318,22 @@ o_O.bind = function(context, dom, recursing) {
   
   var recurse = true
     , pairs = parseBindingAttribute($el.attr(o_O.bindingAttribute))
+    , onbindings = []
   
   for(var i=0; i <pairs.length; i++) {
     var method = pairs[i][0]
       , expression = pairs[i][1]
 
     if(method == 'with' || method == 'foreach') recurse = false
-    if(method == '"class"') method = "class"
-      
-    o_O.bindRuleToElement(method, expression, context, $el)
+    else if(method == '"class"') method = "class"
+
+    if(method == 'onbind') {
+      onbindings.push([ method, expression, context, $el ])
+    }
+    else {
+      o_O.bindRuleToElement(method, expression, context, $el)  
+    }
+    
   }
   if(o_O.removeBindingAttribute) 
     $el.attr(o_O.bindingAttribute,null)
@@ -335,7 +343,14 @@ o_O.bind = function(context, dom, recursing) {
       o_O.bind(context, el, true)
     })
   }
+
+  for(var i=0; i< onbindings.length; i++) {
+    o_O.bindRuleToElement.apply(o_O, onbindings[i])
+  }
 }
+
+
+
 
 /*
  * Retrieves HTML string from a dom node (that may have been changed due to binding)
@@ -390,8 +405,11 @@ o_O.bindings = {
   },
   'with': function(context, $el) {
     var template = getTemplate($el)
-    $el.html(context ? template : '')
-    if(context) o_O.bind(context, $el)    
+    $el
+      .html(context ? template : '')
+      .children().each(function(i, el) {
+        o_O.bind(context, el)  
+      })
   },
   options: function(options, $el) {
     var isArray = options instanceof Array
@@ -429,13 +447,14 @@ o_O.bindings = {
   }
 }
 
+
 /* general purpose
  * `call: fn` will run once - useful for intialization
  */
-o_O.bindings.call = function(func, $el) {
+o_O.bindings.onbind = function(func, $el) {
   func.call(this, $el)
 }
-o_O.bindings.call.type = 'outbound'
+o_O.bindings.onbind.type = 'outbound'
 
 /* Two-way binding to a form element to a property
  * usage: bind='value: myProperty'
@@ -563,8 +582,7 @@ extend(model, Events, {
     return child;
   },
   create: function(o) {
-    o = o || {}
-    var type = this == model ? model.types[o.type] : this
+    var type = model.types[o.type]
     if(!type) throw new Error('no such Model with type: ' + o.type)
     return new type(o)
   }
@@ -610,12 +628,17 @@ extend(model.prototype, Events, {
   destroy: function() {
     this.emit('destroy', this)
   },
+  each: function(fn) {
+    for(var i=0; i< this.properties.length; i++) {
+      var prop = this.properties[i]
+      fn.call(this, prop, this[prop]())
+    }
+  },
   toJSON: function() {
     var json = {}
-    for(var i=0; i< this.properties.length;i++) {
-      var prop = this.properties[i]
-      json[prop] = this[prop]()
-    }
+    this.each(function(prop, value) {
+      json[prop] = value
+    })
     return json
   },
   clone: function() {
@@ -759,7 +782,7 @@ extend(array.prototype, Events, {
   },
   renderItem: function(item, $el, index) {
     var $$ = $(getTemplate($el))
-    var nextElem = this.at(index).el || $el.children()[index]
+    var nextElem = $el[0].childNodes[index]
     nextElem
       ? $$.insertBefore(nextElem)
       : $el.append($$)
