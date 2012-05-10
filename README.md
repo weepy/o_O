@@ -88,7 +88,7 @@ person = {
 o_O.bind(person, '#person');
 ```
 ```html
-<div id="#person">
+<div id="person">
   <div data-bind="text: fullName()"></div>
   <div data-bind="text: age()"></div>
 </div>
@@ -157,7 +157,7 @@ cast.push(new Character({name: 'Mr. Burns', age: 99}));
 The special `foreach` binding will render this list: 
 
 ```html
-<ul id="#cast" data-bind='foreach: cast'>
+<ul id="cast" data-bind='foreach: cast'>
   <li data-bind="text: fullName() +',' + age()" ></li>
 </ul>
 
